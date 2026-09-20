@@ -4,20 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Radio Islam Sragen</title>
-    <!-- Hubungkan ke file Manifest PWA -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1b4d3e">
-    <!-- Pengaturan Khusus iOS/Safari PWA Standalone -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
-        /* KUNCI TOTAL LAYAR UTAMA */
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            /* TETAP: Latar belakang bawaan asli tidak diubah */
             background: linear-gradient(135deg, #0e0e0e 0%, #1b4d3e 100%);
             color: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -33,32 +29,22 @@
             box-sizing: border-box;
         }
 
-        /* Kartu Pemutar Terkunci Presisi */
         .player-card {
-            /* DIUBAH: Menambahkan lapisan gradasi miring untuk efek kilauan/pantulan cahaya putih pada permukaan kaca */
             background: 
                 linear-gradient(135deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.08) 40%, rgba(255, 255, 255, 0.35) 45%, rgba(255, 255, 255, 0.05) 52%, rgba(255, 255, 255, 0.15) 100%),
                 rgba(255, 255, 255, 0.22);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            
-            /* DIUBAH: Garis tepi diperkuat dengan gradasi warna emas putih terang untuk efek potongan kaca tegas */
             border: 1px solid rgba(255, 255, 244, 0.6);
             padding: 25px;
             border-radius: 20px;
-            
-            /* DIUBAH: Menambahkan efek kilauan lampu atas-bawah (inset) dan pendaran luar putih menyala */
             box-shadow: 
                 inset 0 1px 2px rgba(255, 255, 255, 0.6),
                 inset 0 -1px 2px rgba(255, 255, 255, 0.2),
                 0 10px 25px rgba(0,0,0,0.5),
                 0 0 18px 2px rgba(255, 255, 255, 0.18);
             text-align: center;
-            
-            /* DIUBAH: Lebar pembungkus dikurangi menjadi 360px */
             width: 360px;
-            
-            /* DIUBAH: Menggunakan warna aksen emas putih mewah pada border atas */
             border-top: 5px solid #CAA347;
             box-sizing: border-box;
             touch-action: none;
@@ -68,7 +54,6 @@
         .logo-placeholder {
             width: 80px;
             height: 80px;
-            /* DIUBAH: Menyesuaikan warna dasar logo dengan paduan gradasi tema emas putih/kemewahan */
             background: linear-gradient(135deg, #FFDF92 0%, #CAA347 100%);
             border-radius: 50%;
             margin: 0 auto 12px;
@@ -77,49 +62,39 @@
             justify-content: center;
             font-family: 'Amiri', 'Traditional Arabic', 'Segoe UI', serif;
             font-size: 26px;
-            /* DIUBAH: Warna teks arab dibuat gelap agar kontras di atas dasar emas */
             color: #E23D28;
             font-weight: bold;
             direction: rtl;
             box-shadow: 0 0 20px rgba(202, 163, 71, 0.4);
         }
 
-        /* Teks Baris Pertama - Ukuran 25px */
         .station-title {
             margin: 5px 0;
             font-size: 25px;
-            /* DIUBAH: Menggunakan warna teks White Gold terang */
             color: #FFFFF4;
             font-weight: 600;
         }
 
-        /* teks kedua */
         .station-sub {
             margin: 0 0 12px 0;
             font-size: 11px;
-            /* DIUBAH: Menggunakan tone warna emas redup halus */
             color: #EDDDB8;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-weight: 500;
         }
 
-        /* Pembungkus Jendela (Masking / Topeng Pemotong) */
         .iframe-container {
             position: relative;
             width: 100%;
             border-radius: 12px;
             overflow: hidden !important;
-            
-            /* DIUBAH: Latar belakang transparan murni agar aplikasi radio di Android tidak tertutup visualnya */
             background: transparent !important;
             border: 1px solid rgba(255, 255, 254, 0.4);
-            
             height: 83px;
             --crop-left: -50px;
             --crop-top: -135px;
         }
 
-        /* Aplikasi Target yang Dibungkus */
         iframe {
             position: absolute;
             width: 480px;
@@ -129,24 +104,17 @@
             touch-action: none;
             left: var(--crop-left);
             top: var(--crop-top);
-            /* DIUBAH: Menjamin tumpukan layer iframe berada di posisi paling depan */
             z-index: 5;
         }
 
-        /* KONFIGURASI AREA TEKS BARU DI BAWAH KARTU (TINGGI TETAP 10 BARIS) */
         .info-text-container {
-            /* DISESUAIKAN: Lebar dikurangi menjadi 310px agar proporsional di dalam pembungkus 360px */
             width: 310px; 
-            height: 352px;
+            max-height: 352px; 
             overflow-y: auto; 
             overflow-x: hidden;
             text-align: justify; 
             font-size: 16px;
-            
-            /* PERUBAHAN: Mengubah jarak antar baris teks menjadi lebih rapat (1.3) */
             line-height: 1.3; 
-            
-            /* DIUBAH: Menggunakan warna teks White Gold lembut agar mudah dibaca di atas kaca menyala */
             color: #FFFFF4;
             word-wrap: break-word;
             white-space: normal;
@@ -156,37 +124,36 @@
             touch-action: pan-y;
         }
 
-        /* Mengatur keselarasan margin paragraf agar tetap rapi */
         .info-text-container p {
             margin: 0 0 4px 0; 
-            
-            /* PERUBAHAN: Menyesuaikan min-height baris kosong agar mengikuti line-height 1.3 (16px * 1.3 = 20.8px) */
-            min-height: 20.8px;
+        }
+
+        .info-text-container p:empty {
+            display: none !important;
+        }
+
+        .info-text-container:empty {
+            display: none !important;
         }
 
         .info-text-container p:last-child {
             margin-bottom: 0;
         }
 
-        /* Modifikasi tampilan scrollbar agar terlihat minimalis dan modern */
         .info-text-container::-webkit-scrollbar {
             width: 4px;
         }
 
         .info-text-container::-webkit-scrollbar-thumb {
-            /* DIUBAH: Menggunakan warna emas senada untuk scrollbar */
             background: #CAA347;
             border-radius: 10px;
         }
 
-        /* Gaya Khusus untuk Teks Tambahan @dev.afcom */
         .dev-tag {
             text-align: center;
             font-size: 13px;
-            /* DIUBAH: Menggunakan warna emas pudar */
             color: #EDDDB8;
             margin-top: 15px;
-            /* DISESUAIKAN: Lebar dikurangi menjadi 310px */
             width: 310px;
             font-weight: 400;
             letter-spacing: 0.5px;
@@ -196,17 +163,15 @@
 </head>
 <body>
 
-    <!-- Kartu Pemutar Utama -->
     <div class="player-card">
         <div class="logo-placeholder">رَائِس</div>
         <h2 class="station-title">Radio Islam Sragen</h2>
         <p class="station-sub">Lantunan Murotal dan Kajian Islam Ilmiah</p>
         
         <div class="iframe-container" style="margin-bottom: 20px;">
-            <iframe src="https://streamy1.radioislam.my.id/player/sragen-s-station/" allow="autoplay; encrypted-media" scrolling="no" title="Streamy Player"></iframe>
+            <iframe src="https://radioislam.my.id" allow="autoplay; encrypted-media" scrolling="no" title="Streamy Player"></iframe>
         </div>
 
-        <!-- AREA TEKS -->
         <div class="info-text-container">
             <p>Secercah nasehat:</p>
             <p></p>
@@ -224,30 +189,10 @@
             <p></p> 
         </div>
 
-        <!-- TEKS  -->
         <div class="dev-tag">
             @fcom.dev
         </div>
     </div>
 
-    <script>
-        // Mengizinkan scroll internal hanya untuk kontainer teks bawah agar PWA tidak kaku
-        document.addEventListener('touchmove', function(e) {
-            if (e.target.closest('.info-text-container')) {
-                return;
-            }
-            if (e.scale !== 1) {
-                e.preventDefault();
-            }
-        }, { passive: false });
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('PWA Manual Crop Sukses Diaktifkan!'))
-                .catch(err => console.log('PWA Gagal:', err));
-            });
-        }
-    </script>
 </body>
 </html>
