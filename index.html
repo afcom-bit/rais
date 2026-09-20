@@ -111,7 +111,6 @@
             z-index: 5;
         }
 
-        /* PERUBAHAN: Menghapus height tetap dan menggantinya dengan max-height agar ukuran fleksibel */
         .info-text-container {
             width: 310px; 
             max-height: 352px;
@@ -137,7 +136,6 @@
             display: none;
         }
 
-        /* Menyembunyikan seluruh kontainer teks jika tidak ada elemen p yang berisinya */
         .info-text-container:empty {
             display: none;
         }
@@ -179,23 +177,11 @@
             <iframe src="https://radioislam.my.id" allow="autoplay; encrypted-media" scrolling="no" title="Streamy Player"></iframe>
         </div>
 
-        <!-- AREA TEKS DINAMIS (KARTU OTOMATIS MENYUSUT JIKA KOSONG) -->
+        <!-- AREA TEKS DINAMIS (KOSONG = OTOMATIS TIDAK TAMPIL DAN KARTU MENYUSUT) -->
         <div class="info-text-container">
             <p>══════📻🆁🅰🅸🆂</p>
             <p></p>
-            <p></p>
-            <p></p>
-            <p></p>
-            <p></p>
-            <p></p>
-            <p></p>
-            <p></p>
-            <p>10</p>
-            <p></p>
-            <p></p>
-            <p></p>
-            <p>14</p>       
-        </div>
+        </div> <!-- Tag penutup kontainer teks yang diperbaiki -->
 
         <!-- Teks Pengembang -->
         <div class="dev-tag">
