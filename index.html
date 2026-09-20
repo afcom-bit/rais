@@ -17,14 +17,14 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #0e0e0e 0%, #1b4d3e 100%);
+            background-color: #121212;
             color: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            padding-top: 10px; 
+            padding-top: 4vh;
             overflow: hidden !important;
             position: fixed;
             touch-action: none;
@@ -34,71 +34,67 @@
 
         /* Kartu Pemutar Terkunci Presisi */
         .player-card {
-            background: 
-                linear-gradient(135deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.08) 40%, rgba(255, 255, 255, 0.35) 45%, rgba(255, 255, 255, 0.05) 52%, rgba(255, 255, 255, 0.15) 100%),
-                rgba(255, 255, 255, 0.22);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 244, 0.6);
+            background: #1e1e1e;
             padding: 25px;
             border-radius: 20px;
-            box-shadow: 
-                inset 0 1px 2px rgba(255, 255, 255, 0.6),
-                inset 0 -1px 2px rgba(255, 255, 255, 0.2),
-                0 10px 25px rgba(0,0,0,0.5),
-                0 0 18px 2px rgba(255, 255, 255, 0.18);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             text-align: center;
-            width: 360px;
-            border-top: 5px solid #CAA347;
+            width: 400px;
+            border-top: 5px solid #1b4d3e;
             box-sizing: border-box;
             touch-action: none;
-            margin-bottom: 20px; 
+            margin-bottom: 20px; /* Spasi antara kartu dan teks di bawahnya */
         }
 
         .logo-placeholder {
             width: 80px;
             height: 80px;
-            background: linear-gradient(135deg, #FFDF92 0%, #CAA347 100%);
+            background: #1b4d3e;
             border-radius: 50%;
             margin: 0 auto 12px;
             display: flex;
             align-items: center;
             justify-content: center;
+            /* Konfigurasi Font Arab Khusus */
             font-family: 'Amiri', 'Traditional Arabic', 'Segoe UI', serif;
             font-size: 26px;
-            color: #1e1b15;
+            color: #ffffff;
             font-weight: bold;
             direction: rtl;
-            box-shadow: 0 0 20px rgba(202, 163, 71, 0.4);
+            box-shadow: 0 0 20px rgba(27, 77, 62, 0.4);
         }
 
+        /* Teks Baris Pertama - Ukuran 25px */
         .station-title {
             margin: 5px 0;
             font-size: 25px;
-            color: #FFFFF4;
+            color: #E2E8D5;
             font-weight: 600;
         }
 
+        /* teks kedua */
         .station-sub {
             margin: 0 0 12px 0;
             font-size: 10px;
-            color: #EDDDB8;
+            color: #E2E8D5;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-weight: 500;
         }
 
+        /* Pembungkus Jendela (Masking / Topeng Pemotong) */
         .iframe-container {
             position: relative;
             width: 100%;
             border-radius: 12px;
             overflow: hidden !important;
-            background: transparent !important;
-            border: 1px solid rgba(255, 255, 254, 0.4);
+            background: #151515;
+            border: 1px solid #2d2d2d;
             height: 83px;
             --crop-left: -50px;
             --crop-top: -135px;
         }
 
+        /* Aplikasi Target yang Dibungkus */
         iframe {
             position: absolute;
             width: 480px;
@@ -108,58 +104,52 @@
             touch-action: none;
             left: var(--crop-left);
             top: var(--crop-top);
-            z-index: 5;
         }
 
+        /* KONFIGURASI AREA TEKS BARU DI BAWAH KARTU (MAKSIMAL 10 BARIS) */
         .info-text-container {
-            width: 310px; 
-            max-height: 352px;
-            overflow-y: auto; 
+            width: 373px; /* Disesuaikan sama dengan lebar kartu pemutar */
+            max-height: 350px; /* Batas maksimal tinggi untuk ±10 baris teks */
+            overflow-y: auto; /* Memunculkan scrollbar vertikal otomatis jika teks > 10 baris */
             overflow-x: hidden;
-            text-align: justify; 
-            font-size: 16px;
-            line-height: 1.3; 
-            color: #FFFFF4;
+            text-align: justify; /* Mengubah ke rata kanan-kiri agar terlihat lebih rapi */
+            font-size: 17px;
+            line-height: 1.5;
+            color: #E2E8D5;
             word-wrap: break-word;
             white-space: normal;
-            padding: 0 15px; 
-            box-sizing: border-box; 
+            padding: 0 15px; /* Ditambahkan padding kanan dan kiri agar margin teks lebih lebar */
+            box-sizing: border-box; /* Memastikan padding tidak merusak ukuran lebar utama */
             user-select: text;
             touch-action: pan-y;
         }
 
+        /* Mengatur keselarasan margin paragraf agar tetap rapi */
         .info-text-container p {
-            margin: 0 0 4px 0; 
+            margin: 0 0 4px 0;
         }
-
-        .info-text-container p:empty {
-            display: none;
-        }
-
-        .info-text-container:empty {
-            display: none;
-        }
-
         .info-text-container p:last-child {
             margin-bottom: 0;
         }
 
+        /* Modifikasi tampilan scrollbar agar terlihat minimalis dan modern */
         .info-text-container::-webkit-scrollbar {
             width: 4px;
         }
 
         .info-text-container::-webkit-scrollbar-thumb {
-            background: #CAA347;
+            background: #2d2d2d;
             border-radius: 10px;
         }
 
+        /* Gaya Khusus untuk Teks Tambahan @dev.afcom */
         .dev-tag {
             text-align: center;
             font-size: 13px;
-            color: #EDDDB8;
+            color: #888888;
             margin-top: 15px;
-            width: 310px;
-            font-weight: 400;
+            width: 373px;
+            font-weight: 500;
             letter-spacing: 0.5px;
             user-select: none;
         }
@@ -172,35 +162,49 @@
         <div class="logo-placeholder">رَائِس</div>
         <h2 class="station-title">Radio Islam Sragen</h2>
         <p class="station-sub">Lantunan Murotal dan Kajian Islam Ilmiah</p>
-        
-        <!-- Wadah Pemutar Audio Resmi (Tautan Diperbaiki) -->
-        <div class="iframe-container" style="margin-bottom: 20px;">
-            <iframe src="https://radioislam.my.id" allow="autoplay; encrypted-media" scrolling="no" title="Streamy Player"></iframe>
-        </div>
-
-        <!-- AREA TEKS DINAMIS (KOSONG = OTOMATIS TIDAK TAMPIL DAN KARTU MENYUSUT) -->
-        <div class="info-text-container">
-            <p>══════ 📻🆁🅰🅸🆂 ══════</p>
-            <p></p>
-            <p></p>
-            <p></p>
-            <p></p>
-            <p></p>
-            <p></p>
-            <p></p>
-            <p></p>
-            <p>10</p>
-            <p></p>
-            <p></p>
-            <p></p>
-            <p>14</p>         
-        </div>
-
-        <!-- Teks Pengembang -->
-        <div class="dev-tag">
-            @fcom.dev
+        <div class="iframe-container">
+            <iframe src="https://streamy1.radioislam.my.id/player/sragen-s-station/" allow="autoplay; encrypted-media" scrolling="no" title="Streamy Player"></iframe>
         </div>
     </div>
 
+    <!-- AREA TEKS DI BAWAH KARTU PEMUTAR (11 BARIS SALING TERPISAH) -->
+    <div class="info-text-container">
+        <p> Jadwal kajian islam ilmiyah</p>
+        <p> di plupuh dan sekitarnya </p>
+        <p> </p>
+        <p> </p>
+        <p> </p>
+        <p> </p>
+        <p> </p>
+        <p> </p>
+        <p> </p>
+        <p> </p>
+        <p> </p>
+    </div>
+
+    <!-- TEKS BARU @dev.afcom -->
+    <div class="dev-tag">
+        @dev.afcom
+    </div>
+
+    <script>
+        // Mengizinkan scroll internal hanya untuk kontainer teks bawah agar PWA tidak kaku
+        document.addEventListener('touchmove', function(e) {
+            if (e.target.closest('.info-text-container')) {
+                return;
+            }
+            if (e.scale !== 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('PWA Manual Crop Sukses Diaktifkan!'))
+                    .catch(err => console.log('PWA Gagal:', err));
+            });
+        }
+    </script>
 </body>
 </html>
