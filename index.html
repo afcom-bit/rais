@@ -8,7 +8,6 @@
     <meta name="theme-color" content="#1b4d3e">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
     <style>
         html, body {
             margin: 0;
@@ -216,9 +215,12 @@
     <script>
         function rapikanTextContainer() {
             const container = document.querySelector('.info-text-container');
+
             if (!container) return;
 
-            const paragraphs = Array.from(container.querySelectorAll('p'));
+            const paragraphs = Array.from(
+                container.querySelectorAll('p')
+            );
 
             let lastFilled = -1;
 
@@ -249,26 +251,54 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            rapikanTextContainer();
-        });
-
-        document.addEventListener('touchmove', function(e) {
-            if (e.target.closest('.info-text-container')) {
-                return;
+        document.addEventListener(
+            'DOMContentLoaded',
+            function() {
+                rapikanTextContainer();
             }
+        );
 
-            if (e.scale !== 1) {
-                e.preventDefault();
-            }
-        }, { passive: false });
+        document.addEventListener(
+            'touchmove',
+            function(e) {
+
+                if (
+                    e.target.closest(
+                        '.info-text-container'
+                    )
+                ) {
+                    return;
+                }
+
+                if (e.scale !== 1) {
+                    e.preventDefault();
+                }
+
+            },
+            { passive: false }
+        );
 
         if ('serviceWorker' in navigator) {
+
             window.addEventListener('load', () => {
+
                 navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('PWA Manual Crop Sukses Diaktifkan!'))
-                .catch(err => console.log('PWA Gagal:', err));
+
+                .then(reg =>
+                    console.log(
+                        'PWA Manual Crop Sukses Diaktifkan!'
+                    )
+                )
+
+                .catch(err =>
+                    console.log(
+                        'PWA Gagal:',
+                        err
+                    )
+                );
+
             });
+
         }
     </script>
 
