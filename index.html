@@ -2,17 +2,28 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
     <title>Radio Islam Sragen</title>
 
     <link rel="manifest" href="manifest.json">
 
     <meta name="theme-color" content="#1b4d3e">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <meta
+        name="apple-mobile-web-app-capable"
+        content="yes">
+
+    <meta
+        name="apple-mobile-web-app-status-bar-style"
+        content="black-translucent">
+
 
     <style>
+
 
         /* =====================================================
            BODY
@@ -20,6 +31,7 @@
 
         html,
         body {
+
             margin: 0;
             padding: 0;
 
@@ -60,8 +72,7 @@
 
 
         /* =====================================================
-           BODY HP ANDROID
-           LEBAR KESELURUHAN = 360px
+           FRAME SAMSUNG JADUL
         ===================================================== */
 
         .android-phone {
@@ -72,24 +83,31 @@
 
             height: auto;
 
-            padding: 5px;
+            padding: 0;
 
             background:
                 linear-gradient(
                     145deg,
-                    #FFF3D6 0%,
+                    #CFEFE0 0%,
                     #E8F5E9 50%,
-                    #CFEFE0 100%
+                    #FFF3D6 100%
                 );
 
-            border: 1px solid #D8CBAA;
+            border:
+                3px solid #D8CBAA;
 
             border-radius: 42px;
 
             box-shadow:
-                0 20px 50px rgba(0,0,0,0.55),
-                inset 0 0 0 1px rgba(255,255,255,0.7),
-                0 0 25px rgba(220,240,225,0.35);
+
+                0 20px 50px
+                rgba(0,0,0,0.60),
+
+                inset 0 0 0 1px
+                rgba(255,255,255,0.8),
+
+                inset 0 0 20px
+                rgba(255,255,255,0.35);
 
             overflow: hidden;
 
@@ -98,63 +116,80 @@
 
 
         /* =====================================================
-           KAMERA / SENSOR HP
+           BAGIAN ATAS HP
         ===================================================== */
 
-        .android-phone::before {
+        .phone-top {
 
-            content: "";
+            position: relative;
 
-            position: absolute;
+            width: 100%;
 
-            top: 9px;
+            height: 42px;
 
-            left: 50%;
+            display: flex;
 
-            transform:
-                translateX(-50%);
+            align-items: center;
 
-            width: 70px;
+            justify-content: center;
 
-            height: 18px;
-
-            background: #050505;
-
-            border-radius: 20px;
-
-            z-index: 100;
-
-            box-shadow:
-                inset 0 0 0 1px
-                rgba(255,255,255,0.08);
+            box-sizing: border-box;
         }
 
 
-        /* Titik kamera */
+        /* Speaker Samsung lama */
 
-        .android-phone::after {
+        .speaker {
 
-            content: "";
+            width: 62px;
+
+            height: 8px;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    #303030,
+                    #090909
+                );
+
+            border-radius: 8px;
+
+            box-shadow:
+                inset 0 1px 2px
+                rgba(255,255,255,0.25),
+
+                0 1px 2px
+                rgba(0,0,0,0.5);
+        }
+
+
+        /* Kamera depan */
+
+        .front-camera {
 
             position: absolute;
 
-            top: 15px;
+            left: calc(50% + 45px);
 
-            left: calc(50% + 22px);
+            top: 17px;
 
-            width: 6px;
+            width: 7px;
 
-            height: 6px;
+            height: 7px;
 
-            background: #151515;
+            background:
+                radial-gradient(
+                    circle at 35% 35%,
+                    #536b76,
+                    #101719 60%,
+                    #000000 100%
+                );
 
             border-radius: 50%;
 
-            z-index: 101;
-
             box-shadow:
-                inset 0 0 2px
-                rgba(255,255,255,0.4);
+                0 0 3px
+                rgba(0,0,0,0.7);
         }
 
 
@@ -166,13 +201,15 @@
 
             position: relative;
 
-            width: 100%;
+            width: calc(100% - 10px);
+
+            margin: 0 auto;
 
             height: auto;
 
             box-sizing: border-box;
 
-            border-radius: 36px;
+            border-radius: 20px;
 
             overflow: hidden;
 
@@ -183,9 +220,17 @@
                     #1b4d3e 100%
                 );
 
-            padding-top: 32px;
+            padding-top: 10px;
 
-            padding-bottom: 20px;
+            padding-bottom: 10px;
+
+            box-shadow:
+
+                inset 0 0 0 2px
+                rgba(0,0,0,0.55),
+
+                inset 0 0 12px
+                rgba(0,0,0,0.45);
         }
 
 
@@ -196,6 +241,7 @@
         .player-card {
 
             background:
+
                 linear-gradient(
                     135deg,
                     rgba(255,255,255,0.28) 0%,
@@ -204,6 +250,7 @@
                     rgba(255,255,255,0.05) 52%,
                     rgba(255,255,255,0.15) 100%
                 ),
+
                 rgba(255,255,255,0.22);
 
             backdrop-filter:
@@ -223,6 +270,7 @@
                 20px;
 
             box-shadow:
+
                 inset 0 1px 2px
                 rgba(255,255,255,0.6),
 
@@ -249,7 +297,7 @@
                 none;
 
             margin:
-                0 auto 20px auto;
+                0 auto;
         }
 
 
@@ -270,7 +318,7 @@
 
 
         /* =====================================================
-           LOGO 250px
+           LOGO
         ===================================================== */
 
         .logo-placeholder {
@@ -337,7 +385,7 @@
 
 
         /* =====================================================
-           RAIS DI ATAS LOGO
+           RAIS
         ===================================================== */
 
         .station-sub {
@@ -577,6 +625,413 @@
                 none;
         }
 
+
+        /* =====================================================
+           NAVIGASI SAMSUNG JADUL
+        ===================================================== */
+
+        .phone-bottom {
+
+            position: relative;
+
+            width: 100%;
+
+            height: 58px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 42px;
+
+            box-sizing: border-box;
+        }
+
+
+        /* Tombol kiri dan kanan */
+
+        .nav-button {
+
+            width: 28px;
+
+            height: 28px;
+
+            border-radius: 50%;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #E8F5E9,
+                    #CFEFE0
+                );
+
+            border:
+                1px solid
+                rgba(120,140,125,0.55);
+
+            box-shadow:
+
+                inset 0 1px 2px
+                rgba(255,255,255,0.8),
+
+                0 2px 4px
+                rgba(0,0,0,0.35);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.12s,
+                box-shadow 0.12s;
+        }
+
+
+        .nav-button:active {
+
+            transform:
+                scale(0.90);
+
+            box-shadow:
+                inset 0 2px 3px
+                rgba(0,0,0,0.25);
+        }
+
+
+        /* Simbol tombol kiri */
+
+        .nav-button.left::before {
+
+            content: "☰";
+
+            font-size: 15px;
+
+            color: #315546;
+        }
+
+
+        /* Simbol tombol kanan */
+
+        .nav-button.right::before {
+
+            content: "×";
+
+            font-size: 21px;
+
+            font-weight: 600;
+
+            color: #315546;
+        }
+
+
+        /* =====================================================
+           TOMBOL HOME FISIK
+        ===================================================== */
+
+        .home-button {
+
+            width: 62px;
+
+            height: 32px;
+
+            border-radius: 10px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #FFF3D6,
+                    #D8CBAA
+                );
+
+            border:
+                1px solid
+                rgba(130,115,85,0.65);
+
+            box-shadow:
+
+                inset 0 1px 2px
+                rgba(255,255,255,0.9),
+
+                inset 0 -2px 3px
+                rgba(0,0,0,0.15),
+
+                0 2px 5px
+                rgba(0,0,0,0.35);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.12s;
+        }
+
+
+        .home-button:active {
+
+            transform:
+                scale(0.94);
+        }
+
+
+        .home-inner {
+
+            width: 13px;
+
+            height: 13px;
+
+            border:
+                2px solid #8C8062;
+
+            border-radius: 3px;
+
+            box-sizing: border-box;
+        }
+
+
+        /* =====================================================
+           MENU SHARE
+        ===================================================== */
+
+        .share-menu {
+
+            position: fixed;
+
+            left: 50%;
+
+            top: 50%;
+
+            transform:
+                translate(-50%, -50%);
+
+            width: 280px;
+
+            padding: 20px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #CFEFE0,
+                    #FFF3D6
+                );
+
+            border:
+                2px solid #D8CBAA;
+
+            border-radius: 22px;
+
+            box-shadow:
+                0 15px 45px
+                rgba(0,0,0,0.65);
+
+            z-index: 1000;
+
+            display: none;
+
+            text-align: center;
+
+            color: #244438;
+
+            box-sizing: border-box;
+        }
+
+
+        .share-menu.active {
+
+            display: block;
+        }
+
+
+        .share-title {
+
+            font-size: 18px;
+
+            font-weight: 700;
+
+            margin-bottom: 15px;
+        }
+
+
+        .share-button {
+
+            width: 100%;
+
+            height: 42px;
+
+            margin-top: 8px;
+
+            border: none;
+
+            border-radius: 12px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #E8F5E9,
+                    #FFF3D6
+                );
+
+            color: #244438;
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 2px 5px
+                rgba(0,0,0,0.2);
+        }
+
+
+        .share-button:active {
+
+            transform:
+                scale(0.97);
+        }
+
+
+        /* =====================================================
+           LAPIS GELAP MENU
+        ===================================================== */
+
+        .menu-overlay {
+
+            position: fixed;
+
+            inset: 0;
+
+            background:
+                rgba(0,0,0,0.55);
+
+            z-index: 999;
+
+            display: none;
+        }
+
+
+        .menu-overlay.active {
+
+            display: block;
+        }
+
+
+        /* =====================================================
+           LAYAR EXIT
+        ===================================================== */
+
+        .exit-screen {
+
+            position: fixed;
+
+            inset: 0;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #0e0e0e,
+                    #1b4d3e
+                );
+
+            z-index: 2000;
+
+            display: none;
+
+            align-items: center;
+
+            justify-content: center;
+
+            flex-direction: column;
+
+            text-align: center;
+
+            color: #F8FFFD;
+        }
+
+
+        .exit-screen.active {
+
+            display: flex;
+        }
+
+
+        .exit-logo {
+
+            width: 110px;
+
+            height: 110px;
+
+            border-radius: 20px;
+
+            overflow: hidden;
+
+            margin-bottom: 20px;
+
+            box-shadow:
+                0 8px 25px
+                rgba(0,0,0,0.5);
+        }
+
+
+        .exit-logo img {
+
+            width: 100%;
+
+            height: 100%;
+
+            object-fit: cover;
+        }
+
+
+        .exit-title {
+
+            font-size: 21px;
+
+            font-weight: 600;
+
+            margin-bottom: 8px;
+        }
+
+
+        .exit-text {
+
+            font-size: 14px;
+
+            opacity: 0.8;
+        }
+
+
+        .exit-back {
+
+            margin-top: 25px;
+
+            padding: 11px 25px;
+
+            border: none;
+
+            border-radius: 20px;
+
+            background: #FFF3D6;
+
+            color: #244438;
+
+            font-weight: 600;
+
+            cursor: pointer;
+        }
+
+
     </style>
 </head>
 
@@ -585,10 +1040,23 @@
 
 
     <!-- =====================================================
-         BODY HP
+         FRAME SAMSUNG
     ===================================================== -->
 
     <div class="android-phone">
+
+
+        <!-- =================================================
+             BAGIAN ATAS
+        ================================================= -->
+
+        <div class="phone-top">
+
+            <div class="speaker"></div>
+
+            <div class="front-camera"></div>
+
+        </div>
 
 
         <!-- =================================================
@@ -597,10 +1065,6 @@
 
         <div class="phone-screen">
 
-
-            <!-- =============================================
-                 APLIKASI RADIO
-            ============================================== -->
 
             <div class="player-card">
 
@@ -621,16 +1085,12 @@
                     </div>
 
 
-                    <!-- RAIS -->
-
                     <p class="station-sub">
                         RAIS
                     </p>
 
 
-                    <!-- =====================================
-                         SUMBER SUARA
-                    ====================================== -->
+                    <!-- SUMBER SUARA -->
 
                     <div class="iframe-container">
 
@@ -659,55 +1119,43 @@
                         ══════📻🆁🅰🅸🆂
                     </p>
 
-
                     <p></p>
-
 
                     <p>
                         📚 Qasidah
                     </p>
 
-
                     <p>
                         &nbsp;&nbsp;&nbsp;Unwanulhikam
                     </p>
-
 
                     <p>
                         🎙 Al-Ustadz&nbsp; Usamah&nbsp; bin
                     </p>
 
-
                     <p>
                         &nbsp;&nbsp;&nbsp;Faishol Mahri&nbsp; حفظه ا لله
                     </p>
 
-
                     <p></p>
-
 
                     <p>
                         📚 Tausiyah
                     </p>
 
-
                     <p>
                         🎙 Al-Ustadz Huda حفظه ا لله
                     </p>
 
-
                     <p></p>
-
 
                     <p>
                         📌 Masjid Alfalah,&nbsp;Sragen
                     </p>
 
-
                     <p>
                         &nbsp;&nbsp;&nbsp;Ahad Tgl 20 Juli 2025
                     </p>
-
 
                     <p></p>
                     <p></p>
@@ -734,6 +1182,140 @@
         </div>
 
 
+        <!-- =================================================
+             TOMBOL NAVIGASI
+        ================================================= -->
+
+        <div class="phone-bottom">
+
+
+            <!-- SHARE -->
+
+            <div
+                class="nav-button left"
+                id="shareButton"
+                title="Share">
+            </div>
+
+
+            <!-- HOME -->
+
+            <div
+                class="home-button"
+                id="homeButton"
+                title="Home">
+
+                <div class="home-inner"></div>
+
+            </div>
+
+
+            <!-- EXIT -->
+
+            <div
+                class="nav-button right"
+                id="exitButton"
+                title="Exit">
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         OVERLAY MENU
+    ===================================================== -->
+
+    <div
+        class="menu-overlay"
+        id="menuOverlay">
+    </div>
+
+
+    <!-- =====================================================
+         MENU SHARE
+    ===================================================== -->
+
+    <div
+        class="share-menu"
+        id="shareMenu">
+
+
+        <div class="share-title">
+            Bagikan Radio Islam Sragen
+        </div>
+
+
+        <button
+            class="share-button"
+            id="systemShare">
+
+            📤 Bagikan Link
+
+        </button>
+
+
+        <button
+            class="share-button"
+            id="copyLink">
+
+            🔗 Salin Link
+
+        </button>
+
+
+        <button
+            class="share-button"
+            id="closeShare">
+
+            ✕ Tutup
+
+        </button>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         EXIT SCREEN
+    ===================================================== -->
+
+    <div
+        class="exit-screen"
+        id="exitScreen">
+
+
+        <div class="exit-logo">
+
+            <img
+                src="./icon-192.png"
+                alt="Radio Islam Sragen">
+
+        </div>
+
+
+        <div class="exit-title">
+            Radio Islam Sragen
+        </div>
+
+
+        <div class="exit-text">
+            Terima kasih telah mendengarkan.
+        </div>
+
+
+        <button
+            class="exit-back"
+            id="exitBack">
+
+            Kembali
+
+        </button>
+
+
     </div>
 
 
@@ -743,6 +1325,10 @@
 
     <script>
 
+
+        /* =================================================
+           RAPikan INFORMASI
+        ================================================= */
 
         function rapikanTextContainer() {
 
@@ -799,13 +1385,10 @@
                         lastFilled
                     ) {
 
-
                         p.style.display =
                             'none';
 
-
                     } else {
-
 
                         p.style.display =
                             '';
@@ -829,13 +1412,10 @@
                 352
             ) {
 
-
                 container.style.height =
                     '352px';
 
-
             } else {
-
 
                 container.style.height =
                     tinggi + 'px';
@@ -846,7 +1426,301 @@
 
 
         /* =================================================
-           JALANKAN SAAT HALAMAN SELESAI
+           MENU SHARE
+        ================================================= */
+
+        const shareButton =
+            document.getElementById(
+                'shareButton'
+            );
+
+
+        const shareMenu =
+            document.getElementById(
+                'shareMenu'
+            );
+
+
+        const menuOverlay =
+            document.getElementById(
+                'menuOverlay'
+            );
+
+
+        const closeShare =
+            document.getElementById(
+                'closeShare'
+            );
+
+
+        function bukaShare() {
+
+            shareMenu.classList.add(
+                'active'
+            );
+
+            menuOverlay.classList.add(
+                'active'
+            );
+
+        }
+
+
+        function tutupShare() {
+
+            shareMenu.classList.remove(
+                'active'
+            );
+
+            menuOverlay.classList.remove(
+                'active'
+            );
+
+        }
+
+
+        shareButton.addEventListener(
+            'click',
+            bukaShare
+        );
+
+
+        closeShare.addEventListener(
+            'click',
+            tutupShare
+        );
+
+
+        menuOverlay.addEventListener(
+            'click',
+            tutupShare
+        );
+
+
+        /* =================================================
+           SHARE SISTEM HP
+        ================================================= */
+
+        document.getElementById(
+            'systemShare'
+        ).addEventListener(
+            'click',
+            async function() {
+
+
+                const link =
+                    window.location.href;
+
+
+                if (
+                    navigator.share
+                ) {
+
+
+                    try {
+
+                        await navigator.share({
+
+                            title:
+                                'Radio Islam Sragen',
+
+                            text:
+                                'Dengarkan Radio Islam Sragen',
+
+                            url:
+                                link
+
+                        });
+
+                    }
+
+                    catch (error) {
+
+                        console.log(
+                            'Share dibatalkan'
+                        );
+
+                    }
+
+
+                } else {
+
+
+                    try {
+
+                        await navigator.clipboard.writeText(
+                            link
+                        );
+
+                        alert(
+                            'Link Radio Islam Sragen berhasil disalin.'
+                        );
+
+                    }
+
+                    catch (error) {
+
+                        alert(
+                            link
+                        );
+
+                    }
+
+                }
+
+            }
+        );
+
+
+        /* =================================================
+           SALIN LINK
+        ================================================= */
+
+        document.getElementById(
+            'copyLink'
+        ).addEventListener(
+            'click',
+            async function() {
+
+
+                const link =
+                    window.location.href;
+
+
+                try {
+
+                    await navigator.clipboard.writeText(
+                        link
+                    );
+
+                    alert(
+                        'Link berhasil disalin.'
+                    );
+
+                }
+
+                catch (error) {
+
+                    prompt(
+                        'Salin link berikut:',
+                        link
+                    );
+
+                }
+
+            }
+        );
+
+
+        /* =================================================
+           HOME
+        ================================================= */
+
+        document.getElementById(
+            'homeButton'
+        ).addEventListener(
+            'click',
+            function() {
+
+
+                tutupShare();
+
+
+                document.getElementById(
+                    'exitScreen'
+                ).classList.remove(
+                    'active'
+                );
+
+
+                window.scrollTo(
+                    0,
+                    0
+                );
+
+            }
+        );
+
+
+        /* =================================================
+           EXIT
+        ================================================= */
+
+        document.getElementById(
+            'exitButton'
+        ).addEventListener(
+            'click',
+            function() {
+
+
+                tutupShare();
+
+
+                const exitScreen =
+                    document.getElementById(
+                        'exitScreen'
+                    );
+
+
+                exitScreen.classList.add(
+                    'active'
+                );
+
+
+                /*
+                 * Browser biasanya tidak mengizinkan
+                 * halaman web menutup dirinya sendiri.
+                 * Karena itu kita mencoba window.close()
+                 * terlebih dahulu.
+                 */
+
+                setTimeout(
+                    function() {
+
+                        try {
+
+                            window.close();
+
+                        }
+
+                        catch (error) {
+
+                            console.log(
+                                'Browser tidak mengizinkan close.'
+                            );
+
+                        }
+
+                    },
+                    300
+                );
+
+            }
+        );
+
+
+        /* =================================================
+           KEMBALI DARI EXIT
+        ================================================= */
+
+        document.getElementById(
+            'exitBack'
+        ).addEventListener(
+            'click',
+            function() {
+
+                document.getElementById(
+                    'exitScreen'
+                ).classList.remove(
+                    'active'
+                );
+
+            }
+        );
+
+
+        /* =================================================
+           DOM READY
         ================================================= */
 
         document.addEventListener(
