@@ -22,7 +22,7 @@
 <style>
 
 /* =========================================================
-   BACKGROUND
+   RESET
    ========================================================= */
 
 html,
@@ -33,7 +33,13 @@ body {
     padding: 0;
 }
 
+
+/* =========================================================
+   BACKGROUND HALAMAN
+   ========================================================= */
+
 body {
+
     background:
         radial-gradient(
             circle at center,
@@ -43,7 +49,9 @@ body {
         );
 
     display: flex;
+
     align-items: center;
+
     justify-content: center;
 
     overflow: hidden !important;
@@ -62,7 +70,7 @@ body {
 
 
 /* =========================================================
-   FRAME HP SAMSUNG
+   BODI HP SAMSUNG — TIPIS
    ========================================================= */
 
 .android-phone {
@@ -71,41 +79,39 @@ body {
 
     width: 360px;
 
-    height: auto;
-
-    padding: 9px 8px 0;
+    padding: 4px 4px 0;
 
     background:
         linear-gradient(
             145deg,
-            #55595c 0%,
-            #272a2c 8%,
-            #111315 25%,
-            #050607 60%,
-            #303336 100%
+            #55585a 0%,
+            #252729 12%,
+            #0b0c0d 45%,
+            #1c1e20 80%,
+            #4a4d4f 100%
         );
 
-    border: 1px solid #020202;
+    border: 1px solid #050505;
 
-    border-radius: 32px;
+    border-radius: 24px;
 
     box-shadow:
-        0 28px 65px rgba(0,0,0,0.85),
-        0 4px 12px rgba(0,0,0,0.7),
-        inset 1px 1px 0 rgba(255,255,255,0.20),
-        inset -1px -1px 0 rgba(255,255,255,0.04);
+        0 18px 35px rgba(0,0,0,0.75),
+        0 3px 8px rgba(0,0,0,0.65),
+        inset 0 1px 1px rgba(255,255,255,0.20),
+        inset 0 -1px 1px rgba(0,0,0,0.8);
 
     overflow: hidden;
 }
 
 
 /* =========================================================
-   BAGIAN ATAS HP
+   BEZEL ATAS
    ========================================================= */
 
 .samsung-top {
 
-    height: 34px;
+    height: 27px;
 
     position: relative;
 
@@ -118,8 +124,8 @@ body {
     background:
         linear-gradient(
             180deg,
-            #181a1c,
-            #08090a
+            #151719,
+            #070809
         );
 }
 
@@ -132,7 +138,7 @@ body {
 
     left: 15px;
 
-    top: 12px;
+    top: 9px;
 
     font-size: 7px;
 
@@ -153,7 +159,7 @@ body {
 
     width: 61px;
 
-    height: 6px;
+    height: 5px;
 
     border-radius: 6px;
 
@@ -181,9 +187,9 @@ body {
 
     right: 27px;
 
-    width: 8px;
+    width: 7px;
 
-    height: 8px;
+    height: 7px;
 
     border-radius: 50%;
 
@@ -211,9 +217,9 @@ body {
 
     left: 27px;
 
-    width: 6px;
+    width: 5px;
 
-    height: 6px;
+    height: 5px;
 
     border-radius: 50%;
 
@@ -238,20 +244,50 @@ body {
 
     overflow: hidden;
 
-    background:
-        linear-gradient(
-            180deg,
-            #101010,
-            #050505
+    background: #050505;
+}
+
+
+/* =========================================================
+   LOGO FULL SCREEN
+   LAYER PALING BELAKANG
+   ========================================================= */
+
+.background-logo {
+
+    position: absolute;
+
+    left: 50%;
+
+    top: 50%;
+
+    width: 100%;
+
+    height: 100%;
+
+    transform:
+        translate(-50%, -50%);
+
+    object-fit: contain;
+
+    opacity: 0.18;
+
+    z-index: 0;
+
+    pointer-events: none;
+
+    filter:
+        drop-shadow(
+            0 2px 5px rgba(0,0,0,0.7)
         );
 }
 
 
 /* =========================================================
-   ISI RADIO
+   LAPISAN KONTEN RADIO
    ========================================================= */
 
-.radio-content {
+.radio-overlay {
 
     position: relative;
 
@@ -259,51 +295,105 @@ body {
 
     height: 100%;
 
+    z-index: 2;
+}
+
+
+/* =========================================================
+   INFORMASI RADIO
+   ========================================================= */
+
+.info-text-container {
+
+    position: relative;
+
+    z-index: 3;
+
+    width: 100%;
+
+    max-height: 352px;
+
     overflow: hidden;
 
     box-sizing: border-box;
 
-    padding-top: 10px;
-}
-
-
-/* Logo Radio */
-
-.radio-logo {
-
-    display: block;
-
-    width: 72px;
-
-    height: 72px;
-
-    margin: 0 auto 5px;
-
-    object-fit: contain;
-}
-
-
-/* Nama stasiun */
-
-.station-name {
-
-    text-align: center;
-
-    font-size: 18px;
-
-    font-weight: bold;
+    padding: 18px 14px 5px;
 
     color: #ffffff;
 
-    margin-bottom: 6px;
+    text-align: center;
+
+    font-size: 13px;
+
+    line-height: 1.45;
 
     text-shadow:
         0 1px 3px #000;
 }
 
 
+/* Judul */
+
+.info-title {
+
+    font-weight: bold;
+
+    font-size: 16px;
+
+    margin-bottom: 5px;
+}
+
+
+/* Isi */
+
+.info-text {
+
+    margin: 0;
+
+    padding: 0;
+}
+
+
+.info-text p {
+
+    margin-top: 0;
+
+    margin-bottom: 7px;
+}
+
+
 /* =========================================================
-   CONTAINER IFRAME
+   DEVELOPER
+   ========================================================= */
+
+.developer {
+
+    position: absolute;
+
+    left: 0;
+
+    right: 0;
+
+    bottom: 91px;
+
+    z-index: 4;
+
+    text-align: center;
+
+    font-size: 9px;
+
+    color: #777;
+
+    pointer-events: none;
+
+    text-shadow:
+        0 1px 2px #000;
+}
+
+
+/* =========================================================
+   KARTU SUMBER SUARA
+   TETAP ASLI / TIDAK DIBENTUK SEPERTI HP
    ========================================================= */
 
 .iframe-container {
@@ -324,12 +414,11 @@ body {
 
     background: #000;
 
-    box-shadow:
-        inset 0 0 5px rgba(0,0,0,0.9);
+    z-index: 5;
 }
 
 
-/* Crop iframe */
+/* Iframe sumber suara */
 
 .iframe-container iframe {
 
@@ -339,105 +428,25 @@ body {
 
     height: 445px;
 
-    left: var(--crop-left, -50px);
+    left: -50px;
 
-    top: var(--crop-top, -135px);
+    top: -135px;
 
     border: none;
 
     margin: 0;
 
     padding: 0;
-
 }
 
 
 /* =========================================================
-   INFORMASI RADIO
-   ========================================================= */
-
-.info-text-container {
-
-    position: relative;
-
-    z-index: 2;
-
-    width: 100%;
-
-    max-height: 352px;
-
-    overflow: hidden;
-
-    box-sizing: border-box;
-
-    padding: 5px 14px;
-
-    color: #ffffff;
-
-    text-align: center;
-
-    font-size: 13px;
-
-    line-height: 1.45;
-
-    text-shadow:
-        0 1px 2px #000;
-}
-
-
-/* Judul */
-
-.info-title {
-
-    font-weight: bold;
-
-    font-size: 16px;
-
-    margin-bottom: 5px;
-}
-
-
-/* Isi informasi */
-
-.info-text {
-
-    margin: 0;
-
-    padding: 0;
-}
-
-
-/* Developer */
-
-.developer {
-
-    position: absolute;
-
-    left: 0;
-
-    right: 0;
-
-    bottom: 91px;
-
-    z-index: 5;
-
-    text-align: center;
-
-    font-size: 9px;
-
-    color: #777;
-
-    pointer-events: none;
-}
-
-
-/* =========================================================
-   NAVIGASI SAMSUNG
+   NAVIGASI BAWAH SAMSUNG
    ========================================================= */
 
 .samsung-navigation {
 
-    height: 48px;
+    height: 38px;
 
     display: flex;
 
@@ -450,17 +459,19 @@ body {
     background:
         linear-gradient(
             180deg,
-            #121416 0%,
-            #060708 100%
+            #111315,
+            #060708
         );
 
     border-top:
         1px solid rgba(255,255,255,0.08);
 
     box-shadow:
-        inset 0 2px 4px rgba(0,0,0,0.8);
+        inset 0 1px 3px rgba(0,0,0,0.8);
 }
 
+
+/* Tombol navigasi */
 
 .nav-button {
 
@@ -495,7 +506,8 @@ body {
 
     height: 13px;
 
-    border: 2px solid #bfc3c5;
+    border:
+        2px solid #bfc3c5;
 
     border-radius: 1px;
 
@@ -511,11 +523,12 @@ body {
 
     width: 37px;
 
-    height: 31px;
+    height: 29px;
 
     border-radius: 7px;
 
-    border: 2px solid #bfc3c5;
+    border:
+        2px solid #bfc3c5;
 
     background:
         linear-gradient(
@@ -538,7 +551,8 @@ body {
 
     height: 11px;
 
-    border: 1px solid #8e9599;
+    border:
+        1px solid #8e9599;
 
     border-radius: 3px;
 }
@@ -573,14 +587,10 @@ body {
 
     .android-phone {
 
-        width: calc(100vw - 24px);
+        width:
+            calc(100vw - 24px);
 
         max-width: 360px;
-    }
-
-    .phone-screen {
-
-        height: 590px;
     }
 }
 
@@ -598,7 +608,6 @@ body {
     }
 }
 
-
 </style>
 </head>
 
@@ -607,13 +616,13 @@ body {
 
 
 <!-- =====================================================
-     FRAME SAMSUNG
+     BODI HP SAMSUNG
      ===================================================== -->
 
 <div class="android-phone">
 
 
-    <!-- BAGIAN ATAS -->
+    <!-- BEZEL ATAS -->
 
     <div class="samsung-top">
 
@@ -631,28 +640,28 @@ body {
 
 
     <!-- =================================================
-         LAYAR HP
+         LAYAR
          ================================================= -->
 
     <div class="phone-screen">
 
-        <div class="radio-content">
+
+        <!-- =================================================
+             LOGO BESAR — PALING BELAKANG
+             ================================================= -->
+
+        <img
+            src="./icon-192.png"
+            class="background-logo"
+            alt=""
+        >
 
 
-            <!-- LOGO RADIO -->
+        <!-- =================================================
+             SEMUA KOMPONEN RADIO DI ATAS LOGO
+             ================================================= -->
 
-            <img
-                src="./icon-192.png"
-                class="radio-logo"
-                alt="Radio Islam Sragen"
-            >
-
-
-            <!-- NAMA STASIUN -->
-
-            <div class="station-name">
-                RAIS
-            </div>
+        <div class="radio-overlay">
 
 
             <!-- INFORMASI RADIO -->
@@ -665,7 +674,9 @@ body {
 
                 <div class="info-text">
 
-                    <p>📚 Qasidah</p>
+                    <p>
+                        📚 Qasidah
+                    </p>
 
                     <p>
                         &nbsp;&nbsp;&nbsp;Unwanulhikam
@@ -679,13 +690,17 @@ body {
                         &nbsp;&nbsp;&nbsp;Faishol Mahri&nbsp;&nbsp;حفظه ا لله
                     </p>
 
-                    <p>📚 Tausiyah</p>
+                    <p>
+                        📚 Tausiyah
+                    </p>
 
                     <p>
                         🎙 Al-Ustadz Huda&nbsp;&nbsp;حفظه ا لله
                     </p>
 
-                    <p>📌 Masjid Alfalah, Sragen</p>
+                    <p>
+                        📌 Masjid Alfalah, Sragen
+                    </p>
 
                     <p>
                         &nbsp;&nbsp;&nbsp;Ahad Tgl 20 Juli 2025
@@ -696,7 +711,9 @@ body {
             </div>
 
 
-            <!-- DEVELOPER -->
+            <!-- =================================================
+                 DEVELOPER
+                 ================================================= -->
 
             <div class="developer">
                 dev.@fcom
@@ -704,7 +721,8 @@ body {
 
 
             <!-- =================================================
-                 STREAM RADIO
+                 KARTU SUMBER SUARA
+                 TIDAK DIUBAH
                  ================================================= -->
 
             <div
@@ -726,6 +744,7 @@ body {
 
 
         </div>
+
 
     </div>
 
@@ -761,7 +780,7 @@ body {
 <script>
 
 /* =========================================================
-   MERAPIKAN INFORMASI
+   MERAPIKAN TEXT
    ========================================================= */
 
 function rapikanTextContainer() {
@@ -793,11 +812,13 @@ function rapikanTextContainer() {
 
     container.style.height = "auto";
 
+
     const tinggi =
         Math.min(
             container.scrollHeight,
             352
         );
+
 
     container.style.height =
         tinggi + "px";
@@ -805,7 +826,7 @@ function rapikanTextContainer() {
 
 
 /* =========================================================
-   TOUCH CONTROL
+   MENCEGAH ZOOM / GESER
    ========================================================= */
 
 document.addEventListener(
@@ -857,7 +878,7 @@ if ("serviceWorker" in navigator) {
 
 
 /* =========================================================
-   LOAD
+   SAAT HALAMAN SELESAI
    ========================================================= */
 
 document.addEventListener(
