@@ -1,706 +1,430 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Radio Islam Sragen</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1b4d3e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0e0e0e 0%, #1b4d3e 100%);
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 10px;
+            overflow: hidden !important;
+            position: fixed;
+            touch-action: none;
+            user-select: none;
+            box-sizing: border-box;
+        }
+
+        .player-card {
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.28) 0%,
+                    rgba(255, 255, 255, 0.08) 40%,
+                    rgba(255, 255, 255, 0.35) 45%,
+                    rgba(255, 255, 255, 0.05) 52%,
+                    rgba(255, 255, 255, 0.15) 100%
+                ),
+                rgba(255, 255, 255, 0.22);
+
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+
+            border: 1px solid rgba(255, 255, 244, 0.6);
+
+            padding: 25px;
+            border-radius: 20px;
+
+            box-shadow:
+                inset 0 1px 2px rgba(255, 255, 255, 0.6),
+                inset 0 -1px 2px rgba(255, 255, 255, 0.2),
+                0 10px 25px rgba(0,0,0,0.5),
+                0 0 18px 2px rgba(255, 255, 255, 0.18);
+
+            text-align: center;
+            width: 360px;
+
+            border-top: 5px solid #F8FFFD;
+
+            box-sizing: border-box;
+            touch-action: none;
+            margin-bottom: 20px;
+        }
+
+        .logo-area {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            margin-bottom: 20px;
+        }
+
+        .logo-placeholder {
+            position: absolute;
+            width: calc(100% + 10px);
+            height: 250px;
+            left: -5px;
+            top: 5px;
+
+            background: linear-gradient(
+                135deg,
+                #FFDF92 0%,
+                #CAA347 100%
+            );
+
+            border-radius: 15px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            overflow: hidden;
+
+            box-shadow:
+                0 0 20px rgba(202, 163, 71, 0.4);
+
+            z-index: 1;
+        }
+
+        .logo-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
 
-<meta name="viewport"
-      content="width=device-width,
-      initial-scale=1.0,
-      maximum-scale=1.0,
-      user-scalable=no,
-      viewport-fit=cover">
+        /* RAIS berada di luar logo, tepat di atas logo */
+        .station-sub {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: -14px;
 
-<title>Radio Islam Sragen</title>
+            margin: 0;
 
-<link rel="manifest" href="manifest.json">
+            font-size: 14px;
+            line-height: 14px;
 
-<style>
+            color: #F8FFFD;
 
-/* ==============================
-   DASAR
-============================== */
+            font-family:
+                'Segoe UI',
+                Tahoma,
+                Geneva,
+                Verdana,
+                sans-serif;
 
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-}
+            font-weight: 600;
 
-html,
-body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    min-height: 100%;
-}
+            z-index: 3;
+            text-align: center;
+        }
 
-body {
-    position: fixed;
-    inset: 0;
+        .iframe-container {
+            position: absolute;
+            left: 0;
+            bottom: 5px;
 
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
+            width: 100%;
+            height: 83px;
 
-    padding-top: 20px;
+            border-radius: 12px;
 
-    overflow: auto;
+            overflow: hidden !important;
 
-    background:
-        linear-gradient(
-            145deg,
-            #061a16 0%,
-            #0b3028 50%,
-            #04110e 100%
-        );
+            background: transparent !important;
 
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-}
+            border: 1px solid rgba(255, 255, 254, 0.4);
 
+            z-index: 4;
 
-/* ==============================
-   FRAME HP
-============================== */
+            --crop-left: -50px;
+            --crop-top: -135px;
+        }
 
-.android-phone {
-    position: relative;
+        iframe {
+            position: absolute;
 
-    width: 360px;
-    height: fit-content;
+            width: 480px;
+            height: 445px;
 
-    padding: 5px;
+            border: none;
 
-    background:
-        linear-gradient(
-            135deg,
-            #6F2DBD 0%,
-            #7B68EE 45%,
-            #87CEEB 100%
-        );
+            overflow: hidden !important;
+            touch-action: none;
 
-    border: 1px solid #6A5ACD;
+            left: var(--crop-left);
+            top: var(--crop-top);
 
-    border-radius: 42px;
+            z-index: 5;
+        }
 
-    box-shadow:
-        0 20px 50px rgba(0,0,0,0.55),
-        inset 0 0 0 1px rgba(255,255,255,0.5),
-        0 0 25px rgba(135,206,235,0.4);
+        .info-text-container {
+            width: 310px;
+            height: auto;
+            max-height: 352px;
 
-    overflow: hidden;
+            overflow-y: auto;
+            overflow-x: hidden;
 
-    box-sizing: border-box;
-}
+            text-align: justify;
 
+            font-size: 16px;
+            line-height: 1.3;
 
-/* ==============================
-   KAMERA / SENSOR HP
-============================== */
+            color: #FFFFF4;
 
-.android-phone::before {
-    content: "";
+            word-wrap: break-word;
+            white-space: normal;
 
-    position: absolute;
+            padding: 0 15px;
 
-    top: 10px;
-    left: 50%;
+            box-sizing: border-box;
 
-    transform: translateX(-50%);
+            user-select: text;
+            touch-action: pan-y;
+        }
 
-    width: 70px;
-    height: 18px;
+        .info-text-container p {
+            margin: 0 0 4px 0;
+            min-height: 20.8px;
+        }
 
-    background: #050505;
+        .info-text-container p:last-child {
+            margin-bottom: 0;
+        }
 
-    border-radius: 20px;
+        .info-text-container::-webkit-scrollbar {
+            width: 4px;
+        }
 
-    z-index: 20;
+        .info-text-container::-webkit-scrollbar-thumb {
+            background: #CAA347;
+            border-radius: 10px;
+        }
 
-    box-shadow:
-        inset 0 0 0 1px rgba(255,255,255,0.08);
-}
+        .dev-tag {
+            text-align: center;
 
-.android-phone::after {
-    content: "";
+            font-size: 13px;
 
-    position: absolute;
+            color: #EDDDB8;
 
-    top: 16px;
-    left: calc(50% + 22px);
+            margin-top: 21px;
 
-    width: 6px;
-    height: 6px;
+            width: 310px;
 
-    background: #18233a;
+            font-weight: 400;
 
-    border-radius: 50%;
+            letter-spacing: 0.5px;
 
-    z-index: 21;
-
-    box-shadow:
-        0 0 4px rgba(100,160,255,0.8);
-}
-
-
-/* ==============================
-   LAYAR HP
-============================== */
-
-.phone-screen {
-    position: relative;
-
-    width: 100%;
-    height: fit-content;
-
-    min-height: 0;
-
-    padding-top: 32px;
-    padding-bottom: 20px;
-
-    background:
-        linear-gradient(
-            180deg,
-            #061b17 0%,
-            #092a23 50%,
-            #03100d 100%
-        );
-
-    border-radius: 36px;
-
-    overflow: hidden;
-
-    box-sizing: border-box;
-}
-
-
-/* ==============================
-   FRAME / PLAYER UTAMA
-============================== */
-
-.player-card {
-    position: relative;
-
-    width: 100%;
-
-    margin: 0 auto 0 auto;
-
-    padding: 25px;
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(255,255,255,0.10),
-            rgba(255,255,255,0.035)
-        );
-
-    border: 1px solid rgba(255,255,255,0.16);
-
-    border-top: none;
-
-    border-radius: 36px;
-
-    box-shadow:
-        inset 0 0 25px rgba(255,255,255,0.025),
-        0 10px 30px rgba(0,0,0,0.25);
-
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-
-    text-align: center;
-
-    overflow: hidden;
-
-    box-sizing: border-box;
-}
-
-
-/* ==============================
-   AREA LOGO
-============================== */
-
-.logo-area {
-    position: relative;
-
-    width: 100%;
-    height: 250px;
-
-    margin-bottom: 20px;
-
-    overflow: hidden;
-
-    border-radius: 15px;
-}
-
-
-/* ==============================
-   BACKGROUND LOGO
-============================== */
-
-.logo-placeholder {
-    position: absolute;
-
-    left: -5px;
-    top: 5px;
-
-    width: calc(100% + 10px);
-    height: 250px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #e7b94d 0%,
-            #fff0a8 50%,
-            #c99528 100%
-        );
-
-    border-radius: 15px;
-
-    overflow: hidden;
-
-    z-index: 1;
-}
-
-.logo-placeholder img {
-    width: 100%;
-    height: 100%;
-
-    display: block;
-
-    object-fit: cover;
-}
-
-
-/* ==============================
-   NAMA STASIUN
-============================== */
-
-.station-sub {
-    position: absolute;
-
-    left: 0;
-    right: 0;
-
-    bottom: 10px;
-
-    z-index: 3;
-
-    color: #ffffff;
-
-    font-size: 15px;
-    font-weight: bold;
-
-    letter-spacing: 2px;
-
-    text-shadow:
-        0 2px 5px rgba(0,0,0,0.75);
-}
-
-
-/* ==============================
-   TEKS INFORMASI
-============================== */
-
-.info-text-container {
-    position: relative;
-
-    width: 100%;
-
-    max-height: 352px;
-
-    overflow-y: auto;
-    overflow-x: hidden;
-
-    padding: 0 15px;
-
-    color: #ffffff;
-
-    font-size: 16px;
-
-    line-height: 1.3;
-
-    text-align: justify;
-
-    user-select: text;
-    -webkit-user-select: text;
-
-    touch-action: pan-y;
-
-    scrollbar-width: thin;
-}
-
-
-/* Scrollbar */
-
-.info-text-container::-webkit-scrollbar {
-    width: 5px;
-}
-
-.info-text-container::-webkit-scrollbar-track {
-    background: rgba(255,255,255,0.05);
-
-    border-radius: 10px;
-}
-
-.info-text-container::-webkit-scrollbar-thumb {
-    background: #d7ae42;
-
-    border-radius: 10px;
-}
-
-
-/* ==============================
-   PARAGRAF INFORMASI
-============================== */
-
-.info-text-container p {
-    margin-top: 0;
-    margin-bottom: 4px;
-
-    min-height: 20.8px;
-}
-
-
-/* ==============================
-   DEVELOPER TAG
-============================== */
-
-.dev-tag {
-    width: 100%;
-
-    margin-top: 21px;
-
-    color: #d7ae42;
-
-    font-size: 13px;
-
-    text-align: center;
-
-    letter-spacing: 0.5px;
-}
-
-
-/* ==============================
-   KARTU SUMBER SUARA
-   JANGAN DIUBAH
-============================== */
-
-.iframe-container {
-    position: absolute;
-    left: 0;
-    bottom: 5px;
-
-    width: 100%;
-    height: 83px;
-
-    border-radius: 12px;
-
-    overflow: hidden !important;
-
-    background: transparent !important;
-
-    border: 1px solid rgba(255,255,254,0.4);
-
-    z-index: 4;
-
-    --crop-left: -50px;
-    --crop-top: -135px;
-}
-
-
-/* ==============================
-   IFRAME
-============================== */
-
-iframe {
-    position: absolute;
-
-    width: 480px;
-    height: 445px;
-
-    border: none;
-
-    overflow: hidden !important;
-
-    touch-action: none;
-
-    left: var(--crop-left);
-    top: var(--crop-top);
-
-    z-index: 5;
-}
-
-
-/* ==============================
-   RESPONSIVE
-============================== */
-
-@media (max-width: 380px) {
-
-    body {
-        padding-top: 10px;
-    }
-
-    .android-phone {
-        width: calc(100vw - 10px);
-        max-width: 360px;
-    }
-
-    .player-card {
-        padding: 22px;
-    }
-}
-
-
-/* ==============================
-   PENCEGAHAN ZOOM
-============================== */
-
-html {
-    touch-action: manipulation;
-}
-
-</style>
+            user-select: none;
+        }
+    </style>
 </head>
-
 
 <body>
 
+    <div class="player-card">
 
-<div class="android-phone">
+        <div class="logo-area">
 
-    <div class="phone-screen">
-
-        <div class="player-card">
-
-
-            <!-- =========================
-                 LOGO
-            ========================== -->
-
-            <div class="logo-area">
-
-                <div class="logo-placeholder">
-
-                    <img
-                        src="logo.png"
-                        alt="Radio Islam Sragen">
-
-                </div>
-
+            <div class="logo-placeholder">
+                <img
+                    src="./icon-192.png"
+                    alt="Radio Islam Sragen">
             </div>
 
+            <p class="station-sub">
+                RAIS
+            </p>
 
-            <!-- =========================
-                 INFORMASI RADIO
-            ========================== -->
+            <div class="iframe-container">
 
-            <div
-                class="info-text-container"
-                id="infoText">
-
-
-                <p>══════📻🆁🅰🅸🆂</p>
-
-                <p>&nbsp;</p>
-
-                <p>📚 Qasidah</p>
-
-                <p>&nbsp;&nbsp;&nbsp;Unwanulhikam</p>
-
-                <p>🎙 Al-Ustadz&nbsp; Usamah&nbsp; bin</p>
-
-                <p>&nbsp;&nbsp;&nbsp;Faishol Mahri&nbsp; حفظه ا لله</p>
-
-                <p>&nbsp;</p>
-
-                <p>📚 Tausiyah</p>
-
-                <p>🎙 Al-Ustadz Huda حفظه ا لله</p>
-
-                <p>&nbsp;</p>
-
-                <p>📌 Masjid Alfalah, Sragen</p>
-
-                <p>&nbsp;&nbsp;&nbsp;Ahad Tgl 20 Juli 2025</p>
-
-                <p>&nbsp;</p>
-
-                <p>&nbsp;</p>
-
-                <p>&nbsp;</p>
-
-                <p>&nbsp;</p>
-
+                <iframe
+                    src="https://streamy1.radioislam.my.id/player/sragen-s-station/"
+                    allow="autoplay; encrypted-media"
+                    scrolling="no"
+                    title="Streamy Player">
+                </iframe>
 
             </div>
-
-
-            <!-- =========================
-                 DEVELOPER
-            ========================== -->
-
-            <div class="dev-tag">
-                Radio Islam Sragen
-            </div>
-
 
         </div>
 
 
-        <!-- =========================
-             SUMBER SUARA
-             TETAP
-        ========================== -->
+        <div class="info-text-container">
 
-        <div class="iframe-container">
+            <p>══════📻🆁🅰🅸🆂</p>
 
-            <iframe
-                src="https://zeno.fm/player/radio-islam-sragen"
-                scrolling="no"
-                allow="autoplay">
-            </iframe>
+            <p></p>
+
+            <p>📚 Qasidah</p>
+
+            <p>   Unwanulhikam</p>
+
+            <p>🎙 Al-Ustadz&nbsp; Usamah&nbsp; bin</p>
+
+            <p>   Faishol Mahri&nbsp; حفظه ا لله</p>
+
+            <p></p>
+
+            <p>📚 Tausiyah</p>
+
+            <p>🎙 Al-Ustadz Huda حفظه ا لله</p>
+
+            <p></p>
+
+            <p>📌 Masjid Alfalah,&nbsp;Sragen</p>
+
+            <p>   Ahad Tgl 20 Juli 2025</p>
+
+            <p></p>
+            <p></p>
+            <p></p>
+            <p></p>
+            <p></p>
 
         </div>
 
+
+        <div class="dev-tag">
+            dev.@fcom
+        </div>
 
     </div>
 
-</div>
 
+    <script>
 
-<script>
+        function rapikanTextContainer() {
 
-/* ==============================
-   RAPikan TEXT CONTAINER
-============================== */
+            const container =
+                document.querySelector('.info-text-container');
 
-function rapikanTextContainer() {
+            if (!container) return;
 
-    const container =
-        document.getElementById("infoText");
+            const paragraphs =
+                Array.from(container.querySelectorAll('p'));
 
-    if (!container) return;
+            let lastFilled = -1;
 
+            for (let i = 0; i < paragraphs.length; i++) {
 
-    const paragraphs =
-        container.querySelectorAll("p");
+                const teks =
+                    paragraphs[i].textContent.trim();
 
+                if (teks !== '') {
+                    lastFilled = i;
+                }
+            }
 
-    /* Sembunyikan paragraf kosong
-       yang berada di bagian paling akhir */
+            paragraphs.forEach((p, index) => {
 
-    for (
-        let i = paragraphs.length - 1;
-        i >= 0;
-        i--
-    ) {
+                if (index > lastFilled) {
 
-        const text =
-            paragraphs[i].textContent
-                .replace(/\u00a0/g, "")
-                .trim();
+                    p.style.display = 'none';
 
-        if (text === "") {
+                } else {
 
-            paragraphs[i].style.display =
-                "none";
+                    p.style.display = '';
 
-        } else {
+                }
 
-            break;
-        }
-    }
+            });
 
+            container.style.height = 'auto';
 
-    /* Maksimal tinggi */
+            const tinggi =
+                container.scrollHeight;
 
-    const maxHeight = 352;
+            if (tinggi > 352) {
 
-    container.style.height =
-        Math.min(
-            container.scrollHeight,
-            maxHeight
-        ) + "px";
-}
+                container.style.height = '352px';
 
+            } else {
 
-/* ==============================
-   SAAT HALAMAN SELESAI DIMUAT
-============================== */
+                container.style.height =
+                    tinggi + 'px';
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-
-        rapikanTextContainer();
-
-    }
-);
-
-
-/* ==============================
-   CEGAH ZOOM,
-   TETAP IZINKAN SCROLL TEKS
-============================== */
-
-document.addEventListener(
-    "touchmove",
-    function (event) {
-
-        const info =
-            document.getElementById("infoText");
-
-        if (
-            info &&
-            info.contains(event.target)
-        ) {
-
-            return;
-        }
-
-        if (event.touches.length > 1) {
-
-            event.preventDefault();
+            }
 
         }
 
-    },
-    {
-        passive: false
-    }
-);
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            function() {
+                rapikanTextContainer();
+            }
+        );
 
 
-/* ==============================
-   SERVICE WORKER
-============================== */
+        document.addEventListener(
+            'touchmove',
+            function(e) {
 
-if ("serviceWorker" in navigator) {
+                if (
+                    e.target.closest(
+                        '.info-text-container'
+                    )
+                ) {
+                    return;
+                }
 
-    window.addEventListener(
-        "load",
-        function () {
+                if (e.scale !== 1) {
+                    e.preventDefault();
+                }
 
-            navigator.serviceWorker
-                .register("./sw.js")
-                .catch(
-                    function (error) {
+            },
+            { passive: false }
+        );
 
-                        console.log(
-                            "Service Worker gagal:",
-                            error
+
+        if ('serviceWorker' in navigator) {
+
+            window.addEventListener(
+                'load',
+                () => {
+
+                    navigator.serviceWorker
+                        .register('./sw.js')
+
+                        .then(
+                            reg =>
+                                console.log(
+                                    'PWA Manual Crop Sukses Diaktifkan!'
+                                )
+                        )
+
+                        .catch(
+                            err =>
+                                console.log(
+                                    'PWA Gagal:',
+                                    err
+                                )
                         );
 
-                    }
-                );
+                }
+            );
 
         }
-    );
-}
 
-</script>
+    </script>
 
 </body>
 </html>
