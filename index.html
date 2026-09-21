@@ -1,1311 +1,1221 @@
-```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta name="viewport"
-content="width=device-width,
-initial-scale=1.0,
-maximum-scale=1.0,
-user-scalable=no,
-viewport-fit=cover">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
-<title>Radio Islam Sragen</title>
+    <title>Radio Islam Sragen</title>
 
-<link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.json">
 
-<meta name="theme-color" content="#08090a">
+    <meta name="theme-color" content="#1b4d3e">
 
-<meta name="apple-mobile-web-app-capable"
-content="yes">
+    <meta
+        name="apple-mobile-web-app-capable"
+        content="yes">
 
-<meta name="apple-mobile-web-app-status-bar-style"
-content="black-translucent">
+    <meta
+        name="apple-mobile-web-app-status-bar-style"
+        content="black-translucent">
 
-<style>
 
-/* =========================================================
-   RESET
-   ========================================================= */
+    <style>
 
-*{
-    box-sizing:border-box;
-    -webkit-tap-highlight-color:transparent;
-}
 
-html,
-body{
-    margin:0;
-    padding:0;
-    width:100%;
-    height:100%;
-}
+        /* =====================================================
+           BODY
+        ===================================================== */
 
+        html,
+        body {
 
-/* =========================================================
-   BODY
-   ========================================================= */
+            margin: 0;
+            padding: 0;
 
-body{
+            width: 100%;
+            height: 100%;
 
-    background:
-        radial-gradient(
-            circle at center,
-            #46545d 0%,
-            #252c31 42%,
-            #0d1012 100%
-        );
+            background:
+                linear-gradient(
+                    135deg,
+                    #0e0e0e 0%,
+                    #1b4d3e 100%
+                );
 
-    color:#fff;
+            color: #ffffff;
 
-    font-family:
-        "Segoe UI",
-        Tahoma,
-        Geneva,
-        Verdana,
-        sans-serif;
+            font-family:
+                'Segoe UI',
+                Tahoma,
+                Geneva,
+                Verdana,
+                sans-serif;
 
-    display:flex;
+            display: flex;
 
-    align-items:center;
-    justify-content:center;
+            align-items: center;
+            justify-content: center;
 
-    overflow:hidden !important;
+            overflow: hidden !important;
 
-    position:fixed;
+            position: fixed;
 
-    touch-action:none;
+            touch-action: none;
 
-    user-select:none;
-}
+            user-select: none;
 
+            box-sizing: border-box;
+        }
 
-/* =========================================================
-   SAMSUNG GALAXY BODY
-   ========================================================= */
 
-.android-phone{
+        /* =====================================================
+           FRAME SAMSUNG JADUL
+        ===================================================== */
 
-    position:relative;
+        .android-phone {
 
-    width:360px;
+            position: relative;
 
-    height:auto;
+            width: 360px;
 
-    padding:9px 8px 0;
+            height: auto;
 
-    background:
-        linear-gradient(
-            145deg,
-            #55595c 0%,
-            #272a2c 8%,
-            #111315 25%,
-            #050607 60%,
-            #303336 100%
-        );
+            padding: 0;
 
-    border:
-        1px solid #020202;
+            background:
+                linear-gradient(
+                    145deg,
+                    #CFEFE0 0%,
+                    #E8F5E9 50%,
+                    #FFF3D6 100%
+                );
 
-    border-radius:32px;
+            border:
+                3px solid #D8CBAA;
 
-    box-shadow:
+            border-radius: 42px;
 
-        0 28px 65px
-        rgba(0,0,0,0.85),
+            box-shadow:
 
-        0 4px 12px
-        rgba(0,0,0,0.7),
+                0 20px 50px
+                rgba(0,0,0,0.60),
 
-        inset 1px 1px 0
-        rgba(255,255,255,0.20),
+                inset 0 0 0 1px
+                rgba(255,255,255,0.8),
 
-        inset -1px -1px 0
-        rgba(255,255,255,0.04);
+                inset 0 0 20px
+                rgba(255,255,255,0.35);
 
-    overflow:hidden;
+            overflow: hidden;
 
-}
+            box-sizing: border-box;
+        }
 
 
-/* =========================================================
-   SAMSUNG TOP BEZEL
-   ========================================================= */
+        /* =====================================================
+           BAGIAN ATAS HP
+        ===================================================== */
 
-.samsung-top{
+        .phone-top {
 
-    height:34px;
+            position: relative;
 
-    position:relative;
+            width: 100%;
 
-    display:flex;
+            height: 42px;
 
-    align-items:center;
+            display: flex;
 
-    justify-content:center;
+            align-items: center;
 
-    background:
-        linear-gradient(
-            180deg,
-            #181a1c,
-            #08090a
-        );
-}
+            justify-content: center;
 
+            box-sizing: border-box;
+        }
 
-/* =========================================================
-   SPEAKER
-   ========================================================= */
 
-.samsung-speaker{
+        /* Speaker Samsung lama */
 
-    width:61px;
+        .speaker {
 
-    height:6px;
+            width: 62px;
 
-    border-radius:6px;
+            height: 8px;
 
-    background:
-        linear-gradient(
-            180deg,
-            #020202 0%,
-            #3b3e40 45%,
-            #090a0b 100%
-        );
+            background:
+                linear-gradient(
+                    180deg,
+                    #303030,
+                    #090909
+                );
 
-    border:
-        1px solid #000;
+            border-radius: 8px;
 
-    box-shadow:
+            box-shadow:
+                inset 0 1px 2px
+                rgba(255,255,255,0.25),
 
-        inset 0 1px 1px
-        rgba(255,255,255,0.18),
+                0 1px 2px
+                rgba(0,0,0,0.5);
+        }
 
-        0 1px 2px #000;
-}
 
+        /* Kamera depan */
 
-/* =========================================================
-   KAMERA DEPAN
-   ========================================================= */
+        .front-camera {
 
-.samsung-camera{
+            position: absolute;
 
-    position:absolute;
+            left: calc(50% + 45px);
 
-    right:27px;
+            top: 17px;
 
-    width:8px;
+            width: 7px;
 
-    height:8px;
+            height: 7px;
 
-    border-radius:50%;
+            background:
+                radial-gradient(
+                    circle at 35% 35%,
+                    #536b76,
+                    #101719 60%,
+                    #000000 100%
+                );
 
-    background:
-        radial-gradient(
-            circle at 35% 30%,
-            #8195a0 0%,
-            #243842 35%,
-            #070c0f 70%,
-            #000 100%
-        );
+            border-radius: 50%;
 
-    border:1px solid #000;
+            box-shadow:
+                0 0 3px
+                rgba(0,0,0,0.7);
+        }
 
-    box-shadow:
-        0 0 4px
-        rgba(100,170,210,0.35);
-}
 
+        /* =====================================================
+           LCD / LAYAR HP
+        ===================================================== */
 
-/* =========================================================
-   SENSOR
-   ========================================================= */
+        .phone-screen {
 
-.samsung-sensor{
+            position: relative;
 
-    position:absolute;
+            width: calc(100% - 10px);
 
-    left:27px;
+            margin: 0 auto;
 
-    width:6px;
+            height: auto;
 
-    height:6px;
+            box-sizing: border-box;
 
-    border-radius:50%;
+            border-radius: 20px;
 
-    background:#020304;
+            overflow: hidden;
 
-    box-shadow:
-        inset 0 1px 1px
-        rgba(255,255,255,0.15);
-}
+            background:
+                linear-gradient(
+                    135deg,
+                    #0e0e0e 0%,
+                    #1b4d3e 100%
+                );
 
+            padding-top: 10px;
 
-/* =========================================================
-   LOGO SAMSUNG
-   ========================================================= */
+            padding-bottom: 10px;
 
-.samsung-brand{
+            box-shadow:
 
-    position:absolute;
+                inset 0 0 0 2px
+                rgba(0,0,0,0.55),
 
-    left:15px;
+                inset 0 0 12px
+                rgba(0,0,0,0.45);
+        }
 
-    top:12px;
 
-    font-size:7px;
+        /* =====================================================
+           KARTU UTAMA
+        ===================================================== */
 
-    font-weight:bold;
+        .player-card {
 
-    letter-spacing:1px;
+            background:
 
-    color:#7d8285;
+                linear-gradient(
+                    135deg,
+                    rgba(255,255,255,0.28) 0%,
+                    rgba(255,255,255,0.08) 40%,
+                    rgba(255,255,255,0.35) 45%,
+                    rgba(255,255,255,0.05) 52%,
+                    rgba(255,255,255,0.15) 100%
+                ),
 
-    text-shadow:
-        0 1px 1px #000;
-}
+                rgba(255,255,255,0.22);
 
+            backdrop-filter:
+                blur(20px);
 
-/* =========================================================
-   LAYAR HP
-   ========================================================= */
+            -webkit-backdrop-filter:
+                blur(20px);
 
-.phone-screen{
+            border:
+                1px solid
+                rgba(255,255,244,0.6);
 
-    width:100%;
+            padding:
+                25px;
 
-    height:auto;
+            border-radius:
+                20px;
 
-    background:#020304;
+            box-shadow:
 
-    border-radius:
-        18px 18px 0 0;
+                inset 0 1px 2px
+                rgba(255,255,255,0.6),
 
-    overflow:hidden;
+                inset 0 -1px 2px
+                rgba(255,255,255,0.2),
 
-    box-shadow:
+                0 10px 25px
+                rgba(0,0,0,0.5),
 
-        inset 0 0 0 1px
-        rgba(255,255,255,0.10),
+                0 0 18px 2px
+                rgba(255,255,255,0.18);
 
-        inset 0 0 20px
-        rgba(0,0,0,0.9);
-}
+            text-align: center;
 
+            width: 100%;
 
-/* =========================================================
-   MAIN PLAYER
-   ========================================================= */
+            border-top:
+                5px solid #F8FFFD;
 
-.player-card{
+            box-sizing:
+                border-box;
 
-    width:100%;
+            touch-action:
+                none;
 
-    height:auto;
+            margin:
+                0 auto;
+        }
 
-    margin:0;
 
-    padding:7px;
+        /* =====================================================
+           AREA LOGO
+        ===================================================== */
 
-    background:
-        linear-gradient(
-            145deg,
-            #20272c 0%,
-            #11161a 45%,
-            #090c0e 100%
-        );
+        .logo-area {
 
-    text-align:center;
+            position: relative;
 
-    box-sizing:border-box;
+            width: 100%;
 
-    touch-action:none;
-}
+            height: 250px;
 
+            margin-bottom: 20px;
+        }
 
-/* =========================================================
-   DISPLAY RADIO
-   ========================================================= */
 
-.logo-area{
+        /* =====================================================
+           LOGO
+        ===================================================== */
 
-    position:relative;
+        .logo-placeholder {
 
-    width:100%;
+            position: absolute;
 
-    height:250px;
+            width:
+                calc(100% + 10px);
 
-    margin-bottom:8px;
+            height:
+                250px;
 
-    padding:4px;
+            left:
+                -5px;
 
-    background:
-        linear-gradient(
-            180deg,
-            #11181d,
-            #050708
-        );
+            top:
+                5px;
 
-    border:
-        1px solid #303940;
+            background:
+                linear-gradient(
+                    135deg,
+                    #FFDF92 0%,
+                    #CAA347 100%
+                );
 
-    border-radius:7px;
+            border-radius:
+                15px;
 
-    box-shadow:
-        inset 0 0 18px
-        rgba(0,0,0,0.9);
-}
+            display:
+                flex;
 
+            align-items:
+                center;
 
-/* =========================================================
-   LOGO
-   ========================================================= */
+            justify-content:
+                center;
 
-.logo-placeholder{
+            overflow:
+                hidden;
 
-    position:absolute;
+            box-shadow:
+                0 0 20px
+                rgba(202,163,71,0.4);
 
-    width:calc(100% - 8px);
+            z-index:
+                1;
+        }
 
-    height:250px;
 
-    left:4px;
+        .logo-placeholder img {
 
-    top:4px;
+            width:
+                100%;
 
-    background:
-        linear-gradient(
-            135deg,
-            #ffdf92 0%,
-            #d5b55b 50%,
-            #9b7827 100%
-        );
+            height:
+                100%;
 
-    border-radius:5px;
+            object-fit:
+                cover;
 
-    display:flex;
+            display:
+                block;
+        }
 
-    align-items:center;
 
-    justify-content:center;
+        /* =====================================================
+           RAIS
+        ===================================================== */
 
-    overflow:hidden;
+        .station-sub {
 
-    box-shadow:
-        inset 0 0 18px
-        rgba(0,0,0,0.45);
+            position: absolute;
 
-    z-index:1;
-}
+            left:
+                0;
 
+            right:
+                0;
 
-.logo-placeholder img{
+            top:
+                -14px;
 
-    width:100%;
+            margin:
+                0;
 
-    height:100%;
+            font-size:
+                14px;
 
-    object-fit:cover;
+            line-height:
+                14px;
 
-    display:block;
-}
+            color:
+                #F8FFFD;
 
+            font-family:
+                'Segoe UI',
+                Tahoma,
+                Geneva,
+                Verdana,
+                sans-serif;
 
-/* =========================================================
-   RAIS
-   ========================================================= */
+            font-weight:
+                600;
 
-.station-sub{
+            z-index:
+                3;
 
-    position:absolute;
+            text-align:
+                center;
+        }
 
-    left:0;
-    right:0;
 
-    top:-1px;
+        /* =====================================================
+           FRAME SUMBER SUARA
+        ===================================================== */
 
-    margin:0;
+        .iframe-container {
 
-    font-size:13px;
+            position:
+                absolute;
 
-    line-height:14px;
+            left:
+                0;
 
-    color:#fff;
+            bottom:
+                5px;
 
-    font-weight:600;
+            width:
+                100%;
 
-    text-shadow:
-        0 1px 3px #000;
+            height:
+                83px;
 
-    z-index:3;
+            border-radius:
+                12px;
 
-    text-align:center;
-}
+            overflow:
+                hidden !important;
 
+            background:
+                transparent !important;
 
-/* =========================================================
-   STREAM PLAYER
-   ========================================================= */
+            border:
+                1px solid
+                rgba(255,255,254,0.4);
 
-.iframe-container{
+            z-index:
+                4;
 
-    position:absolute;
+            --crop-left:
+                -50px;
 
-    left:4px;
+            --crop-top:
+                -135px;
+        }
 
-    bottom:4px;
 
-    width:calc(100% - 8px);
+        iframe {
 
-    height:83px;
+            position:
+                absolute;
 
-    border-radius:5px;
+            width:
+                480px;
 
-    overflow:hidden !important;
+            height:
+                445px;
 
-    background:
-        rgba(0,0,0,0.45)
-        !important;
+            border:
+                none;
 
-    border:
-        1px solid
-        rgba(255,255,255,0.25);
+            overflow:
+                hidden !important;
 
-    z-index:4;
+            touch-action:
+                none;
 
-    --crop-left:-50px;
+            left:
+                var(--crop-left);
 
-    --crop-top:-135px;
-}
+            top:
+                var(--crop-top);
 
+            z-index:
+                5;
+        }
 
-iframe{
 
-    position:absolute;
+        /* =====================================================
+           INFORMASI
+        ===================================================== */
 
-    width:480px;
+        .info-text-container {
 
-    height:445px;
+            width:
+                100%;
 
-    border:none;
+            height:
+                auto;
 
-    overflow:hidden !important;
+            max-height:
+                352px;
 
-    touch-action:none;
+            overflow-y:
+                auto;
 
-    left:var(--crop-left);
+            overflow-x:
+                hidden;
 
-    top:var(--crop-top);
+            text-align:
+                justify;
 
-    z-index:5;
-}
+            font-size:
+                16px;
 
+            line-height:
+                1.3;
 
-/* =========================================================
-   INFORMASI RADIO
-   ========================================================= */
+            color:
+                #FFFFF4;
 
-.info-text-container{
+            word-wrap:
+                break-word;
 
-    width:100%;
+            white-space:
+                normal;
 
-    height:auto;
+            padding:
+                0 15px;
 
-    max-height:352px;
+            box-sizing:
+                border-box;
 
-    overflow-y:auto;
+            user-select:
+                text;
 
-    overflow-x:hidden;
+            touch-action:
+                pan-y;
+        }
 
-    text-align:justify;
 
-    font-size:15px;
+        .info-text-container p {
 
-    line-height:1.3;
+            margin:
+                0 0 4px 0;
 
-    color:#f0f0f0;
+            min-height:
+                20.8px;
+        }
 
-    word-wrap:break-word;
 
-    white-space:normal;
+        .info-text-container p:last-child {
 
-    padding:4px 12px;
+            margin-bottom:
+                0;
+        }
 
-    user-select:text;
 
-    touch-action:pan-y;
+        .info-text-container::-webkit-scrollbar {
 
-    background:
-        linear-gradient(
-            180deg,
-            rgba(255,255,255,0.025),
-            rgba(0,0,0,0.15)
-        );
+            width:
+                4px;
+        }
 
-    border-top:
-        1px solid
-        rgba(255,255,255,0.08);
-}
 
+        .info-text-container::-webkit-scrollbar-thumb {
 
-.info-text-container p{
+            background:
+                #CAA347;
 
-    margin:0 0 4px 0;
+            border-radius:
+                10px;
+        }
 
-    min-height:19px;
-}
 
+        /* =====================================================
+           DEVELOPER
+        ===================================================== */
 
-.info-text-container p:last-child{
+        .dev-tag {
 
-    margin-bottom:0;
-}
+            text-align:
+                center;
 
+            font-size:
+                13px;
 
-.info-text-container::-webkit-scrollbar{
+            color:
+                #EDDDB8;
 
-    width:4px;
-}
+            margin-top:
+                21px;
 
+            width:
+                100%;
 
-.info-text-container::-webkit-scrollbar-thumb{
+            font-weight:
+                400;
 
-    background:#6c8797;
+            letter-spacing:
+                0.5px;
 
-    border-radius:10px;
-}
+            user-select:
+                none;
+        }
 
 
-/* =========================================================
-   DEVELOPER
-   ========================================================= */
+        /* =====================================================
+           NAVIGASI SAMSUNG JADUL
+        ===================================================== */
 
-.dev-tag{
+        .phone-bottom {
 
-    text-align:center;
+            position: relative;
 
-    font-size:11px;
+            width: 100%;
 
-    color:#9ba7ad;
+            height: 58px;
 
-    margin-top:7px;
+            display: flex;
 
-    width:100%;
+            align-items: center;
 
-    letter-spacing:0.4px;
-}
+            justify-content: center;
 
+            gap: 42px;
 
-/* =========================================================
-   CONTROL PANEL
-   ========================================================= */
+            box-sizing: border-box;
+        }
 
-.wmp-controls{
 
-    margin-top:7px;
+        /* Tombol kiri dan kanan */
 
-    padding:8px 7px 7px;
+        .nav-button {
 
-    border-radius:7px;
+            width: 28px;
 
-    background:
-        linear-gradient(
-            180deg,
-            #3c4449 0%,
-            #252a2e 45%,
-            #171a1d 100%
-        );
+            height: 28px;
 
-    border:
-        1px solid #080909;
+            border-radius: 50%;
 
-    box-shadow:
+            background:
+                linear-gradient(
+                    145deg,
+                    #E8F5E9,
+                    #CFEFE0
+                );
 
-        inset 0 1px 0
-        rgba(255,255,255,0.13),
+            border:
+                1px solid
+                rgba(120,140,125,0.55);
 
-        inset 0 -1px 0
-        rgba(0,0,0,0.8);
-}
+            box-shadow:
 
+                inset 0 1px 2px
+                rgba(255,255,255,0.8),
 
-/* =========================================================
-   PROGRESS
-   ========================================================= */
+                0 2px 4px
+                rgba(0,0,0,0.35);
 
-.wmp-progress{
+            display: flex;
 
-    width:100%;
+            align-items: center;
 
-    height:5px;
+            justify-content: center;
 
-    margin-bottom:8px;
+            cursor: pointer;
 
-    border-radius:5px;
+            transition:
+                transform 0.12s,
+                box-shadow 0.12s;
+        }
 
-    background:#080a0c;
 
-    border:
-        1px solid #485157;
+        .nav-button:active {
 
-    box-shadow:
-        inset 0 1px 2px #000;
-}
+            transform:
+                scale(0.90);
 
+            box-shadow:
+                inset 0 2px 3px
+                rgba(0,0,0,0.25);
+        }
 
-.wmp-progress-fill{
 
-    width:0%;
+        /* Simbol tombol kiri */
 
-    height:100%;
+        .nav-button.left::before {
 
-    border-radius:5px;
+            content: "☰";
 
-    background:
-        linear-gradient(
-            90deg,
-            #398bc0,
-            #76c8f2
-        );
-}
+            font-size: 15px;
 
+            color: #315546;
+        }
 
-/* =========================================================
-   CONTROL ROW
-   ========================================================= */
 
-.control-row{
+        /* Simbol tombol kanan */
 
-    display:flex;
+        .nav-button.right::before {
 
-    align-items:center;
+            content: "×";
 
-    justify-content:space-between;
+            font-size: 21px;
 
-    width:100%;
-}
+            font-weight: 600;
 
+            color: #315546;
+        }
 
-.transport-controls{
 
-    display:flex;
+        /* =====================================================
+           TOMBOL HOME FISIK
+        ===================================================== */
 
-    align-items:center;
+        .home-button {
 
-    gap:4px;
-}
+            width: 62px;
 
+            height: 32px;
 
-.control-button{
+            border-radius: 10px;
 
-    width:31px;
+            background:
+                linear-gradient(
+                    145deg,
+                    #FFF3D6,
+                    #D8CBAA
+                );
 
-    height:28px;
+            border:
+                1px solid
+                rgba(130,115,85,0.65);
 
-    display:flex;
+            box-shadow:
 
-    align-items:center;
+                inset 0 1px 2px
+                rgba(255,255,255,0.9),
 
-    justify-content:center;
+                inset 0 -2px 3px
+                rgba(0,0,0,0.15),
 
-    color:#e7e7e7;
+                0 2px 5px
+                rgba(0,0,0,0.35);
 
-    font-size:13px;
+            display: flex;
 
-    border-radius:4px;
+            align-items: center;
 
-    border:
-        1px solid #101214;
+            justify-content: center;
 
-    background:
-        linear-gradient(
-            180deg,
-            #596168 0%,
-            #353c41 48%,
-            #202529 100%
-        );
+            cursor: pointer;
 
-    box-shadow:
+            transition:
+                transform 0.12s;
+        }
 
-        inset 0 1px 0
-        rgba(255,255,255,0.22),
 
-        0 1px 2px
-        rgba(0,0,0,0.7);
+        .home-button:active {
 
-    text-shadow:
-        0 1px 2px #000;
-}
+            transform:
+                scale(0.94);
+        }
 
 
-.control-button:active{
+        .home-inner {
 
-    background:
-        linear-gradient(
-            180deg,
-            #202529,
-            #596168
-        );
-}
+            width: 13px;
 
+            height: 13px;
 
-.play-button{
+            border:
+                2px solid #8C8062;
 
-    width:38px;
+            border-radius: 3px;
 
-    height:32px;
+            box-sizing: border-box;
+        }
 
-    border-radius:50%;
 
-    font-size:15px;
+        /* =====================================================
+           MENU SHARE
+        ===================================================== */
 
-    background:
-        radial-gradient(
-            circle at 35% 30%,
-            #79838a,
-            #343b40 60%,
-            #171a1c 100%
-        );
+        .share-menu {
 
-    border:
-        1px solid #090a0b;
-}
+            position: fixed;
 
+            left: 50%;
 
-/* =========================================================
-   VOLUME
-   ========================================================= */
+            top: 50%;
 
-.volume-area{
+            transform:
+                translate(-50%, -50%);
 
-    display:flex;
+            width: 280px;
 
-    align-items:center;
+            padding: 20px;
 
-    gap:5px;
+            background:
+                linear-gradient(
+                    145deg,
+                    #CFEFE0,
+                    #FFF3D6
+                );
 
-    margin-left:6px;
-}
+            border:
+                2px solid #D8CBAA;
 
+            border-radius: 22px;
 
-.volume-icon{
+            box-shadow:
+                0 15px 45px
+                rgba(0,0,0,0.65);
 
-    font-size:14px;
+            z-index: 1000;
 
-    color:#d9e0e4;
-}
+            display: none;
 
+            text-align: center;
 
-.volume-slider{
+            color: #244438;
 
-    width:70px;
+            box-sizing: border-box;
+        }
 
-    height:4px;
 
-    appearance:none;
+        .share-menu.active {
 
-    -webkit-appearance:none;
+            display: block;
+        }
 
-    border-radius:5px;
 
-    background:#090b0d;
+        .share-title {
 
-    outline:none;
-}
+            font-size: 18px;
 
+            font-weight: 700;
 
-.volume-slider::-webkit-slider-thumb{
+            margin-bottom: 15px;
+        }
 
-    appearance:none;
 
-    -webkit-appearance:none;
+        .share-button {
 
-    width:12px;
+            width: 100%;
 
-    height:12px;
+            height: 42px;
 
-    border-radius:50%;
+            margin-top: 8px;
 
-    background:
-        linear-gradient(
-            145deg,
-            #e5e5e5,
-            #858d92
-        );
+            border: none;
 
-    border:
-        1px solid #111;
+            border-radius: 12px;
 
-    box-shadow:
-        0 1px 3px #000;
-}
+            background:
+                linear-gradient(
+                    145deg,
+                    #E8F5E9,
+                    #FFF3D6
+                );
 
+            color: #244438;
 
-.volume-slider::-moz-range-thumb{
+            font-size: 14px;
 
-    width:12px;
+            font-weight: 600;
 
-    height:12px;
+            cursor: pointer;
 
-    border-radius:50%;
+            box-shadow:
+                0 2px 5px
+                rgba(0,0,0,0.2);
+        }
 
-    background:#bfc5c8;
 
-    border:1px solid #111;
-}
+        .share-button:active {
 
+            transform:
+                scale(0.97);
+        }
 
-/* =========================================================
-   STATUS
-   ========================================================= */
 
-.wmp-status{
+        /* =====================================================
+           LAPIS GELAP MENU
+        ===================================================== */
 
-    display:flex;
+        .menu-overlay {
 
-    align-items:center;
+            position: fixed;
 
-    justify-content:space-between;
+            inset: 0;
 
-    margin-top:6px;
+            background:
+                rgba(0,0,0,0.55);
 
-    padding:3px 5px;
+            z-index: 999;
 
-    font-size:9px;
+            display: none;
+        }
 
-    color:#9da8ad;
 
-    border-top:
-        1px solid
-        rgba(255,255,255,0.06);
-}
+        .menu-overlay.active {
 
+            display: block;
+        }
 
-.wmp-status-left{
 
-    overflow:hidden;
+        /* =====================================================
+           LAYAR EXIT
+        ===================================================== */
 
-    white-space:nowrap;
+        .exit-screen {
 
-    text-overflow:ellipsis;
+            position: fixed;
 
-    max-width:240px;
-}
+            inset: 0;
 
+            background:
+                linear-gradient(
+                    135deg,
+                    #0e0e0e,
+                    #1b4d3e
+                );
 
-.wmp-status-right{
+            z-index: 2000;
 
-    color:#74838b;
-}
+            display: none;
 
+            align-items: center;
 
-/* =========================================================
-   SAMSUNG NAVIGATION BAR
-   ========================================================= */
+            justify-content: center;
 
-.samsung-navigation{
+            flex-direction: column;
 
-    height:48px;
+            text-align: center;
 
-    display:flex;
+            color: #F8FFFD;
+        }
 
-    align-items:center;
 
-    justify-content:center;
+        .exit-screen.active {
 
-    gap:52px;
+            display: flex;
+        }
 
-    background:
-        linear-gradient(
-            180deg,
-            #121416 0%,
-            #060708 100%
-        );
 
-    border-top:
-        1px solid
-        rgba(255,255,255,0.08);
+        .exit-logo {
 
-    box-shadow:
-        inset 0 2px 4px
-        rgba(0,0,0,0.8);
-}
+            width: 110px;
 
+            height: 110px;
 
-/* =========================================================
-   NAV BUTTON
-   ========================================================= */
+            border-radius: 20px;
 
-.nav-button{
+            overflow: hidden;
 
-    position:relative;
+            margin-bottom: 20px;
 
-    width:30px;
+            box-shadow:
+                0 8px 25px
+                rgba(0,0,0,0.5);
+        }
 
-    height:30px;
 
-    display:flex;
+        .exit-logo img {
 
-    align-items:center;
+            width: 100%;
 
-    justify-content:center;
+            height: 100%;
 
-    color:#bfc3c5;
+            object-fit: cover;
+        }
 
-    opacity:0.9;
 
-    text-shadow:
-        0 1px 2px #000;
-}
+        .exit-title {
 
+            font-size: 21px;
 
-/* =========================================================
-   RECENT APPS
-   ========================================================= */
+            font-weight: 600;
 
-.nav-recent::before{
+            margin-bottom: 8px;
+        }
 
-    content:"";
 
-    width:17px;
+        .exit-text {
 
-    height:13px;
+            font-size: 14px;
 
-    border:
-        2px solid #bfc3c5;
+            opacity: 0.8;
+        }
 
-    border-radius:1px;
 
-    box-shadow:
-        3px 3px 0 -1px #070809,
-        3px 3px 0 1px #bfc3c5;
-}
+        .exit-back {
 
+            margin-top: 25px;
 
-/* =========================================================
-   HOME BUTTON SAMSUNG
-   ========================================================= */
+            padding: 11px 25px;
 
-.nav-home{
+            border: none;
 
-    width:37px;
+            border-radius: 20px;
 
-    height:31px;
+            background: #FFF3D6;
 
-    border-radius:7px;
+            color: #244438;
 
-    border:
-        2px solid #bfc3c5;
+            font-weight: 600;
 
-    background:
-        linear-gradient(
-            180deg,
-            #25282a,
-            #090a0b
-        );
+            cursor: pointer;
+        }
 
-    box-shadow:
 
-        inset 0 1px 2px
-        rgba(255,255,255,0.15),
-
-        0 2px 3px
-        #000;
-}
-
-
-.nav-home::after{
-
-    content:"";
-
-    width:11px;
-
-    height:11px;
-
-    border:
-        1px solid #8e9599;
-
-    border-radius:3px;
-}
-
-
-/* =========================================================
-   BACK
-   ========================================================= */
-
-.nav-back::before{
-
-    content:"";
-
-    width:15px;
-
-    height:15px;
-
-    border-left:
-        2px solid #bfc3c5;
-
-    border-bottom:
-        2px solid #bfc3c5;
-
-    transform:
-        rotate(45deg);
-}
-
-
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
-
-@media(max-height:700px){
-
-    .logo-area{
-        height:210px;
-    }
-
-    .logo-placeholder{
-        height:210px;
-    }
-
-    .samsung-top{
-        height:27px;
-    }
-
-    .samsung-navigation{
-        height:40px;
-    }
-
-}
-
-</style>
+    </style>
 </head>
 
 
 <body>
 
 
-<!-- =======================================================
-     SAMSUNG GALAXY
-     ======================================================= -->
+    <!-- =====================================================
+         FRAME SAMSUNG
+    ===================================================== -->
 
-<div class="android-phone">
+    <div class="android-phone">
 
 
-    <!-- TOP BEZEL -->
+        <!-- =================================================
+             BAGIAN ATAS
+        ================================================= -->
 
-    <div class="samsung-top">
+        <div class="phone-top">
 
-        <div class="samsung-brand">
-            SAMSUNG
+            <div class="speaker"></div>
+
+            <div class="front-camera"></div>
+
         </div>
 
-        <div class="samsung-sensor"></div>
 
-        <div class="samsung-speaker"></div>
+        <!-- =================================================
+             LCD
+        ================================================= -->
 
-        <div class="samsung-camera"></div>
-
-    </div>
-
-
-    <!-- LAYAR -->
-
-    <div class="phone-screen">
+        <div class="phone-screen">
 
 
-        <div class="player-card">
+            <div class="player-card">
 
 
-            <!-- DISPLAY RADIO -->
+                <!-- =========================================
+                     LOGO
+                ========================================== -->
 
-            <div class="logo-area">
+                <div class="logo-area">
 
 
-                <div class="logo-placeholder">
+                    <div class="logo-placeholder">
 
-                    <img
-                        src="./icon-192.png"
-                        alt="Radio Islam Sragen">
+                        <img
+                            src="./icon-192.png"
+                            alt="Radio Islam Sragen">
+
+                    </div>
+
+
+                    <p class="station-sub">
+                        RAIS
+                    </p>
+
+
+                    <!-- SUMBER SUARA -->
+
+                    <div class="iframe-container">
+
+
+                        <iframe
+                            src="https://streamy1.radioislam.my.id/player/sragen-s-station/"
+                            allow="autoplay; encrypted-media"
+                            scrolling="no"
+                            title="Streamy Player">
+                        </iframe>
+
+
+                    </div>
 
                 </div>
 
 
-                <p class="station-sub">
-                    RAIS
-                </p>
+                <!-- =========================================
+                     INFORMASI
+                ========================================== -->
+
+                <div class="info-text-container">
 
 
-                <!-- STREAM -->
+                    <p>
+                        ══════📻🆁🅰🅸🆂
+                    </p>
 
-                <div class="iframe-container">
+                    <p></p>
 
-                    <iframe
-                        src="https://streamy1.radioislam.my.id/player/sragen-s-station/"
-                        allow="autoplay; encrypted-media"
-                        scrolling="no"
-                        title="Streamy Player">
-                    </iframe>
+                    <p>
+                        📚 Qasidah
+                    </p>
 
+                    <p>
+                        &nbsp;&nbsp;&nbsp;Unwanulhikam
+                    </p>
+
+                    <p>
+                        🎙 Al-Ustadz&nbsp; Usamah&nbsp; bin
+                    </p>
+
+                    <p>
+                        &nbsp;&nbsp;&nbsp;Faishol Mahri&nbsp; حفظه ا لله
+                    </p>
+
+                    <p></p>
+
+                    <p>
+                        📚 Tausiyah
+                    </p>
+
+                    <p>
+                        🎙 Al-Ustadz Huda حفظه ا لله
+                    </p>
+
+                    <p></p>
+
+                    <p>
+                        📌 Masjid Alfalah,&nbsp;Sragen
+                    </p>
+
+                    <p>
+                        &nbsp;&nbsp;&nbsp;Ahad Tgl 20 Juli 2025
+                    </p>
+
+                    <p></p>
+                    <p></p>
+                    <p></p>
+                    <p></p>
+                    <p></p>
+
+
+                </div>
+
+
+                <!-- =========================================
+                     DEVELOPER
+                ========================================== -->
+
+                <div class="dev-tag">
+                    dev.@fcom
                 </div>
 
 
             </div>
 
 
-            <!-- INFORMASI -->
+        </div>
 
-            <div class="info-text-container">
 
-                <p>
-                    ══════📻🆁🅰🅸🆂
-                </p>
+        <!-- =================================================
+             TOMBOL NAVIGASI
+        ================================================= -->
 
-                <p></p>
+        <div class="phone-bottom">
 
-                <p>
-                    📚 Qasidah
-                </p>
 
-                <p>
-                    &nbsp;&nbsp;&nbsp;Unwanulhikam
-                </p>
+            <!-- SHARE -->
 
-                <p>
-                    🎙 Al-Ustadz&nbsp; Usamah&nbsp; bin
-                </p>
+            <div
+                class="nav-button left"
+                id="shareButton"
+                title="Share">
+            </div>
 
-                <p>
-                    &nbsp;&nbsp;&nbsp;Faishol Mahri&nbsp; حفظه ا لله
-                </p>
 
-                <p></p>
+            <!-- HOME -->
 
-                <p>
-                    📚 Tausiyah
-                </p>
+            <div
+                class="home-button"
+                id="homeButton"
+                title="Home">
 
-                <p>
-                    🎙 Al-Ustadz Huda حفظه ا لله
-                </p>
-
-                <p></p>
-
-                <p>
-                    📌 Masjid Alfalah,&nbsp;Sragen
-                </p>
-
-                <p>
-                    &nbsp;&nbsp;&nbsp;Ahad Tgl 20 Juli 2025
-                </p>
-
-                <p></p>
-                <p></p>
-                <p></p>
-                <p></p>
+                <div class="home-inner"></div>
 
             </div>
 
 
-            <!-- DEVELOPER -->
+            <!-- EXIT -->
 
-            <div class="dev-tag">
-                dev.@fcom
-            </div>
-
-
-            <!-- CONTROL -->
-
-            <div class="wmp-controls">
-
-
-                <div class="wmp-progress">
-
-                    <div
-                        class="wmp-progress-fill"
-                        id="progressFill">
-                    </div>
-
-                </div>
-
-
-                <div class="control-row">
-
-
-                    <div class="transport-controls">
-
-
-                        <div
-                            class="control-button"
-                            title="Previous">
-                            ◀◀
-                        </div>
-
-
-                        <div
-                            class="control-button play-button"
-                            id="playButton"
-                            title="Play / Pause">
-                            ▶
-                        </div>
-
-
-                        <div
-                            class="control-button"
-                            id="stopButton"
-                            title="Stop">
-                            ■
-                        </div>
-
-
-                        <div
-                            class="control-button"
-                            title="Next">
-                            ▶▶
-                        </div>
-
-
-                    </div>
-
-
-                    <div class="volume-area">
-
-                        <span
-                            class="volume-icon">
-                            🔊
-                        </span>
-
-                        <input
-                            type="range"
-                            class="volume-slider"
-                            id="volumeSlider"
-                            min="0"
-                            max="100"
-                            value="80">
-
-                    </div>
-
-
-                </div>
-
-
-                <div class="wmp-status">
-
-                    <div
-                        class="wmp-status-left"
-                        id="statusText">
-
-                        Radio Islam Sragen
-
-                    </div>
-
-                    <div class="wmp-status-right">
-                        LIVE
-                    </div>
-
-                </div>
-
-
+            <div
+                class="nav-button right"
+                id="exitButton"
+                title="Exit">
             </div>
 
 
@@ -1315,327 +1225,593 @@ iframe{
     </div>
 
 
-    <!-- =================================================
-         SAMSUNG NAVIGATION
-         ================================================= -->
+    <!-- =====================================================
+         OVERLAY MENU
+    ===================================================== -->
 
-    <div class="samsung-navigation">
+    <div
+        class="menu-overlay"
+        id="menuOverlay">
+    </div>
 
-        <div
-            class="nav-button nav-recent"
-            title="Aplikasi Terbaru">
+
+    <!-- =====================================================
+         MENU SHARE
+    ===================================================== -->
+
+    <div
+        class="share-menu"
+        id="shareMenu">
+
+
+        <div class="share-title">
+            Bagikan Radio Islam Sragen
         </div>
 
 
-        <div
-            class="nav-button nav-home"
-            title="Home">
-        </div>
+        <button
+            class="share-button"
+            id="systemShare">
+
+            📤 Bagikan Link
+
+        </button>
 
 
-        <div
-            class="nav-button nav-back"
-            title="Kembali">
-        </div>
+        <button
+            class="share-button"
+            id="copyLink">
+
+            🔗 Salin Link
+
+        </button>
+
+
+        <button
+            class="share-button"
+            id="closeShare">
+
+            ✕ Tutup
+
+        </button>
+
 
     </div>
 
 
-</div>
+    <!-- =====================================================
+         EXIT SCREEN
+    ===================================================== -->
+
+    <div
+        class="exit-screen"
+        id="exitScreen">
 
 
-<script>
+        <div class="exit-logo">
 
-/* =========================================================
-   RAPikan TEXT CONTAINER
-   ========================================================= */
+            <img
+                src="./icon-192.png"
+                alt="Radio Islam Sragen">
 
-function rapikanTextContainer(){
-
-    const container =
-        document.querySelector(
-            '.info-text-container'
-        );
-
-    if(!container)
-        return;
+        </div>
 
 
-    const paragraphs =
-        Array.from(
-            container.querySelectorAll('p')
-        );
+        <div class="exit-title">
+            Radio Islam Sragen
+        </div>
 
 
-    let lastFilled = -1;
+        <div class="exit-text">
+            Terima kasih telah mendengarkan.
+        </div>
 
 
-    for(
-        let i = 0;
-        i < paragraphs.length;
-        i++
-    ){
+        <button
+            class="exit-back"
+            id="exitBack">
 
-        const teks =
-            paragraphs[i]
-                .textContent
-                .trim();
+            Kembali
+
+        </button>
 
 
-        if(teks !== ''){
-
-            lastFilled = i;
-
-        }
-
-    }
+    </div>
 
 
-    paragraphs.forEach(
-        (p,index)=>{
+    <!-- =====================================================
+         SCRIPT
+    ===================================================== -->
 
-            if(index > lastFilled){
+    <script>
 
-                p.style.display =
-                    'none';
 
-            }else{
+        /* =================================================
+           RAPikan INFORMASI
+        ================================================= */
 
-                p.style.display =
-                    '';
+        function rapikanTextContainer() {
+
+
+            const container =
+                document.querySelector(
+                    '.info-text-container'
+                );
+
+
+            if (!container)
+                return;
+
+
+            const paragraphs =
+                Array.from(
+                    container.querySelectorAll('p')
+                );
+
+
+            let lastFilled =
+                -1;
+
+
+            for (
+                let i = 0;
+                i < paragraphs.length;
+                i++
+            ) {
+
+
+                const teks =
+                    paragraphs[i]
+                        .textContent
+                        .trim();
+
+
+                if (teks !== '') {
+
+                    lastFilled =
+                        i;
+
+                }
+
+            }
+
+
+            paragraphs.forEach(
+                (p, index) => {
+
+
+                    if (
+                        index >
+                        lastFilled
+                    ) {
+
+                        p.style.display =
+                            'none';
+
+                    } else {
+
+                        p.style.display =
+                            '';
+
+                    }
+
+                }
+            );
+
+
+            container.style.height =
+                'auto';
+
+
+            const tinggi =
+                container.scrollHeight;
+
+
+            if (
+                tinggi >
+                352
+            ) {
+
+                container.style.height =
+                    '352px';
+
+            } else {
+
+                container.style.height =
+                    tinggi + 'px';
 
             }
 
         }
-    );
 
 
-    container.style.height =
-        'auto';
+        /* =================================================
+           MENU SHARE
+        ================================================= */
+
+        const shareButton =
+            document.getElementById(
+                'shareButton'
+            );
 
 
-    const tinggi =
-        container.scrollHeight;
+        const shareMenu =
+            document.getElementById(
+                'shareMenu'
+            );
 
 
-    if(tinggi > 352){
-
-        container.style.height =
-            '352px';
-
-    }else{
-
-        container.style.height =
-            tinggi + 'px';
-
-    }
-
-}
+        const menuOverlay =
+            document.getElementById(
+                'menuOverlay'
+            );
 
 
-/* =========================================================
-   PLAY / PAUSE
-   ========================================================= */
-
-const playButton =
-    document.getElementById(
-        'playButton'
-    );
-
-const statusText =
-    document.getElementById(
-        'statusText'
-    );
+        const closeShare =
+            document.getElementById(
+                'closeShare'
+            );
 
 
-let isPlaying = true;
+        function bukaShare() {
 
+            shareMenu.classList.add(
+                'active'
+            );
 
-playButton.addEventListener(
-    'click',
-    function(){
-
-        isPlaying = !isPlaying;
-
-
-        if(isPlaying){
-
-            playButton.textContent =
-                '▶';
-
-            statusText.textContent =
-                'Radio Islam Sragen';
-
-        }else{
-
-            playButton.textContent =
-                'Ⅱ';
-
-            statusText.textContent =
-                'Radio dijeda';
+            menuOverlay.classList.add(
+                'active'
+            );
 
         }
 
-    }
-);
 
+        function tutupShare() {
 
-/* =========================================================
-   STOP
-   ========================================================= */
+            shareMenu.classList.remove(
+                'active'
+            );
 
-const stopButton =
-    document.getElementById(
-        'stopButton'
-    );
-
-
-stopButton.addEventListener(
-    'click',
-    function(){
-
-        isPlaying = false;
-
-        playButton.textContent =
-            '▶';
-
-        statusText.textContent =
-            'Radio dihentikan';
-
-    }
-);
-
-
-/* =========================================================
-   VOLUME
-   ========================================================= */
-
-const volumeSlider =
-    document.getElementById(
-        'volumeSlider'
-    );
-
-
-const volumeIcon =
-    document.querySelector(
-        '.volume-icon'
-    );
-
-
-volumeSlider.addEventListener(
-    'input',
-    function(){
-
-        const value =
-            Number(this.value);
-
-
-        if(value === 0){
-
-            volumeIcon.textContent =
-                '🔇';
-
-        }else if(value < 50){
-
-            volumeIcon.textContent =
-                '🔉';
-
-        }else{
-
-            volumeIcon.textContent =
-                '🔊';
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   DOM READY
-   ========================================================= */
-
-document.addEventListener(
-    'DOMContentLoaded',
-    function(){
-
-        rapikanTextContainer();
-
-    }
-);
-
-
-/* =========================================================
-   MENCEGAH ZOOM
-   ========================================================= */
-
-document.addEventListener(
-    'touchmove',
-    function(e){
-
-        if(
-            e.target.closest(
-                '.info-text-container'
-            )
-        ){
-
-            return;
+            menuOverlay.classList.remove(
+                'active'
+            );
 
         }
 
 
-        if(e.scale !== 1){
-
-            e.preventDefault();
-
-        }
-
-    },
-    {
-        passive:false
-    }
-);
+        shareButton.addEventListener(
+            'click',
+            bukaShare
+        );
 
 
-/* =========================================================
-   SERVICE WORKER
-   ========================================================= */
+        closeShare.addEventListener(
+            'click',
+            tutupShare
+        );
 
-if(
-    'serviceWorker'
-    in navigator
-){
 
-    window.addEventListener(
-        'load',
-        ()=>{
+        menuOverlay.addEventListener(
+            'click',
+            tutupShare
+        );
 
-            navigator.serviceWorker
-                .register('./sw.js')
 
-                .then(
-                    reg =>
+        /* =================================================
+           SHARE SISTEM HP
+        ================================================= */
+
+        document.getElementById(
+            'systemShare'
+        ).addEventListener(
+            'click',
+            async function() {
+
+
+                const link =
+                    window.location.href;
+
+
+                if (
+                    navigator.share
+                ) {
+
+
+                    try {
+
+                        await navigator.share({
+
+                            title:
+                                'Radio Islam Sragen',
+
+                            text:
+                                'Dengarkan Radio Islam Sragen',
+
+                            url:
+                                link
+
+                        });
+
+                    }
+
+                    catch (error) {
+
                         console.log(
-                            'PWA Samsung Galaxy Sukses!'
-                        )
-                )
+                            'Share dibatalkan'
+                        );
 
-                .catch(
-                    err =>
-                        console.log(
-                            'PWA Gagal:',
-                            err
-                        )
+                    }
+
+
+                } else {
+
+
+                    try {
+
+                        await navigator.clipboard.writeText(
+                            link
+                        );
+
+                        alert(
+                            'Link Radio Islam Sragen berhasil disalin.'
+                        );
+
+                    }
+
+                    catch (error) {
+
+                        alert(
+                            link
+                        );
+
+                    }
+
+                }
+
+            }
+        );
+
+
+        /* =================================================
+           SALIN LINK
+        ================================================= */
+
+        document.getElementById(
+            'copyLink'
+        ).addEventListener(
+            'click',
+            async function() {
+
+
+                const link =
+                    window.location.href;
+
+
+                try {
+
+                    await navigator.clipboard.writeText(
+                        link
+                    );
+
+                    alert(
+                        'Link berhasil disalin.'
+                    );
+
+                }
+
+                catch (error) {
+
+                    prompt(
+                        'Salin link berikut:',
+                        link
+                    );
+
+                }
+
+            }
+        );
+
+
+        /* =================================================
+           HOME
+        ================================================= */
+
+        document.getElementById(
+            'homeButton'
+        ).addEventListener(
+            'click',
+            function() {
+
+
+                tutupShare();
+
+
+                document.getElementById(
+                    'exitScreen'
+                ).classList.remove(
+                    'active'
                 );
 
+
+                window.scrollTo(
+                    0,
+                    0
+                );
+
+            }
+        );
+
+
+        /* =================================================
+           EXIT
+        ================================================= */
+
+        document.getElementById(
+            'exitButton'
+        ).addEventListener(
+            'click',
+            function() {
+
+
+                tutupShare();
+
+
+                const exitScreen =
+                    document.getElementById(
+                        'exitScreen'
+                    );
+
+
+                exitScreen.classList.add(
+                    'active'
+                );
+
+
+                /*
+                 * Browser biasanya tidak mengizinkan
+                 * halaman web menutup dirinya sendiri.
+                 * Karena itu kita mencoba window.close()
+                 * terlebih dahulu.
+                 */
+
+                setTimeout(
+                    function() {
+
+                        try {
+
+                            window.close();
+
+                        }
+
+                        catch (error) {
+
+                            console.log(
+                                'Browser tidak mengizinkan close.'
+                            );
+
+                        }
+
+                    },
+                    300
+                );
+
+            }
+        );
+
+
+        /* =================================================
+           KEMBALI DARI EXIT
+        ================================================= */
+
+        document.getElementById(
+            'exitBack'
+        ).addEventListener(
+            'click',
+            function() {
+
+                document.getElementById(
+                    'exitScreen'
+                ).classList.remove(
+                    'active'
+                );
+
+            }
+        );
+
+
+        /* =================================================
+           DOM READY
+        ================================================= */
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            function() {
+
+                rapikanTextContainer();
+
+            }
+        );
+
+
+        /* =================================================
+           MENCEGAH ZOOM
+        ================================================= */
+
+        document.addEventListener(
+            'touchmove',
+            function(e) {
+
+
+                if (
+                    e.target.closest(
+                        '.info-text-container'
+                    )
+                ) {
+
+                    return;
+
+                }
+
+
+                if (
+                    e.scale !== 1
+                ) {
+
+                    e.preventDefault();
+
+                }
+
+            },
+            {
+                passive:
+                    false
+            }
+        );
+
+
+        /* =================================================
+           SERVICE WORKER
+        ================================================= */
+
+        if (
+            'serviceWorker'
+            in navigator
+        ) {
+
+
+            window.addEventListener(
+                'load',
+                () => {
+
+
+                    navigator.serviceWorker
+                        .register('./sw.js')
+
+
+                        .then(
+                            reg =>
+                                console.log(
+                                    'PWA Manual Crop Sukses Diaktifkan!'
+                                )
+                        )
+
+
+                        .catch(
+                            err =>
+                                console.log(
+                                    'PWA Gagal:',
+                                    err
+                                )
+                        );
+
+
+                }
+            );
+
         }
 
-    );
 
-}
-
-</script>
+    </script>
 
 </body>
 </html>
-```
