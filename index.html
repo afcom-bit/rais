@@ -79,13 +79,17 @@
             margin-bottom: 20px;
         }
 
+        /* LOGO
+           Lebih panjang 12px kiri
+           dan 12px kanan
+        */
         .logo-placeholder {
             position: absolute;
 
-            width: calc(100% + 10px);
+            width: calc(100% + 24px);
             height: 200px;
 
-            left: -5px;
+            left: -12px;
             top: 0;
 
             background: linear-gradient(
@@ -115,12 +119,16 @@
             display: block;
         }
 
-        /* Teks berada di atas logo */
+        /* =========================
+           TEKS DI ATAS LOGO
+           ========================= */
+
         .station-sub {
             position: absolute;
 
             left: 0;
             right: 0;
+
             bottom: 103px;
 
             margin: 0;
@@ -136,12 +144,17 @@
             text-align: center;
         }
 
-        /* Kartu sumber suara berada di atas logo */
+        /* =========================
+           KARTU SUMBER SUARA
+           ========================= */
+
         .iframe-container {
             position: absolute;
 
             left: 0;
-            bottom: 0;
+
+            /* Jarak 12px dari bagian bawah logo */
+            bottom: 12px;
 
             width: 100%;
             height: 83px;
@@ -225,6 +238,10 @@
             border-radius: 10px;
         }
 
+        /* =========================
+           DEVELOPER
+           ========================= */
+
         .dev-tag {
             text-align: center;
             font-size: 13px;
@@ -246,22 +263,27 @@
 
     <div class="player-card">
 
-        <!-- LOGO + TEKS + SUMBER SUARA -->
+        <!-- =========================
+             LOGO + TEKS + SUMBER SUARA
+             ========================= -->
+
         <div class="logo-area">
 
-            <!-- Logo sebagai lapisan belakang -->
+            <!-- LOGO -->
             <div class="logo-placeholder">
+
                 <img
                     src="./icon-192.png"
                     alt="Radio Islam Sragen">
+
             </div>
 
-            <!-- Teks di atas logo -->
+            <!-- TEKS DI ATAS LOGO -->
             <p class="station-sub">
                 Lantunan Murotal dan Kajian Islam Ilmiah
             </p>
 
-            <!-- Sumber suara di atas logo -->
+            <!-- SUMBER SUARA DI ATAS LOGO -->
             <div class="iframe-container">
 
                 <iframe
@@ -276,7 +298,10 @@
         </div>
 
 
-        <!-- INFORMASI -->
+        <!-- =========================
+             INFORMASI
+             ========================= -->
+
         <div class="info-text-container">
 
             <p>══════📻🆁🅰🅸🆂</p>
@@ -312,7 +337,10 @@
         </div>
 
 
-        <!-- DEVELOPER -->
+        <!-- =========================
+             DEVELOPER
+             ========================= -->
+
         <div class="dev-tag">
             dev.@fcom
         </div>
