@@ -2,15 +2,26 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <meta name="viewport"
+          content="width=device-width,
+          initial-scale=1.0,
+          maximum-scale=1.0,
+          user-scalable=no,
+          viewport-fit=cover">
 
     <title>Radio Islam Sragen</title>
 
     <link rel="manifest" href="manifest.json">
 
     <meta name="theme-color" content="#1b4d3e">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <meta name="apple-mobile-web-app-capable"
+          content="yes">
+
+    <meta name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent">
+
 
     <style>
 
@@ -20,6 +31,7 @@
 
         html,
         body {
+
             margin: 0;
             padding: 0;
 
@@ -61,6 +73,7 @@
 
         /* =====================================================
            BODY HP ANDROID
+           COBALT VIOLET + SKY BLUE
            LEBAR KESELURUHAN = 360px
         ===================================================== */
 
@@ -77,19 +90,21 @@
             background:
                 linear-gradient(
                     145deg,
-                    #FFF3D6 0%,
-                    #E8F5E9 50%,
-                    #CFEFE0 100%
+                    #6F2DBD 0%,
+                    #4169E1 48%,
+                    #87CEEB 100%
                 );
 
-            border: 1px solid #D8CBAA;
+            border: 1px solid #5A3DA8;
 
             border-radius: 42px;
 
             box-shadow:
                 0 20px 50px rgba(0,0,0,0.55),
-                inset 0 0 0 1px rgba(255,255,255,0.7),
-                0 0 25px rgba(220,240,225,0.35);
+                inset 0 0 0 1px
+                rgba(255,255,255,0.45),
+                0 0 25px
+                rgba(100,160,255,0.35);
 
             overflow: hidden;
 
@@ -191,6 +206,7 @@
 
         /* =====================================================
            KARTU UTAMA
+           SUDUT MENGIKUTI FRAME HP
         ===================================================== */
 
         .player-card {
@@ -220,7 +236,7 @@
                 25px;
 
             border-radius:
-                20px;
+                36px;
 
             box-shadow:
                 inset 0 1px 2px
@@ -235,12 +251,16 @@
                 0 0 18px 2px
                 rgba(255,255,255,0.18);
 
-            text-align: center;
+            text-align:
+                center;
 
-            width: 100%;
+            width:
+                100%;
+
+            /* GARIS PUTIH ATAS DIHAPUS */
 
             border-top:
-                5px solid #F8FFFD;
+                none;
 
             box-sizing:
                 border-box;
@@ -385,6 +405,7 @@
 
         /* =====================================================
            FRAME SUMBER SUARA
+           TETAP - TIDAK DIUBAH
         ===================================================== */
 
         .iframe-container {
@@ -781,6 +802,7 @@
 
 
                 if (teks !== '') {
+
 
                     lastFilled =
                         i;
