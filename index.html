@@ -15,7 +15,10 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #0e0e0e 0%, #1b4d3e 100%);
+            /* DIUBAH: Menggunakan perpaduan Cobalt Violet & Sky Blue premium ala Samsung */
+            background: radial-gradient(circle at 20% 30%, #4D4B9D 0%, transparent 50%),
+                        radial-gradient(circle at 80% 70%, #87CEEB 0%, transparent 60%),
+                        radial-gradient(circle at 50% 50%, #2A285C 0%, #121026 100%);
             color: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
@@ -45,16 +48,18 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
 
-            border: 1px solid rgba(255, 255, 244, 0.6);
+            /* DIUBAH: Garis tepi diperkuat dengan bias pendaran Sky Blue yang lembut */
+            border: 1px solid rgba(135, 206, 235, 0.4);
 
             padding: 25px;
             border-radius: 20px;
 
+            /* DIUBAH: Bayangan luar memancarkan pendaran warna holografik Cobalt Violet & Sky Blue */
             box-shadow:
                 inset 0 1px 2px rgba(255, 255, 255, 0.6),
                 inset 0 -1px 2px rgba(255, 255, 255, 0.2),
-                0 10px 25px rgba(0,0,0,0.5),
-                0 0 18px 2px rgba(255, 255, 255, 0.18);
+                0 12px 40px 0 rgba(77, 75, 157, 0.25),     /* Pendaran Cobalt Violet */
+                0 0 20px 2px rgba(135, 206, 235, 0.25);    /* Pendaran Sky Blue */
 
             text-align: center;
             width: 360px;
@@ -360,71 +365,10 @@
 
                 container.style.height =
                     tinggi + 'px';
-
             }
-
         }
 
-
-        document.addEventListener(
-            'DOMContentLoaded',
-            function() {
-                rapikanTextContainer();
-            }
-        );
-
-
-        document.addEventListener(
-            'touchmove',
-            function(e) {
-
-                if (
-                    e.target.closest(
-                        '.info-text-container'
-                    )
-                ) {
-                    return;
-                }
-
-                if (e.scale !== 1) {
-                    e.preventDefault();
-                }
-
-            },
-            { passive: false }
-        );
-
-
-        if ('serviceWorker' in navigator) {
-
-            window.addEventListener(
-                'load',
-                () => {
-
-                    navigator.serviceWorker
-                        .register('./sw.js')
-
-                        .then(
-                            reg =>
-                                console.log(
-                                    'PWA Manual Crop Sukses Diaktifkan!'
-                                )
-                        )
-
-                        .catch(
-                            err =>
-                                console.log(
-                                    'PWA Gagal:',
-                                    err
-                                )
-                        );
-
-                }
-            );
-
-        }
-
+        window.addEventListener('DOMContentLoaded', rapikanTextContainer);
     </script>
-
 </body>
 </html>
