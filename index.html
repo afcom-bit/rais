@@ -66,6 +66,10 @@
             margin-bottom: 20px;
         }
 
+        /* ==============================
+           AREA LOGO
+        ============================== */
+
         .logo-area {
             position: relative;
             width: 100%;
@@ -107,7 +111,10 @@
             display: block;
         }
 
-        /* RAIS berada di luar logo, tepat di atas logo */
+        /* ==============================
+           RAIS DI ATAS LOGO
+        ============================== */
+
         .station-sub {
             position: absolute;
             left: 0;
@@ -134,26 +141,61 @@
             text-align: center;
         }
 
+        /* ==============================
+           FRAME GAYA HP ANDROID
+        ============================== */
+
         .iframe-container {
             position: absolute;
+
             left: 0;
             bottom: 5px;
 
             width: 100%;
             height: 83px;
 
-            border-radius: 12px;
+            border-radius: 18px;
 
             overflow: hidden !important;
 
-            background: transparent !important;
+            background: #111 !important;
 
-            border: 1px solid rgba(255, 255, 254, 0.4);
+            border: 2px solid #222;
+
+            box-shadow:
+                inset 0 0 0 1px rgba(255,255,255,0.15),
+                0 3px 10px rgba(0,0,0,0.55);
 
             z-index: 4;
 
             --crop-left: -50px;
             --crop-top: -135px;
+        }
+
+        /* Kamera / sensor HP */
+        .iframe-container::before {
+            content: "";
+
+            position: absolute;
+
+            top: 5px;
+            left: 50%;
+
+            transform: translateX(-50%);
+
+            width: 35px;
+            height: 5px;
+
+            background: #050505;
+
+            border-radius: 10px;
+
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.08);
+
+            z-index: 20;
+
+            pointer-events: none;
         }
 
         iframe {
@@ -165,6 +207,7 @@
             border: none;
 
             overflow: hidden !important;
+
             touch-action: none;
 
             left: var(--crop-left);
@@ -172,6 +215,10 @@
 
             z-index: 5;
         }
+
+        /* ==============================
+           INFORMASI
+        ============================== */
 
         .info-text-container {
             width: 310px;
@@ -216,6 +263,10 @@
             background: #CAA347;
             border-radius: 10px;
         }
+
+        /* ==============================
+           DEVELOPER
+        ============================== */
 
         .dev-tag {
             text-align: center;
@@ -319,11 +370,17 @@
             if (!container) return;
 
             const paragraphs =
-                Array.from(container.querySelectorAll('p'));
+                Array.from(
+                    container.querySelectorAll('p')
+                );
 
             let lastFilled = -1;
 
-            for (let i = 0; i < paragraphs.length; i++) {
+            for (
+                let i = 0;
+                i < paragraphs.length;
+                i++
+            ) {
 
                 const teks =
                     paragraphs[i].textContent.trim();
@@ -333,19 +390,21 @@
                 }
             }
 
-            paragraphs.forEach((p, index) => {
+            paragraphs.forEach(
+                (p, index) => {
 
-                if (index > lastFilled) {
+                    if (index > lastFilled) {
 
-                    p.style.display = 'none';
+                        p.style.display = 'none';
 
-                } else {
+                    } else {
 
-                    p.style.display = '';
+                        p.style.display = '';
+
+                    }
 
                 }
-
-            });
+            );
 
             container.style.height = 'auto';
 
@@ -354,7 +413,8 @@
 
             if (tinggi > 352) {
 
-                container.style.height = '352px';
+                container.style.height =
+                    '352px';
 
             } else {
 
@@ -369,7 +429,9 @@
         document.addEventListener(
             'DOMContentLoaded',
             function() {
+
                 rapikanTextContainer();
+
             }
         );
 
@@ -391,7 +453,9 @@
                 }
 
             },
-            { passive: false }
+            {
+                passive: false
+            }
         );
 
 
