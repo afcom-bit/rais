@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
     <title>Radio Islam Sragen</title>
+
     <link rel="manifest" href="manifest.json">
+
     <meta name="theme-color" content="#1b4d3e">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -32,20 +35,33 @@
 
         .player-card {
             background:
-                linear-gradient(135deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.08) 40%, rgba(255, 255, 255, 0.35) 45%, rgba(255, 255, 255, 0.05) 52%, rgba(255, 255, 255, 0.15) 100%),
+                linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.28) 0%,
+                    rgba(255, 255, 255, 0.08) 40%,
+                    rgba(255, 255, 255, 0.35) 45%,
+                    rgba(255, 255, 255, 0.05) 52%,
+                    rgba(255, 255, 255, 0.15) 100%
+                ),
                 rgba(255, 255, 255, 0.22);
+
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
+
             border: 1px solid rgba(255, 255, 244, 0.6);
+
             padding: 25px;
             border-radius: 20px;
+
             box-shadow:
                 inset 0 1px 2px rgba(255, 255, 255, 0.6),
                 inset 0 -1px 2px rgba(255, 255, 255, 0.2),
                 0 10px 25px rgba(0,0,0,0.5),
                 0 0 18px 2px rgba(255, 255, 255, 0.18);
+
             text-align: center;
             width: 360px;
+
             border-top: 5px solid #CAA347;
             box-sizing: border-box;
             touch-action: none;
@@ -53,16 +69,27 @@
         }
 
         .logo-placeholder {
-            width: 100px;
+            width: calc(100% - 20px);
             height: 100px;
-            background: linear-gradient(135deg, #FFDF92 0%, #CAA347 100%);
-            border-radius: 50%;
-            margin: 0 auto 11px;
+
+            background: linear-gradient(
+                135deg,
+                #FFDF92 0%,
+                #CAA347 100%
+            );
+
+            border-radius: 15px;
+
+            margin: 10px auto 12px;
+
             display: flex;
             align-items: center;
             justify-content: center;
+
             overflow: hidden;
-            box-shadow: 0 0 20px rgba(202, 163, 71, 0.4);
+
+            box-shadow:
+                0 0 20px rgba(202, 163, 71, 0.4);
         }
 
         .logo-placeholder img {
@@ -95,6 +122,7 @@
             background: transparent !important;
             border: 1px solid rgba(255, 255, 254, 0.4);
             height: 83px;
+
             --crop-left: -50px;
             --crop-top: -135px;
         }
@@ -106,8 +134,10 @@
             border: none;
             overflow: hidden !important;
             touch-action: none;
+
             left: var(--crop-left);
             top: var(--crop-top);
+
             z-index: 5;
         }
 
@@ -115,16 +145,24 @@
             width: 310px;
             height: auto;
             max-height: 352px;
+
             overflow-y: auto;
             overflow-x: hidden;
+
             text-align: justify;
+
             font-size: 16px;
             line-height: 1.3;
+
             color: #FFFFF4;
+
             word-wrap: break-word;
             white-space: normal;
+
             padding: 0 15px;
+
             box-sizing: border-box;
+
             user-select: text;
             touch-action: pan-y;
         }
@@ -151,10 +189,14 @@
             text-align: center;
             font-size: 13px;
             color: #EDDDB8;
+
             margin-top: 21px;
+
             width: 310px;
+
             font-weight: 400;
             letter-spacing: 0.5px;
+
             user-select: none;
         }
     </style>
@@ -165,43 +207,56 @@
     <div class="player-card">
 
         <div class="logo-placeholder">
-            <img src="icon-192.png" alt="Radio Islam Sragen">
+            <img
+                src="./icon-192.png"
+                alt="Radio Islam Sragen">
         </div>
 
-        <h2 class="station-title">Radio Islam Sragen</h2>
+        <h2 class="station-title">
+            Radio Islam Sragen
+        </h2>
 
         <p class="station-sub">
             Lantunan Murotal dan Kajian Islam Ilmiah
         </p>
 
-        <div class="iframe-container" style="margin-bottom: 20px;">
+        <div
+            class="iframe-container"
+            style="margin-bottom: 20px;">
+
             <iframe
                 src="https://streamy1.radioislam.my.id/player/sragen-s-station/"
                 allow="autoplay; encrypted-media"
                 scrolling="no"
                 title="Streamy Player">
             </iframe>
+
         </div>
 
         <div class="info-text-container">
 
             <p>══════📻🆁🅰🅸🆂</p>
+
             <p></p>
 
             <p>📚 Qasidah</p>
+
             <p>   Unwanulhikam</p>
 
             <p>🎙 Al-Ustadz&nbsp; Usamah&nbsp; bin</p>
+
             <p>   Faishol Mahri&nbsp; حفظه ا لله</p>
 
             <p></p>
 
             <p>📚 Tausiyah</p>
+
             <p>🎙 Al-Ustadz Huda حفظه ا لله</p>
 
             <p></p>
 
             <p>📌 Masjid Alfalah,&nbsp;Sragen</p>
+
             <p>   Ahad Tgl 20 Juli 2025</p>
 
             <p></p>
@@ -219,50 +274,81 @@
     </div>
 
     <script>
+
         function rapikanTextContainer() {
-            const container = document.querySelector('.info-text-container');
+
+            const container =
+                document.querySelector(
+                    '.info-text-container'
+                );
 
             if (!container) return;
 
-            const paragraphs = Array.from(
-                container.querySelectorAll('p')
-            );
+            const paragraphs =
+                Array.from(
+                    container.querySelectorAll('p')
+                );
 
             let lastFilled = -1;
 
-            for (let i = 0; i < paragraphs.length; i++) {
-                const teks = paragraphs[i].textContent.trim();
+            for (
+                let i = 0;
+                i < paragraphs.length;
+                i++
+            ) {
+
+                const teks =
+                    paragraphs[i]
+                    .textContent
+                    .trim();
 
                 if (teks !== '') {
                     lastFilled = i;
                 }
             }
 
-            paragraphs.forEach((p, index) => {
-                if (index > lastFilled) {
-                    p.style.display = 'none';
-                } else {
-                    p.style.display = '';
+            paragraphs.forEach(
+                (p, index) => {
+
+                    if (index > lastFilled) {
+
+                        p.style.display = 'none';
+
+                    } else {
+
+                        p.style.display = '';
+                    }
+
                 }
-            });
+            );
 
             container.style.height = 'auto';
 
-            const tinggi = container.scrollHeight;
+            const tinggi =
+                container.scrollHeight;
 
             if (tinggi > 352) {
-                container.style.height = '352px';
+
+                container.style.height =
+                    '352px';
+
             } else {
-                container.style.height = tinggi + 'px';
+
+                container.style.height =
+                    tinggi + 'px';
             }
         }
+
 
         document.addEventListener(
             'DOMContentLoaded',
             function() {
+
                 rapikanTextContainer();
+
             }
         );
+
 
         document.addEventListener(
             'touchmove',
@@ -281,31 +367,39 @@
                 }
 
             },
-            { passive: false }
+            {
+                passive: false
+            }
         );
+
 
         if ('serviceWorker' in navigator) {
 
-            window.addEventListener('load', () => {
+            window.addEventListener(
+                'load',
+                () => {
 
-                navigator.serviceWorker.register('sw.js')
+                    navigator.serviceWorker
+                        .register('./sw.js')
+                        .then(
+                            reg =>
+                                console.log(
+                                    'PWA Manual Crop Sukses Diaktifkan!'
+                                )
+                        )
+                        .catch(
+                            err =>
+                                console.log(
+                                    'PWA Gagal:',
+                                    err
+                                )
+                        );
 
-                .then(reg =>
-                    console.log(
-                        'PWA Manual Crop Sukses Diaktifkan!'
-                    )
-                )
-
-                .catch(err =>
-                    console.log(
-                        'PWA Gagal:',
-                        err
-                    )
-                );
-
-            });
+                }
+            );
 
         }
+
     </script>
 
 </body>
