@@ -13,7 +13,7 @@
 .screen{width:calc(100% - 18px);margin:auto;overflow:hidden;border-radius:20px}.logo{position:relative;width:340px;height:300px;margin:auto}.logo>img{width:100%;height:100%;display:block;object-fit:cover;border-radius:18px}
 
 /* ==========================================================================
-   PERUBAHAN UKURAN LEBAR TAMPILAN MENJADI 300PX
+   PERBAIKAN: UKURAN SKALA UTK LEBAR TAMPILAN 300PX (SEIMBANG & AMAN DARI ERROR)
    ========================================================================== */
 .stream {
   position: absolute;
@@ -21,18 +21,26 @@
   overflow: hidden;
   border: 1px solid #fff8;
   border-radius: 12px;
-  height: 83px;
-  width: 300px;
-  left: 50%;
-  transform: translateX(-50%);
+  
+  width: 300px;                 /* Lebar tampilan manual diubah ke 300px */
+  height: 83px;                 /* Tinggi tetap */
+  
+  left: 50%;                    /* Memosisikan kotak luar tepat di tengah */
+  transform: translateX(-50%); 
 }
+
 .stream iframe {
   position: absolute;
-  top: -135px;
-  left: -50px;
-  width: 480px;
-  height: 445px;
   border: 0;
+  
+  width: 300px;                 /* Lebar disamakan agar seimbang kanan-kiri */
+  height: 445px;
+  
+  top: -110px;                  /* Memotong area atas player bawaan */
+  left: 0;                      /* Dikunci ke 0 agar tombol tidak tergeser ke samping */
+  
+  transform: scale(1);          /* Skala ukuran konten internal */
+  transform-origin: top center;
 }
 /* ========================================================================== */
 
