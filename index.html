@@ -10,31 +10,7 @@
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Segoe UI,Tahoma,sans-serif}body{display:flex;align-items:center;justify-content:center;padding:12px;background:linear-gradient(135deg,#0e0e0e,#1b4d3e)}
 .phone{width:min(365px,100%);overflow:hidden;border:3px solid #d8cbaa;border-radius:42px;background:linear-gradient(145deg,#cfefe0,#e8f5e9 50%,#fff3d6);box-shadow:0 18px 32px #0008,0 5px 9px #0006,inset 2px 2px 3px #fff,inset -3px -3px 5px #5b49283b}
 .top{position:relative;height:28px;display:flex;align-items:center;justify-content:center}.speaker{width:56px;height:7px;border-radius:8px;background:linear-gradient(#687673,#35423f);box-shadow:inset 0 1px 2px #fff6,0 1px 2px #0005}.camera{position:absolute;top:11px;left:calc(50% + 45px);width:7px;height:7px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#a8c5c0,#526d68 48%,#293b38);box-shadow:0 0 3px #304b7057}.dev{position:absolute;top:7px;left:44px;margin:0;color:#6f644b;font-size:10px;font-weight:600}
-.screen{width:calc(100% - 18px);margin:auto;overflow:hidden;border-radius:20px}.logo{position:relative;width:340px;height:300px;margin:auto}.logo>img{width:100%;height:100%;display:block;object-fit:cover;border-radius:18px}
-
-/* Pembaruan Bagian Stream & Iframe dengan Skala Seimbang */
-.stream {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 83px;
-  overflow: hidden;
-  border: 1px solid #fff8;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.stream iframe {
-  width: 480px;
-  height: 445px;
-  border: 0;
-  flex-shrink: 0;
-  transform: scale(0.690);
-  transform-origin: center center;
-}
-
+.screen{width:calc(100% - 18px);margin:auto;overflow:hidden;border-radius:20px}.logo{position:relative;width:340px;height:300px;margin:auto}.logo>img{width:100%;height:100%;display:block;object-fit:cover;border-radius:18px}.stream{position:absolute;bottom:0;left:0;width:100%;height:83px;overflow:hidden;border:1px solid #fff8;border-radius:12px}.stream iframe{position:absolute;top:-135px;left:-50px;width:480px;height:445px;border:0}
 .bottom{height:51px;display:flex;align-items:center;justify-content:center;gap:42px}.nav,.home{display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.12s;box-shadow:inset 2px 2px 3px #fff9,inset -2px -2px 3px #0003,0 3px 5px #0006}.nav:active,.home:active{transform:scale(.92)}.nav{width:32px;height:32px;border:1px solid #39948085;border-radius:50%;background:linear-gradient(145deg,#d9f8f1,#a9e4d7);color:#3975b8}.theme:before{content:"☾";font-size:20px}.share svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.3;stroke-linecap:round}.home{width:74px;height:34px;border:1px solid #827355;border-radius:10px;background:linear-gradient(145deg,#fff3d6,#d8cbaa)}.home i{width:13px;height:13px;border:2px solid #8c8062;border-radius:3px}
 .overlay{position:fixed;inset:0;z-index:9;display:none;background:#0009}.popup{position:fixed;z-index:10;top:50%;left:50%;display:none;width:min(300px,calc(100vw - 32px));padding:20px;color:#244438;text-align:center;background:linear-gradient(145deg,#cfefe0,#fff3d6);border:2px solid #d8cbaa;border-radius:22px;transform:translate(-50%,-50%)}.active{display:block}.title{margin-bottom:15px;font-size:18px;font-weight:700}.content{padding:10px;text-align:left;white-space:pre-line;background:#fffc;border:1px solid #9ead9d;border-radius:10px}.btn{width:100%;height:42px;margin-top:8px;border:0;border-radius:12px;cursor:pointer;color:#244438;font-weight:600;background:linear-gradient(145deg,#e8f5e9,#fff3d6)}
 .phone.dark{border-color:#76509a;background:linear-gradient(145deg,#09070f,#251237 55%,#4a2469);box-shadow:0 18px 32px #000b,0 5px 9px #0008,inset 2px 2px 3px #ebdaff4d,inset -3px -3px 5px #0005}.phone.dark .speaker{background:linear-gradient(#9d8baa,#3c284b);box-shadow:0 0 4px #dcb8ff99}.phone.dark .camera{background:radial-gradient(circle at 35% 35%,#ead8ff,#9a72b9 42%,#2a153b 72%);box-shadow:0 0 4px #dcb8ff}.phone.dark .dev{color:#e9d6ff}.phone.dark .nav,.phone.dark .home,.phone.dark~.popup .btn{color:#f4eaff;border-color:#dcb8ff7a;background:linear-gradient(145deg,#5a2e7e,#21102f);box-shadow:inset 2px 2px 3px #fff5,inset -2px -2px 3px #0006,0 3px 5px #000a}.phone.dark .home i{border-color:#ead8ff}.phone.dark .theme:before{content:"☼"}.phone.dark~.popup{color:#f4eaff;border-color:#76509a;background:linear-gradient(145deg,#2e1744,#100817)}.phone.dark~.popup .content{color:#f4eaff;background:#09070fad;border-color:#dcb8ff5c}
@@ -45,7 +21,7 @@
   <div class="top"><span class="dev">@fcom</span><span class="speaker"></span><span class="camera"></span></div>
   <div class="screen"><div class="logo">
     <img src="./icon-192.png" alt="Radio Islam Sragen">
-    <div class="stream"><iframe src="https://radioislam.my.id" allow="autoplay;encrypted-media" scrolling="no"></iframe></div>
+    <div class="stream"><iframe src="https://streamy1.radioislam.my.id/player/sragen-s-station/" allow="autoplay;encrypted-media" scrolling="no"></iframe></div>
   </div></div>
   <div class="bottom">
     <button class="nav theme" id="theme" aria-label="Tema"></button>
