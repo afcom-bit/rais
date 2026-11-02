@@ -1,0 +1,17 @@
+{
+  "id": "./",
+  "name": "Radio Islam Sragen",
+  "short_name": "RAIS",
+  "description": "Lantunan murattal dan kajian Islam ilmiah 24 jam nonstop.",
+  "lang": "id",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#002629",
+  "theme_color": "#002629",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

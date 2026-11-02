@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Radio Islam Sragen</title>
+<meta name="description" content="Lantunan murattal dan kajian Islam ilmiah 24 jam nonstop.">
+<meta name="theme-color" content="#002629">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="RAIS">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+html,body{margin:0;min-height:100%;background:#002629}
+body{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px 16px 330px;text-align:center;color:#d9f3f0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;background:radial-gradient(120% 80% at 50% 0%,#0a4a4f 0%,#002629 70%);-webkit-tap-highlight-color:transparent}
+.app-logo{width:96px;height:96px;border-radius:22px}
+.app-title{margin:6px 0 0;font-size:22px;font-weight:700;letter-spacing:.02em}
+.app-sub{margin:0;font-size:13px;opacity:.75}
+.app-status{margin:0;font-size:12px;color:#ffd24a;min-height:1.2em}
+.app-install{position:fixed;top:max(12px,env(safe-area-inset-top));right:12px;z-index:100000;border:1px solid rgba(255,255,255,.35);border-radius:999px;background:rgba(0,0,0,.35);color:#fff;font:600 12px/1 "Segoe UI",system-ui,sans-serif;padding:9px 14px;cursor:pointer}
+.app-install[hidden]{display:none}
+</style>
+</head>
+<body>
+<img class="app-logo" src="icons/icon-192.png" alt="" width="96" height="96">
+<h1 class="app-title">Radio Islam Sragen</h1>
+<p class="app-sub">Lantunan Muratal dan Kajian Islam Ilmiah</p>
+<p class="app-status" id="app-status" role="status"></p>
+<button type="button" class="app-install" id="app-install" hidden>Pasang aplikasi</button>
+
+<!-- ===== RAIS PLAYER: tempel sebelum </body>. Pengaturan ada di blok PENGATURAN. ===== -->
+<style>
+/* ===== PENGATURAN ===== */
+.rais-player{
+  /* Ukuran & crop (px) */
+  --iframe-w:320px; --iframe-h:400px;
+  --crop-x:33px;            /* kiri = kanan */
+  --crop-top:207px; --crop-bottom:14px;
+  --cut-iframe-top:0px;     /* potong atas iframe saja */
+  --cut-mask-top:4px;       /* potong atas topeng */
+  --cut-mask-bottom:0px;    /* potong bawah topeng */
+  --mask-add-top:33px;      /* tambah tinggi topeng ke atas */
+  --mask-add-bottom:0px;    /* tambah tinggi topeng ke bawah */
+  --gap-bottom:16px;        /* jarak ke tepi bawah layar */
+  --shift-x:0px;            /* geser kiri (-) / kanan (+) */
+  --z:99999;
+
+  /* Skala IFRAME saja (topeng, lubang, ring, tombol tidak ikut berubah) */
+  --if-scale:1.2;           /* 1 = normal, 1.2 = 120% */
+  --if-sx:1; --if-sy:1;     /* pengali tambahan lebar / tinggi */
+  --if-origin-x:calc(var(--iframe-w)/2);   /* titik tumpu skala, dari kiri iframe */
+  --if-origin-y:calc(var(--circle-y) + var(--circle-size)/2 + var(--crop-top));  /* dari atas iframe (bawaan: tombol play) */
+  --if-shift-x:0px; --if-shift-y:0px;      /* geser isi iframe: kiri (-) / kanan (+), atas (-) / bawah (+) */
+
+  /* Topeng & lubang */
+  --mask-opacity:1; --r-top:35px; --r-bottom:35px;
+  --hole1-w:245px; --hole1-h:140px; --hole1-y:-11px; --hole1-r:16px;
+  --circle-size:30px; --circle-y:138px;
+  --cover-color:#faf6ed; --cover-h:49px;
+
+  /* Ring & tombol */
+  --ring-gap:5px; --cap-x:48px; --cap-h:26px; --btn-h:23px; --btn-start:15px; --cut-gap:3px; --ico-size:19px;
+
+  /* Teks info (menutup penuh lubang atas) */
+  --info-size:10px; --info-sx:1; --info-y:0px; --info-weight:600; --info-lh:1.35; --info-fade:.6s;
+  --info-title-size:11px; --info-title-weight:700; --info-gap:4px; --info-pad:8px; --info-align:center;
+  --info-time:12;           /* detik tampil lalu kembali ke mode sebelumnya; 0 = tetap sampai tombol kiri ditekan lagi */
+
+  /* Teks animasi */
+  --txt-font:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+  --speed:1;                /* pengali semua animasi */
+  --blink-n:1; --line-h:1px;
+  --rais-size:25px; --rais-sx:1; --rais-y:0px; --rais-weight:800; --rais-spacing:.22em; --dot-size:5px;
+  --name-size:15px; --name-sx:1; --name-y:0px; --name-weight:600; --name-spacing:.02em;
+  --sub-size:12px;  --sub-sx:1;  --sub-y:0px;  --sub-weight:600;  --sub-spacing:.02em;
+
+  /* Waktu animasi (detik, sebelum dikali --speed) */
+  --dot-in:.2; --dot-hold:.1; --rais-grow:2.4; --rais-hold:5.5; --rais-blink:3.2; --rais-shrink:2;
+  --type-per:.11; --name-hold:7.5; --sub-hold:3.5; --type-blink:1.2; --type-collapse:1.2; --type-fade:1.6; --type-gap:.5; --loop-pause:1.5;
+
+  /* LED */
+  --led-opacity:.3; --led-glow:2px; --led-h:44px; --led-gap:6px; --led-pad:13px; --led-speed:.9s; --led-segment:4.5px; --led-lit:4px;
+
+  /* Warna */
+  --mask-color:#002629; --ring-color:255, 255, 0; --edge:#666;
+  --btn-lo:#030000; --btn-hi:#250101ec; --btn-edge:#585858; --ico-color:#bbbbbb;
+  --rais-color:rgb(218, 0, 0); --name-color:#ff0000; --sub-color:#da0000;
+  --info-color:#140000; --info-title-color:#106100;
+  --led-color:#af0000;
+}
+
+/* ===== INTERNAL ===== */
+.rais-player{--pw:calc(var(--iframe-w) - var(--crop-x)*2);--ph:calc(var(--iframe-h) - var(--crop-top) - var(--crop-bottom));--r:var(--r-top) var(--r-top) var(--r-bottom) var(--r-bottom);--hole1-x:calc((var(--pw) - var(--hole1-w))/2);--circle-x:calc((var(--pw) - var(--circle-size))/2);--ring-d:calc(var(--circle-size) + var(--ring-gap)*2);--cut-r:calc(var(--ring-d)/2 + var(--cut-gap));--row-y:calc(var(--circle-y) + var(--circle-size)/2);
+--ico-led:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 8h3v6H2zM6.5 2h3v12h-3zM11 5.5h3V14h-3z'/%3E%3C/svg%3E");
+--ico-txt:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2.5 2.5h11v2.6h-11zM6.7 2.5h2.6v11H6.7z'/%3E%3C/svg%3E");
+--ico-info:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='3.8' r='1.5'/%3E%3Crect x='6.8' y='6.4' width='2.4' height='7' rx='1.1'/%3E%3C/svg%3E");
+--ico-share:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M12 3.8L4 8l8 4.2' fill='none' stroke='black' stroke-width='1.4' stroke-linejoin='round'/%3E%3Ccircle cx='12' cy='3.8' r='2.2'/%3E%3Ccircle cx='4' cy='8' r='2.2'/%3E%3Ccircle cx='12' cy='12.2' r='2.2'/%3E%3C/svg%3E");
+position:fixed;bottom:var(--gap-bottom);left:50%;margin:0 0 0 calc(var(--shift-x) - var(--pw)/2);width:var(--pw);height:var(--ph);line-height:0;clip-path:inset(calc(var(--mask-add-top)*-1) 0 calc(var(--mask-add-bottom)*-1) 0 round var(--r));z-index:var(--z);pointer-events:none}
+.rais-player *,.rais-player *::before,.rais-player *::after{box-sizing:border-box}
+.rais-player .rais-fwrap{position:absolute;left:calc(0px - var(--crop-x));top:calc(0px - var(--crop-top));width:var(--iframe-w);height:var(--iframe-h);pointer-events:none;clip-path:inset(calc(var(--crop-top) + var(--cut-iframe-top)) 0 0 0)}
+.rais-player .rais-frame{position:absolute!important;left:0!important;top:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;display:block!important;pointer-events:auto;transform-origin:var(--if-origin-x) var(--if-origin-y);transform:translate(var(--if-shift-x),var(--if-shift-y)) scale(calc(var(--if-scale)*var(--if-sx)),calc(var(--if-scale)*var(--if-sy)))}
+.rais-player .rais-cover{position:absolute;left:var(--hole1-x);width:var(--hole1-w);top:calc(var(--hole1-y) + var(--hole1-h) - var(--cover-h));height:var(--cover-h);background:var(--cover-color);border-radius:0 0 var(--hole1-r) var(--hole1-r);overflow:hidden;z-index:2}
+.rais-player .rais-mask{position:absolute;inset:calc(var(--mask-add-top)*-1) 0 calc(var(--mask-add-bottom)*-1) 0;background:var(--mask-color);opacity:var(--mask-opacity);clip-path:inset(var(--cut-mask-top) 0 var(--cut-mask-bottom) 0 round var(--r));mix-blend-mode:multiply;pointer-events:none;z-index:3}
+.rais-player .rais-hole{position:absolute;background:#fff}
+.rais-player .rais-hole1{left:var(--hole1-x);top:calc(var(--hole1-y) + var(--mask-add-top));width:var(--hole1-w);height:var(--hole1-h);border-radius:var(--hole1-r)}
+.rais-player .rais-hole3{left:var(--circle-x);top:calc(var(--circle-y) + var(--mask-add-top));width:var(--circle-size);height:var(--circle-size);border-radius:50%}
+@supports not (mix-blend-mode:multiply){.rais-player .rais-mask{display:none}}
+
+.rais-player .rais-txt,.rais-player .rais-infobox{position:absolute;inset:0;display:none;font-family:var(--txt-font);pointer-events:none}
+.rais-player.rais-m-txt .rais-txt{display:block;line-height:1.15}
+.rais-player .rais-pos{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.rais-player .rais-wrap{position:relative;display:block;white-space:nowrap}
+.rais-player .rais-pos1{transform:translateY(var(--rais-y)) scaleX(var(--rais-sx))}
+.rais-player .rais-pos2{--tc:var(--name-color);--ts:var(--name-size);--tw:var(--name-weight);--tp:var(--name-spacing);--tx:var(--name-sx);--ty:var(--name-y)}
+.rais-player .rais-pos3{--tc:var(--sub-color);--ts:var(--sub-size);--tw:var(--sub-weight);--tp:var(--sub-spacing);--tx:var(--sub-sx);--ty:var(--sub-y)}
+.rais-player .rais-typed{transform:translateY(var(--ty)) scaleX(var(--tx))}
+.rais-player .rais-t1,.rais-player .rais-tt{display:inline-block;opacity:0}
+.rais-player .rais-t1{color:var(--rais-color);font-size:var(--rais-size);font-weight:var(--rais-weight);letter-spacing:var(--rais-spacing);margin-right:calc(var(--rais-spacing)*-1);will-change:transform,opacity}
+.rais-player .rais-tt{color:var(--tc);font-size:var(--ts);font-weight:var(--tw);letter-spacing:var(--tp);white-space:pre}
+.rais-player .rais-row{display:block;text-align:center;white-space:pre}
+.rais-player .rais-ch{position:relative;visibility:hidden}
+.rais-player .rais-ch.on{visibility:visible}
+.rais-player .rais-ch.cur::after{content:"";position:absolute;right:-1px;top:8%;bottom:8%;width:2px;background:currentColor}
+.rais-player .rais-dot{position:absolute;left:50%;top:50%;width:var(--dot-size);height:var(--dot-size);margin:calc(var(--dot-size)/-2) 0 0 calc(var(--dot-size)/-2);border-radius:50%;background:var(--rais-color);opacity:0;will-change:transform,opacity}
+.rais-player .rais-line{position:absolute;left:0;right:0;top:50%;height:var(--line-h);margin-top:calc(var(--line-h)/-2);background:var(--tc);opacity:0}
+
+.rais-player.rais-info-on .rais-cover{top:var(--hole1-y);height:var(--hole1-h);border-radius:var(--hole1-r)}
+.rais-player.rais-info-on .rais-infobox{display:flex;align-items:center;justify-content:center;padding:0 var(--info-pad);text-align:var(--info-align);background:var(--cover-color)}
+.rais-player .rais-infotxt{display:block;color:var(--info-color);font-size:var(--info-size);font-weight:var(--info-weight);line-height:var(--info-lh);transform:translateY(var(--info-y)) scaleX(var(--info-sx))}
+.rais-player .rais-info-t{display:block;color:var(--info-title-color);font-size:var(--info-title-size);font-weight:var(--info-title-weight);margin-bottom:var(--info-gap)}
+.rais-player .rais-info-t:empty{display:none}
+.rais-player .rais-info-b{display:block;white-space:pre-line}
+.rais-player.rais-info-on .rais-infotxt{animation:rais-fade var(--info-fade) ease-out}
+@keyframes rais-fade{from{opacity:0}to{opacity:1}}
+.rais-player.rais-m-txt .rais-leds,.rais-player.rais-info-on .rais-leds{display:none}
+
+.rais-player .rais-ui{position:absolute;inset:0;pointer-events:none;z-index:3}
+.rais-player .rais-ring{position:absolute;left:calc(var(--circle-x) - var(--ring-gap));top:calc(var(--circle-y) - var(--ring-gap));width:var(--ring-d);height:var(--ring-d);border-radius:50%;border:2px solid rgba(var(--ring-color),.9);box-shadow:0 0 0 1px var(--edge)}
+.rais-player .rais-cap{position:absolute;left:var(--cap-x);right:var(--cap-x);top:calc(var(--row-y) - var(--cap-h)/2);height:var(--cap-h);filter:drop-shadow(1px 0 0 var(--edge)) drop-shadow(-1px 0 0 var(--edge)) drop-shadow(0 1px 0 var(--edge)) drop-shadow(0 -1px 0 var(--edge))}
+.rais-player .rais-cap::before{content:"";position:absolute;inset:0;border:1px solid rgba(var(--ring-color),.9);border-radius:var(--cap-h);-webkit-mask-image:radial-gradient(circle at 50% 50%,transparent calc(var(--ring-d)/2 - 1px),#000 calc(var(--ring-d)/2 - .4px));mask-image:radial-gradient(circle at 50% 50%,transparent calc(var(--ring-d)/2 - 1px),#000 calc(var(--ring-d)/2 - .4px))}
+.rais-player .rais-side{position:absolute;top:calc(var(--row-y) - var(--btn-h)/2);height:var(--btn-h)}
+.rais-player .rais-side-l{left:calc(var(--cap-x) + 2px);right:calc(50% + var(--btn-start))}
+.rais-player .rais-side-r{right:calc(var(--cap-x) + 2px);left:calc(50% + var(--btn-start))}
+.rais-player .rais-btn{--m:radial-gradient(circle at var(--cx) 50%,transparent var(--cut-r),#000 calc(var(--cut-r) + .6px));--m2:radial-gradient(circle at calc(var(--cx) + var(--d)) 50%,transparent calc(var(--cut-r) + 1px),#000 calc(var(--cut-r) + 1.6px));position:absolute;inset:0;margin:0;padding:0;border:0;font-size:0;line-height:0;background:var(--btn-edge);border-radius:var(--rl) var(--rr) var(--rr) var(--rl);-webkit-mask-image:var(--m);mask-image:var(--m);-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;cursor:pointer;pointer-events:auto}
+.rais-player .rais-btn::before{content:"";position:absolute;inset:1px;background:linear-gradient(180deg,rgba(255,255,255,.5),rgba(255,255,255,0) 50%),linear-gradient(180deg,var(--btn-lo),var(--btn-hi));border-radius:max(0px,calc(var(--rl) - 1px)) max(0px,calc(var(--rr) - 1px)) max(0px,calc(var(--rr) - 1px)) max(0px,calc(var(--rl) - 1px));-webkit-mask-image:var(--m2);mask-image:var(--m2)}
+.rais-player .rais-btn:hover::before,.rais-player .rais-btn:focus-visible::before{filter:brightness(1.15)}
+.rais-player .rais-btn:active{transform:scale(.97)}
+.rais-player .rais-b-mode{--cx:calc(100% + var(--btn-start));--d:1px;--rl:calc(var(--btn-h)/2);--rr:0px}
+.rais-player .rais-b-share{--cx:calc(var(--btn-start)*-1);--d:-1px;--rl:0px;--rr:calc(var(--btn-h)/2)}
+.rais-player .rais-ico{position:absolute;left:50%;top:50%;width:var(--ico-size);height:var(--ico-size);margin:calc(var(--ico-size)/-2) 0 0 calc(var(--ico-size)/-2);background:var(--ico-color);-webkit-mask:var(--ico) center/contain no-repeat;mask:var(--ico) center/contain no-repeat;z-index:1;pointer-events:none}
+.rais-player .rais-b-mode .rais-ico{--ico:var(--ico-led)}
+.rais-player.rais-m-txt .rais-b-mode .rais-ico{--ico:var(--ico-txt)}
+.rais-player.rais-info-on .rais-b-mode .rais-ico{--ico:var(--ico-info)}
+.rais-player .rais-b-share .rais-ico{--ico:var(--ico-share)}
+
+.rais-player .rais-leds{position:absolute;left:calc(var(--hole1-x) + var(--led-pad));width:calc(var(--hole1-w) - var(--led-pad)*2);top:calc(var(--hole1-y) + var(--hole1-h) - var(--led-pad) - var(--led-h));height:var(--led-h);display:flex;align-items:flex-end;gap:var(--led-gap);opacity:var(--led-opacity);pointer-events:none;z-index:4}
+.rais-player .rais-led{flex:1;min-width:0;height:100%;transform-origin:bottom;background-image:repeating-linear-gradient(to top,var(--led-color) 0,var(--led-color) var(--led-lit),transparent var(--led-lit),transparent var(--led-segment));box-shadow:0 0 var(--led-glow) var(--led-color);animation:rais-led-bounce var(--led-speed) ease-in-out infinite}
+@keyframes rais-led-bounce{0%,100%{transform:scaleY(.2)}25%{transform:scaleY(.9)}50%{transform:scaleY(.4)}75%{transform:scaleY(1)}}
+@media (prefers-reduced-motion:reduce){.rais-player .rais-led{animation:none;transform:scaleY(.5)}.rais-player.rais-info-on .rais-infotxt{animation:none}}
+</style>
+
+<!-- TEKS: ubah data-text1/2/3 (| = baris baru) dan data-info (baris pertama = judul, &#10; = baris baru).
+     data-mode = led | teks (tampilan awal). data-led = jumlah bar.
+     SHARE WA: data-share-text = teks pesan; data-share-url = link yang dibagikan (kosong = alamat halaman ini).
+     Tombol kiri berganti: LED > teks RAIS > info. Tombol kanan = share WhatsApp.
+     Perbesar/perkecil isi iframe: ubah --if-scale di blok PENGATURAN. -->
+<div class="rais-player rais-m-led" id="rais-player" data-mode="teks" data-led="10"
+  data-text1="RAIS"
+  data-text2="Radio Islam Sragen"
+  data-text3="Lantunan Muratal|dan Kajian Islam Ilmiah"
+  data-info="Selamat Datang di Aplikasi Radio Islam Sragen&#10;Media dakwah Islam penyejuk hati. Menghadirkan lantunan murattal dan kajian sunnah 24 jam nonstop untuk menemani aktivitas Anda"
+  data-share-text="Dengarkan Radio Islam Sragen, lantunan murattal dan kajian sunnah 24 jam nonstop:"
+  data-share-url="">
+  <div class="rais-fwrap"><iframe class="rais-frame" src="https://player.radioislam.or.id/e/radio/RadioIslamSragen?theme=rii&amp;mode=player" scrolling="no" frameborder="0" width="320" height="400" allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin" title="Radio Islam Sragen"></iframe></div>
+  <div class="rais-cover">
+    <div class="rais-txt">
+      <div class="rais-pos rais-pos1"><span class="rais-wrap"><i class="rais-dot"></i><span class="rais-t1"></span></span></div>
+      <div class="rais-pos rais-pos2 rais-typed"><span class="rais-wrap"><span class="rais-tt"></span><i class="rais-line"></i></span></div>
+      <div class="rais-pos rais-pos3 rais-typed"><span class="rais-wrap"><span class="rais-tt"></span><i class="rais-line"></i></span></div>
+    </div>
+    <div class="rais-infobox"><span class="rais-infotxt"><b class="rais-info-t"></b><span class="rais-info-b"></span></span></div>
+  </div>
+  <div class="rais-mask"><div class="rais-hole rais-hole1"></div><div class="rais-hole rais-hole3"></div></div>
+  <div class="rais-ui">
+    <span class="rais-cap"></span>
+    <span class="rais-ring"></span>
+    <div class="rais-side rais-side-l"><button type="button" class="rais-btn rais-b-mode"><span class="rais-ico"></span></button></div>
+    <div class="rais-side rais-side-r"><button type="button" class="rais-btn rais-b-share" aria-label="Bagikan via WhatsApp" title="Bagikan via WhatsApp"><span class="rais-ico"></span></button></div>
+  </div>
+  <div class="rais-leds"></div>
+</div>
+
+<script>
+(function(){
+var p=document.getElementById('rais-player');if(!p)return;
+var q=function(s){return p.querySelector(s)},cl=p.classList,
+bm=q('.rais-b-mode'),bs=q('.rais-b-share'),t1=q('.rais-t1'),dot=q('.rais-dot'),cs=getComputedStyle(p),
+run=0,tm,cur='led',prev='txt',items=[],MODES=['led','txt','info'],NEXT={led:'teks RAIS',txt:'informasi',info:'LED'},
+rm=matchMedia('(prefers-reduced-motion:reduce)').matches;
+function sv(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function ld(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function at(n,d){var v=p.getAttribute(n);return v===null?d:v}
+function lb(b,t){b.setAttribute('aria-label',t);b.title=t}
+function center(){p.style.left=Math.round(document.documentElement.clientWidth/2)+'px'}
+center();addEventListener('resize',center);
+
+/* Isi */
+t1.textContent=at('data-text1','RAIS');
+var ti=at('data-info',''),k0=ti.indexOf('\n');
+q('.rais-info-t').textContent=k0<0?'':ti.slice(0,k0);q('.rais-info-b').textContent=ti.slice(k0+1);
+for(var i=0,n=parseInt(at('data-led','10'),10)||0;i<n;i++){var l=document.createElement('span');l.className='rais-led';l.style.animationDelay='-'+(i*7%10)*.09+'s';q('.rais-leds').appendChild(l)}
+[['.rais-pos2','data-text2','Radio Islam Sragen','--name-hold'],['.rais-pos3','data-text3','','--sub-hold']].forEach(function(d){
+  var x=at(d[1],d[2]);if(!x)return;
+  var pos=q(d[0]),it={t:pos.querySelector('.rais-tt'),line:pos.querySelector('.rais-line'),hold:d[3],chars:[]};
+  x.split('|').forEach(function(s){var r=document.createElement('span');r.className='rais-row';
+    s.split('').forEach(function(c){var e=document.createElement('span');e.className='rais-ch';e.textContent=c;r.appendChild(e);it.chars.push(e)});
+    it.t.appendChild(r)});
+  items.push(it)});
+
+/* Animasi teks (waktu dibaca dari CSS, detik / --speed) */
+function sec(n,d){var v=parseFloat(cs.getPropertyValue(n));return(isNaN(v)?d:v)*1000/(parseFloat(cs.getPropertyValue('--speed'))||1)}
+function nb(){var n=parseInt(cs.getPropertyValue('--blink-n'),10);return isNaN(n)?2:n}
+function wait(ms){return new Promise(function(r){setTimeout(r,ms)})}
+function fx(el,kf,ms,o){return el.animate(kf,Object.assign({duration:ms,fill:'forwards',easing:'ease-in-out'},o||{})).finished.catch(function(){})}
+function reset(){var e=[t1,dot];items.forEach(function(it){e.push(it.t,it.line);it.chars.forEach(function(c){c.classList.remove('on','cur')})});e.forEach(function(x){x.getAnimations().forEach(function(a){a.cancel()})})}
+
+async function typed(it,ok){
+  await fx(it.t,[{opacity:1},{opacity:1}],1);
+  var per=sec('--type-per',.11),last=it.chars.length-1;
+  for(var i=0;i<=last;i++){if(i)it.chars[i-1].classList.remove('cur');it.chars[i].classList.add('on','cur');await wait(per);if(!ok())return false}
+  it.chars[last].classList.remove('cur');
+  await wait(sec(it.hold,3.5));if(!ok())return false;
+  await fx(it.t,[{opacity:1},{opacity:.08},{opacity:1}],sec('--type-blink',1.2),{iterations:nb()});if(!ok())return false;
+  var cut=sec('--type-collapse',1.2);
+  fx(it.line,[{opacity:0},{opacity:1}],cut*.8,{delay:cut*.2});
+  await fx(it.t,[{transform:'scaleY(1)',opacity:1,offset:0},{opacity:1,offset:.6},{transform:'scaleY(.03)',opacity:0,offset:1}],cut);if(!ok())return false;
+  await fx(it.line,[{opacity:1,transform:'scaleX(1)'},{opacity:0,transform:'scaleX(0)'}],sec('--type-fade',1.6),{easing:'ease-in'});
+  return ok()}
+
+async function cycle(my){
+  var ok=function(){return my===run};reset();
+  var dIn=sec('--dot-in',.7);
+  await fx(dot,[{opacity:0,transform:'scale(0)'},{opacity:1,transform:'scale(1)'}],dIn,{easing:'ease-out'});if(!ok())return;
+  await wait(sec('--dot-hold',.4));if(!ok())return;
+  var g=sec('--rais-grow',2.4);
+  fx(dot,[{opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(2.2)'}],g*.5);
+  await fx(t1,[{opacity:0,transform:'scale(.06)',offset:0},{opacity:1,offset:.45},{opacity:1,transform:'scale(1)',offset:1}],g,{easing:'cubic-bezier(.25,.8,.3,1)'});if(!ok())return;
+  await wait(sec('--rais-hold',3.5));if(!ok())return;
+  await fx(t1,[{opacity:1},{opacity:.08},{opacity:1}],sec('--rais-blink',1.2),{iterations:nb()});if(!ok())return;
+  var s=sec('--rais-shrink',2);
+  fx(dot,[{opacity:0,transform:'scale(2.2)'},{opacity:1,transform:'scale(1)'}],s*.5,{delay:s*.5});
+  await fx(t1,[{opacity:1,transform:'scale(1)',offset:0},{opacity:1,offset:.55},{opacity:0,transform:'scale(.06)',offset:1}],s);if(!ok())return;
+  await fx(dot,[{opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(0)'}],dIn);if(!ok())return;
+  for(var k=0;k<items.length;k++){await wait(sec('--type-gap',.5));if(!ok())return;if(!(await typed(items[k],ok)))return}
+  await wait(sec('--loop-pause',1.5))}
+async function loop(my){while(my===run)await cycle(my)}
+
+/* Mode (tombol kiri: LED > teks RAIS > info) */
+function setMode(m){
+  if(m==='info'&&cur!=='info')prev=cur;
+  cur=m;clearTimeout(tm);
+  cl.toggle('rais-m-led',m==='led');cl.toggle('rais-m-txt',m==='txt');cl.toggle('rais-info-on',m==='info');
+  lb(bm,'Tampilkan '+NEXT[m]);run++;reset();
+  if(m==='info'){var s=parseFloat(cs.getPropertyValue('--info-time'));if(s>0)tm=setTimeout(function(){if(cur==='info')setMode(prev)},s*1000)}
+  if(m==='txt'){if(rm)t1.style.opacity=1;else loop(run)}}
+
+var md=ld('rais-mode'),dm=at('data-mode','teks');
+setMode(md==='led'||md==='txt'?md:dm==='led'?'led':'txt');
+
+bm.addEventListener('click',function(){var nx=MODES[(MODES.indexOf(cur)+1)%3];setMode(nx);if(nx!=='info')sv('rais-mode',nx)});
+
+/* Share WhatsApp (tombol kanan) */
+bs.addEventListener('click',function(){var u=at('data-share-url','')||location.href,t=at('data-share-text','');window.open('https://wa.me/?text='+encodeURIComponent((t?t+' ':'')+u),'_blank','noopener')});
+})();
+</script>
+<!-- ===== RAIS PLAYER: selesai ===== -->
+
+
+<script>
+/* PWA: service worker, tombol pasang, status koneksi */
+(function(){
+  if('serviceWorker' in navigator){
+    addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
+  }
+  var tb=document.getElementById('app-install'),ev=null;
+  addEventListener('beforeinstallprompt',function(e){e.preventDefault();ev=e;tb.hidden=false});
+  tb.addEventListener('click',function(){if(!ev)return;ev.prompt();ev.userChoice.finally(function(){ev=null;tb.hidden=true})});
+  addEventListener('appinstalled',function(){ev=null;tb.hidden=true});
+  var st=document.getElementById('app-status');
+  function net(){st.textContent=navigator.onLine?'':'Anda sedang offline. Radio akan berjalan kembali saat terhubung ke internet.'}
+  addEventListener('online',net);addEventListener('offline',net);net();
+})();
+</script>
+</body>
+</html>
