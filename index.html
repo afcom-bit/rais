@@ -24,33 +24,33 @@ html,body{margin:0;height:100%;background:#fff;-webkit-tap-highlight-color:trans
 /* ===== PENGATURAN ===== */
 .rais-player{
   /* Ukuran & crop (px) */
-  --iframe-w:320px; --iframe-h:400px;
-  --crop-x:33px;            /* kiri = kanan */
-  --crop-top:207px; --crop-bottom:14px;
+  --iframe-w:360px; --iframe-h:467px;
+  --crop-x:34px;            /* kiri = kanan */
+  --crop-top:200px; --crop-bottom:2px;
   --cut-iframe-top:0px;     /* potong atas iframe saja */
-  --cut-mask-top:4px;       /* potong atas topeng */
-  --cut-mask-bottom:0px;    /* potong bawah topeng */
-  --mask-add-top:33px;      /* tambah tinggi topeng ke atas */
+  --cut-mask-top:3px;       /* potong atas topeng */
+  --cut-mask-bottom:5px;    /* potong bawah topeng */
+  --mask-add-top:30px;      /* tambah tinggi topeng ke atas */
   --mask-add-bottom:0px;    /* tambah tinggi topeng ke bawah */
-  --gap-top:16px;           /* jarak ke tepi atas layar */
+  --gap-top:19px;           /* jarak ke tepi atas layar */
   --shift-x:0px;            /* geser kiri (-) / kanan (+) */
   --z:99999;
 
   /* Skala IFRAME saja (topeng, lubang, ring, tombol tidak ikut berubah) */
-  --if-scale:1.2;           /* 1 = normal, 1.2 = 120% */
+  --if-scale:1.4;           /* 1 = normal, 1.2 = 120% */
   --if-sx:1; --if-sy:1;     /* pengali tambahan lebar / tinggi */
   --if-origin-x:calc(var(--iframe-w)/2);   /* titik tumpu skala, dari kiri iframe */
   --if-origin-y:calc(var(--circle-y) + var(--circle-size)/2 + var(--crop-top));  /* dari atas iframe (bawaan: tombol play) */
   --if-shift-x:0px; --if-shift-y:0px;      /* geser isi iframe: kiri (-) / kanan (+), atas (-) / bawah (+) */
 
   /* Topeng & lubang */
-  --mask-opacity:1; --r-top:35px; --r-bottom:35px;
-  --hole1-w:245px; --hole1-h:140px; --hole1-y:-11px; --hole1-r:16px;
-  --circle-size:30px; --circle-y:138px;
-  --cover-color:#faf6ed; --cover-h:49px;
+  --mask-opacity:1; --r-top:35px; --r-bottom:36px;
+  --hole1-w:284px; --hole1-h:205px; --hole1-y:-9px; --hole1-r:16px;
+  --circle-size:35px; --circle-y:209px;
+  --cover-color:#faf6ed; --cover-h:30px;
 
   /* Ring & tombol */
-  --ring-gap:5px; --cap-x:48px; --cap-h:26px; --btn-h:23px; --btn-start:15px; --cut-gap:3px; --ico-size:19px;
+  --ring-gap:5px; --cap-x:60px; --cap-h:30px; --btn-h:23px; --btn-start:15px; --cut-gap:3px; --ico-size:19px;
 
   /* Teks info (menutup penuh lubang atas) */
   --info-size:10px; --info-sx:1; --info-y:0px; --info-weight:600; --info-lh:1.35; --info-fade:.6s;
