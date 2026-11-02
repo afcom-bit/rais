@@ -5,31 +5,19 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Radio Islam Sragen</title>
 <meta name="description" content="Lantunan murattal dan kajian Islam ilmiah 24 jam nonstop.">
-<meta name="theme-color" content="#002629">
+<meta name="theme-color" content="#ffffff">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="RAIS">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
-html,body{margin:0;min-height:100%;background:#002629}
-body{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px 16px 330px;text-align:center;color:#d9f3f0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;background:radial-gradient(120% 80% at 50% 0%,#0a4a4f 0%,#002629 70%);-webkit-tap-highlight-color:transparent}
-.app-logo{width:96px;height:96px;border-radius:22px}
-.app-title{margin:6px 0 0;font-size:22px;font-weight:700;letter-spacing:.02em}
-.app-sub{margin:0;font-size:13px;opacity:.75}
-.app-status{margin:0;font-size:12px;color:#ffd24a;min-height:1.2em}
-.app-install{position:fixed;top:max(12px,env(safe-area-inset-top));right:12px;z-index:100000;border:1px solid rgba(255,255,255,.35);border-radius:999px;background:rgba(0,0,0,.35);color:#fff;font:600 12px/1 "Segoe UI",system-ui,sans-serif;padding:9px 14px;cursor:pointer}
-.app-install[hidden]{display:none}
+html,body{margin:0;height:100%;background:#fff;-webkit-tap-highlight-color:transparent}
 </style>
 </head>
 <body>
-<img class="app-logo" src="icons/icon-192.png" alt="" width="96" height="96">
-<h1 class="app-title">Radio Islam Sragen</h1>
-<p class="app-sub">Lantunan Muratal dan Kajian Islam Ilmiah</p>
-<p class="app-status" id="app-status" role="status"></p>
-<button type="button" class="app-install" id="app-install" hidden>Pasang aplikasi</button>
 
 <!-- ===== RAIS PLAYER: tempel sebelum </body>. Pengaturan ada di blok PENGATURAN. ===== -->
 <style>
@@ -44,7 +32,7 @@ body{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align
   --cut-mask-bottom:0px;    /* potong bawah topeng */
   --mask-add-top:33px;      /* tambah tinggi topeng ke atas */
   --mask-add-bottom:0px;    /* tambah tinggi topeng ke bawah */
-  --gap-bottom:16px;        /* jarak ke tepi bawah layar */
+  --gap-top:16px;           /* jarak ke tepi atas layar */
   --shift-x:0px;            /* geser kiri (-) / kanan (+) */
   --z:99999;
 
@@ -98,7 +86,7 @@ body{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align
 --ico-txt:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2.5 2.5h11v2.6h-11zM6.7 2.5h2.6v11H6.7z'/%3E%3C/svg%3E");
 --ico-info:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='3.8' r='1.5'/%3E%3Crect x='6.8' y='6.4' width='2.4' height='7' rx='1.1'/%3E%3C/svg%3E");
 --ico-share:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M12 3.8L4 8l8 4.2' fill='none' stroke='black' stroke-width='1.4' stroke-linejoin='round'/%3E%3Ccircle cx='12' cy='3.8' r='2.2'/%3E%3Ccircle cx='4' cy='8' r='2.2'/%3E%3Ccircle cx='12' cy='12.2' r='2.2'/%3E%3C/svg%3E");
-position:fixed;bottom:var(--gap-bottom);left:50%;margin:0 0 0 calc(var(--shift-x) - var(--pw)/2);width:var(--pw);height:var(--ph);line-height:0;clip-path:inset(calc(var(--mask-add-top)*-1) 0 calc(var(--mask-add-bottom)*-1) 0 round var(--r));z-index:var(--z);pointer-events:none}
+position:fixed;top:calc(var(--gap-top) + var(--mask-add-top));left:50%;margin:0 0 0 calc(var(--shift-x) - var(--pw)/2);width:var(--pw);height:var(--ph);line-height:0;clip-path:inset(calc(var(--mask-add-top)*-1) 0 calc(var(--mask-add-bottom)*-1) 0 round var(--r));z-index:var(--z);pointer-events:none}
 .rais-player *,.rais-player *::before,.rais-player *::after{box-sizing:border-box}
 .rais-player .rais-fwrap{position:absolute;left:calc(0px - var(--crop-x));top:calc(0px - var(--crop-top));width:var(--iframe-w);height:var(--iframe-h);pointer-events:none;clip-path:inset(calc(var(--crop-top) + var(--cut-iframe-top)) 0 0 0)}
 .rais-player .rais-frame{position:absolute!important;left:0!important;top:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;display:block!important;pointer-events:auto;transform-origin:var(--if-origin-x) var(--if-origin-y);transform:translate(var(--if-shift-x),var(--if-shift-y)) scale(calc(var(--if-scale)*var(--if-sx)),calc(var(--if-scale)*var(--if-sy)))}
@@ -280,19 +268,7 @@ bs.addEventListener('click',function(){var u=at('data-share-url','')||location.h
 
 
 <script>
-/* PWA: service worker, tombol pasang, status koneksi */
-(function(){
-  if('serviceWorker' in navigator){
-    addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
-  }
-  var tb=document.getElementById('app-install'),ev=null;
-  addEventListener('beforeinstallprompt',function(e){e.preventDefault();ev=e;tb.hidden=false});
-  tb.addEventListener('click',function(){if(!ev)return;ev.prompt();ev.userChoice.finally(function(){ev=null;tb.hidden=true})});
-  addEventListener('appinstalled',function(){ev=null;tb.hidden=true});
-  var st=document.getElementById('app-status');
-  function net(){st.textContent=navigator.onLine?'':'Anda sedang offline. Radio akan berjalan kembali saat terhubung ke internet.'}
-  addEventListener('online',net);addEventListener('offline',net);net();
-})();
+if('serviceWorker' in navigator){addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
 </script>
 </body>
 </html>
