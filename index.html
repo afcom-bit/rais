@@ -29,7 +29,7 @@ html,body{margin:0;height:100%;background:#fff;-webkit-tap-highlight-color:trans
   --crop-top:200px; --crop-bottom:2px;
   --cut-iframe-top:0px;     /* potong atas iframe saja */
   --cut-mask-top:3px;       /* potong atas topeng */
-  --cut-mask-bottom:5px;    /* potong bawah topeng */
+  --cut-mask-bottom:9px;    /* potong bawah topeng */
   --mask-add-top:30px;      /* tambah tinggi topeng ke atas */
   --mask-add-bottom:0px;    /* tambah tinggi topeng ke bawah */
   --gap-top:19px;           /* jarak ke tepi atas layar */
@@ -45,12 +45,14 @@ html,body{margin:0;height:100%;background:#fff;-webkit-tap-highlight-color:trans
 
   /* Topeng & lubang */
   --mask-opacity:1; --r-top:35px; --r-bottom:36px;
-  --hole1-w:284px; --hole1-h:205px; --hole1-y:-9px; --hole1-r:16px;
+  /* LENGKUNG CEMBUNG garis luar (px): 0 = datar. Tiap sisi sendiri; makin besar makin melengkung ke luar di tengah sisi */
+  --curve-top:3px; --curve-bottom:5px; --curve-left:0px; --curve-right:0px;
+  --hole1-w:280px; --hole1-h:207px; --hole1-y:-9px; --hole1-r:16px;
   --circle-size:35px; --circle-y:209px;
-  --cover-color:#faf6ed; --cover-h:30px;
+  --cover-color:#faf6ed; --cover-h:46px; /* tinggi penutup teks animasi (tumbuh ke atas); tambah bila teks terpotong */
 
   /* Ring & tombol */
-  --ring-gap:5px; --cap-x:60px; --cap-h:30px; --btn-h:23px; --btn-start:15px; --cut-gap:3px; --ico-size:19px;
+  --ring-gap:6px; --cap-x:60px; --cap-h:30px; --btn-h:27px; --btn-start:15px; --cut-gap:3px; --ico-size:19px;
 
   /* Teks info (menutup penuh lubang atas) */
   --info-size:11px; --info-sx:1; --info-y:0px; --info-weight:600; --info-lh:1.35; --info-fade:.6s;
@@ -61,9 +63,9 @@ html,body{margin:0;height:100%;background:#fff;-webkit-tap-highlight-color:trans
   --txt-font:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
   --speed:1;                /* pengali semua animasi */
   --blink-n:1; --line-h:1px;
-  --rais-size:25px; --rais-sx:1; --rais-y:0px; --rais-weight:800; --rais-spacing:.22em; --dot-size:5px;
-  --name-size:15px; --name-sx:1; --name-y:0px; --name-weight:600; --name-spacing:.02em;
-  --sub-size:12px;  --sub-sx:1;  --sub-y:0px;  --sub-weight:600;  --sub-spacing:.02em;
+  --rais-size:29px; --rais-sx:1; --rais-y:-10px; /* posisi RAIS: minus = naik, plus = turun */ --rais-weight:800; --rais-spacing:.22em; --dot-size:5px;
+  --name-size:15px; --name-sx:1; --name-y:-8px; --name-weight:600; --name-spacing:.02em;
+  --sub-size:12px;  --sub-sx:1;  --sub-y:-8px;  --sub-weight:600;  --sub-spacing:.02em;
 
   /* Waktu animasi (detik, sebelum dikali --speed) */
   --dot-in:.2; --dot-hold:.1; --rais-grow:2.4; --rais-hold:5.5; --rais-blink:3.2; --rais-shrink:2;
@@ -73,9 +75,9 @@ html,body{margin:0;height:100%;background:#fff;-webkit-tap-highlight-color:trans
   --led-opacity:.3; --led-glow:2px; --led-h:44px; --led-gap:6px; --led-pad:13px; --led-speed:.9s; --led-segment:4.5px; --led-lit:4px;
 
   /* Warna */
-  --mask-color:#002629; --ring-color:255, 255, 0; --edge:#666;
+  --mask-color:#1E252B; --ring-color:255, 255, 0; --edge:#666;
   --btn-lo:#030000; --btn-hi:#250101ec; --btn-edge:#585858; --ico-color:#bbbbbb;
-  --rais-color:rgb(218, 0, 0); --name-color:#ff0000; --sub-color:#da0000;
+  --rais-color:rgb(2, 71, 46); --name-color:#023d27; --sub-color:#023d27;
   --info-color:#140000; --info-title-color:#106100;
   --led-color:#af0000;
 }
@@ -194,6 +196,32 @@ function at(n,d){var v=p.getAttribute(n);return v===null?d:v}
 function lb(b,t){b.setAttribute('aria-label',t);b.title=t}
 function center(){p.style.left=Math.round(document.documentElement.clientWidth/2)+'px'}
 center();addEventListener('resize',center);
+
+/* Bentuk luar: sudut membulat + lengkung cembung tiap sisi (atas, bawah, kiri, kanan) */
+var mk=q('.rais-mask');
+function nv(n){return parseFloat(cs.getPropertyValue(n))||0}
+function shape(x0,y0,x1,y1,rt,rb,ct,cb,cl,cr){
+  var K=.5523,mx=(x0+x1)/2,my=(y0+y1)/2,
+  tlx=Math.max(rt,cl),tly=Math.max(rt,ct),trx=Math.max(rt,cr),try_=Math.max(rt,ct),
+  brx=Math.max(rb,cr),bry=Math.max(rb,cb),blx=Math.max(rb,cl),bly=Math.max(rb,cb),
+  P=function(){return Array.prototype.map.call(arguments,function(n){return +n.toFixed(2)}).join(' ')};
+  return 'path("M'+P(x0+tlx,y0+ct)+
+  'Q'+P(mx,y0-ct,x1-trx,y0+ct)+
+  'C'+P(x1-trx+K*(trx-cr),y0+ct,x1-cr,y0+try_-K*(try_-ct),x1-cr,y0+try_)+
+  'Q'+P(x1+cr,my,x1-cr,y1-bry)+
+  'C'+P(x1-cr,y1-bry+K*(bry-cb),x1-brx+K*(brx-cr),y1-cb,x1-brx,y1-cb)+
+  'Q'+P(mx,y1+cb,x0+blx,y1-cb)+
+  'C'+P(x0+blx-K*(blx-cl),y1-cb,x0+cl,y1-bly+K*(bly-cb),x0+cl,y1-bly)+
+  'Q'+P(x0-cl,my,x0+cl,y0+tly)+
+  'C'+P(x0+cl,y0+tly-K*(tly-ct),x0+tlx-K*(tlx-cl),y0+ct,x0+tlx,y0+ct)+'Z")'}
+function bentuk(){
+  var W=p.offsetWidth,H=p.offsetHeight,aT=nv('--mask-add-top'),aB=nv('--mask-add-bottom'),kT=nv('--cut-mask-top'),kB=nv('--cut-mask-bottom'),
+  rt=nv('--r-top'),rb=nv('--r-bottom'),ct=nv('--curve-top'),cb=nv('--curve-bottom'),cl=nv('--curve-left'),cr=nv('--curve-right');
+  if(!(ct||cb||cl||cr)){p.style.clipPath='';mk.style.clipPath='';return}
+  /* satu bentuk saja (tidak dobel) supaya garis lengkung tajam, tanpa pinggiran buram */
+  p.style.clipPath=shape(0,kT-aT,W,H+aB-kB,rt,rb,ct,cb,cl,cr);
+  mk.style.clipPath='none'}
+bentuk();addEventListener('load',bentuk);
 
 /* Isi */
 t1.textContent=at('data-text1','RAIS');
