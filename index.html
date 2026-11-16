@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Radio Islam Sragen</title>
 <meta name="description" content="Lantunan murattal dan kajian Islam ilmiah 24 jam nonstop dari Bumi Sukowati.">
-<meta name="theme-color" content="#cfe7f6">
+<meta name="theme-color" content="#000000">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="RAIS">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -342,26 +342,14 @@ dialog .eq-head h2 { margin: 0; }
   .foot .inner { padding-block: .5rem; gap: .4rem; }
   .head .inner { padding-block: .35rem; }
 }
-/* HP: latar hitam pekat */
-@media (max-width: 599px), (max-height: 500px) and (orientation: landscape) {
-  :root { color-scheme: dark; }
-  body { background: #000; color: #e8f1f8; }
-  body::before { display: none; }
-  .ico { color: #9fd0f5; }
-  .ico svg.i { filter: none; }
-  .ico:hover, .ico:focus-visible { background: rgba(255,255,255,.1); }
-  #note { color: #9fb2c2; }
-  #note.bad { color: #ff9a8a; }
-  .listeners { color: #9fb2c2; }
-  .listeners b { color: #fff; }
-  .art .screen { color: #eef6fc; }
-  .now { color: #e3edf5; text-shadow: none; }
-  .timer { color: #f4f9fd; text-shadow: none; }
-  .timer .dim { color: #4c5c6b; }
-  .wave canvas { --wave-bar: #f1f6fa; --wave-mid: rgba(255,255,255,.18); --wave-head: #ff7a3d; }
-  .frame { filter: drop-shadow(0 2px 8px rgba(120,190,255,.18)); }
-  #volume::-webkit-slider-runnable-track { border-color: #5d6f80; background: linear-gradient(90deg, #3a8de0 var(--p), #2a333c var(--p)); }
-  #volume::-moz-range-track { border-color: #5d6f80; background: linear-gradient(90deg, #3a8de0 var(--p), #2a333c var(--p)); }
+/* Bilah sistem HP (sinyal/jam di atas, navigasi di bawah) berwarna hitam */
+body::after {
+  content: ""; position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; pointer-events: none;
+  height: env(safe-area-inset-bottom, 0px); background: #000;
+}
+.app::before {
+  content: ""; position: fixed; left: 0; right: 0; top: 0; z-index: 50; pointer-events: none;
+  height: env(safe-area-inset-top, 0px); background: #000;
 }
 @media (prefers-reduced-motion: reduce) {
   #say.zoom, #say.fold, #say.fade, #play .spin { animation: none; }
@@ -953,12 +941,6 @@ $('install').addEventListener('click', async () => {
   installEvent = null;
 });
 addEventListener('appinstalled', () => { $('install').hidden = true; });
-/* Warna bilah status HP mengikuti latar hitam */
-const phoneMq = matchMedia('(max-width: 599px), (max-height: 500px) and (orientation: landscape)');
-const themeMeta = document.querySelector('meta[name="theme-color"]');
-const syncTheme = () => themeMeta.setAttribute('content', phoneMq.matches ? '#000000' : '#cfe7f6');
-syncTheme();
-if (phoneMq.addEventListener) phoneMq.addEventListener('change', () => { syncTheme(); drawWave(); });
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
