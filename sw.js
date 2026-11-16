@@ -1,5 +1,5 @@
 /* Service worker RAIS. Ubah VERSI setiap kali file aplikasi diperbarui agar cache lama diganti. */
-var VERSI = 'rais-v1';
+var VERSI = 'rais-v2';
 var INTI = [
   './',
   './index.html',
@@ -27,6 +27,8 @@ self.addEventListener('fetch', function (e) {
   var r = e.request;
   /* Hanya file milik aplikasi ini. Iframe player dan stream radio (domain lain) tidak disentuh. */
   if (r.method !== 'GET' || new URL(r.url).origin !== self.location.origin) return;
+  /* Siaran radio lewat Vercel (/stream) mengalir terus, jangan disimpan di cache */
+  if (new URL(r.url).pathname === '/stream') return;
 
   if (r.mode === 'navigate') {
     /* Halaman: ambil dari jaringan dulu, kalau offline pakai cache */
