@@ -128,19 +128,19 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
 
 /* Baris status */
 .status {
-  grid-area: status; justify-self: center; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: .3rem; text-align: center;
+  grid-area: status; justify-self: center; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: .55rem; text-align: center;
   font-family: var(--font-lcd); font-size: .95rem; color: var(--display-ink); font-variant-numeric: tabular-nums;
 }
-.listeners { font-family: var(--font-ui); font-size: .8rem; color: var(--ink-dim); letter-spacing: .01em; }
+.listeners { font-family: var(--font-ui); font-size: .98rem; color: var(--ink-dim); letter-spacing: .01em; }
 .listeners b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
 .state {
-  padding: .1em .6em; border-radius: 5px; color: #fff; letter-spacing: .06em; font-weight: 700;
-  border: 1px solid #a3261b;
+  padding: .18em .95em; border-radius: 999px; color: #fff; letter-spacing: .06em; font-weight: 700;
+  border: 1px solid rgba(255,255,255,.95);
   background: linear-gradient(180deg, #ff8f80 0%, #e2412f 48%, #c22a1b 52%, #d8392a 100%);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 2px 6px rgba(194,42,27,.3);
 }
-.state[data-s="live"] { border-color: #1f7a2c; background: linear-gradient(180deg, #8ee59a 0%, #34b84a 48%, #1e9a34 52%, #2fae45 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 2px 6px rgba(30,154,52,.35); }
-.state[data-s="connecting"], .state[data-s="buffering"] { border-color: #a86a00; background: linear-gradient(180deg, #ffd27a 0%, #f0a21c 48%, #d98a00 52%, #eba020 100%); animation: blink 1.2s ease-in-out infinite; }
+.state[data-s="live"] { background: linear-gradient(180deg, #8ee59a 0%, #34b84a 48%, #1e9a34 52%, #2fae45 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 2px 6px rgba(30,154,52,.35); }
+.state[data-s="connecting"], .state[data-s="buffering"] { background: linear-gradient(180deg, #ffd27a 0%, #f0a21c 48%, #d98a00 52%, #eba020 100%); animation: blink 1.2s ease-in-out infinite; }
 @keyframes blink { 50% { opacity: .55; } }
 
 /* Layar besar */
@@ -162,9 +162,9 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
   text-shadow: 0 1px 0 rgba(255,255,255,.9);
 }
 .now .track { width: 100%; min-width: 0; text-align: center; white-space: nowrap; overflow: hidden; }
-.marquee { min-height: clamp(56px, 10vh, 110px); display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
-#say { display: inline-block; white-space: pre-line; font-size: clamp(1.1rem, 4.2vw, 1.9rem); line-height: 1.2; overflow-wrap: anywhere; transform-origin: center; }
-#say.big { font-size: clamp(2.2rem, 10vw, 4.6rem); letter-spacing: .1em; font-weight: 700; }
+.marquee { min-height: clamp(60px, 11vh, 120px); margin-bottom: clamp(6px, 2.2vh, 22px); display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
+#say { display: inline-block; white-space: pre-line; font-size: clamp(1.3rem, 5vw, 2.2rem); line-height: 1.2; overflow-wrap: anywhere; transform-origin: center; }
+#say.big { font-size: clamp(2.7rem, 12.5vw, 5.4rem); letter-spacing: .1em; font-weight: 700; }
 #say.zoom { animation: zoom 1.8s cubic-bezier(.2,.7,.2,1) both; }
 #say.fold { animation: fold .75s ease-in both; }
 #say.fade { animation: fade .8s ease-in both; }
@@ -322,13 +322,13 @@ dialog .eq-head h2 { margin: 0; }
   .foot { padding-left: 0; padding-right: 0; }
   .timer { font-size: clamp(2rem, 4.6vw, 3.6rem); }
   :root { --orb: clamp(72px, min(13vw, 22vh), 140px); --key: clamp(42px, min(7vw, 12vh), 66px); }
-  #say.big { font-size: clamp(2.4rem, 7vw, 5.5rem); }
-  #say { font-size: clamp(1.1rem, 2.6vw, 2.2rem); }
+  #say.big { font-size: clamp(2.8rem, 8vw, 6rem); }
+  #say { font-size: clamp(1.25rem, 3vw, 2.5rem); }
 }
 @media (max-height: 640px) {
   .art .screen { min-height: 0; gap: 8px; }
   .marquee { min-height: 40px; }
-  #say.big { font-size: 2rem; }
+  #say.big { font-size: 2.4rem; }
   .wave { height: 56px; }
   .timer { font-size: 2rem; }
   .now { --lh: 1.35; }
