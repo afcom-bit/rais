@@ -1,5 +1,5 @@
 /* Service worker RAIS. Ubah VERSI setiap kali file aplikasi diperbarui agar cache lama diganti. */
-var VERSI = 'rais-v2';
+var VERSI = 'rais-v3';
 var INTI = [
   './',
   './index.html',
@@ -35,9 +35,9 @@ self.addEventListener('fetch', function (e) {
     e.respondWith(
       fetch(r).then(function (res) {
         var salin = res.clone();
-        caches.open(VERSI).then(function (c) { c.put('./index.html', salin); });
+        caches.open(VERSI).then(function (c) { c.put(r, salin); });
         return res;
-      }).catch(function () { return caches.match('./index.html'); })
+      }).catch(function () { return caches.match(r).then(function (hit) { return hit || caches.match('./index.html'); }); })
     );
     return;
   }
