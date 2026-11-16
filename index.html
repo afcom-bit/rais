@@ -174,7 +174,7 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
 @keyframes fade { to { opacity: 0; } }
 /* Gelombang suara bergulir seperti perekam suara, garis penanda di kanan */
 .wave { position: relative; height: clamp(70px, 16vh, 170px); }
-.wave canvas { display: block; width: 100%; height: 100%; }
+.wave canvas { display: block; width: 100%; height: 100%; --wave-bar: #0b3558; --wave-mid: rgba(11,53,88,.18); --wave-head: #1d7fd0; }
 /* Lama mendengarkan, besar di bawah gelombang; nol di depan dibuat redup */
 .timer {
   text-align: center; font: 300 clamp(2.2rem, 10vw, 3.6rem)/1 var(--font-ui);
@@ -188,12 +188,12 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
    melingkari tombol putar di tengah (digambar dengan SVG agar lengkungnya menyatu). */
 .foot { grid-area: foot; display: flex; flex-direction: column; align-items: center; gap: .9rem; padding-left: var(--gutter); padding-right: var(--gutter-r); }
 .wmp {
-  --band: 2.6em;   /* tinggi bilah */
-  --bump: 4.25em;  /* garis tengah lengkung di sekitar tombol putar */
+  --band: 2.75em;  /* tinggi bilah */
+  --bump: 4.95em;  /* garis tengah lengkung di sekitar tombol putar */
   position: relative; isolation: isolate;
   display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
   width: fit-content; height: var(--bump); margin: 0 auto;
-  font-size: clamp(13px, 4vw, 21px);
+  font-size: clamp(12.5px, 3.75vw, 21px);
 }
 .frame { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; overflow: visible; filter: drop-shadow(0 2px 5px rgba(40,80,120,.18)); }
 .wmp svg.i { width: 1.2em; height: 1.2em; }
@@ -212,7 +212,7 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
 /* Tengah: kapsul perak gelap (suara - / +) dengan tombol putar bulat di atasnya */
 .center { position: relative; display: flex; align-items: center; height: var(--bump); }
 .capsule {
-  position: absolute; left: 0; right: 0; top: 50%; height: 2.05em; transform: translateY(-50%);
+  position: absolute; left: 0; right: 0; top: 50%; height: 2.45em; transform: translateY(-50%);
   border: 1px solid #5d7893; border-radius: .9em; overflow: hidden;
   background:
     radial-gradient(70% 60% at 50% 115%, rgba(120,200,255,.55), transparent 70%),
@@ -225,7 +225,7 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
 }
 .cap-btn {
   position: relative; display: grid; place-items: center; flex: none;
-  width: 3.45em; height: 2.05em; padding: 0; border: 0; background: transparent; color: #163d63;
+  width: 3.95em; height: 2.45em; padding: 0; border: 0; background: transparent; color: #163d63;
 }
 .cap-l { border-radius: .9em 0 0 .9em; padding-right: .6em; margin-right: -.4em; }
 .cap-r { border-radius: 0 .9em .9em 0; padding-left: .6em; margin-left: -.4em; }
@@ -234,7 +234,7 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
 .center:has(.cap-btn[hidden]) .capsule { display: none; }
 #play {
   position: relative; z-index: 1; display: grid; place-items: center;
-  width: 3.35em; height: 3.35em; padding: 0;
+  width: 3.95em; height: 3.95em; padding: 0;
   border-radius: 50%; border: 1px solid #174d88; color: #fff;
   background:
     radial-gradient(60% 40% at 50% 88%, rgba(140,220,255,.9), transparent 70%),
@@ -318,7 +318,7 @@ dialog .eq-head h2 { margin: 0; }
   .head, .foot { padding: 0; }
   .art .screen { min-height: 0; padding: 0 clamp(8px, 2vw, 24px); }
   .now { font-size: clamp(.95rem, 1.7vw, 1.25rem); max-width: 24em; }
-  .wmp { font-size: clamp(11.5px, 1.45vw, 20px); }
+  .wmp { font-size: clamp(11px, 1.3vw, 20px); }
   .foot { padding-left: 0; padding-right: 0; }
   .timer { font-size: clamp(2rem, 4.6vw, 3.6rem); }
   :root { --orb: clamp(72px, min(13vw, 22vh), 140px); --key: clamp(42px, min(7vw, 12vh), 66px); }
@@ -341,6 +341,27 @@ dialog .eq-head h2 { margin: 0; }
   .marquee { min-height: 40px; }
   .foot .inner { padding-block: .5rem; gap: .4rem; }
   .head .inner { padding-block: .35rem; }
+}
+/* HP: latar hitam pekat */
+@media (max-width: 599px), (max-height: 500px) and (orientation: landscape) {
+  :root { color-scheme: dark; }
+  body { background: #000; color: #e8f1f8; }
+  body::before { display: none; }
+  .ico { color: #9fd0f5; }
+  .ico svg.i { filter: none; }
+  .ico:hover, .ico:focus-visible { background: rgba(255,255,255,.1); }
+  #note { color: #9fb2c2; }
+  #note.bad { color: #ff9a8a; }
+  .listeners { color: #9fb2c2; }
+  .listeners b { color: #fff; }
+  .art .screen { color: #eef6fc; }
+  .now { color: #e3edf5; text-shadow: none; }
+  .timer { color: #f4f9fd; text-shadow: none; }
+  .timer .dim { color: #4c5c6b; }
+  .wave canvas { --wave-bar: #f1f6fa; --wave-mid: rgba(255,255,255,.18); --wave-head: #ff7a3d; }
+  .frame { filter: drop-shadow(0 2px 8px rgba(120,190,255,.18)); }
+  #volume::-webkit-slider-runnable-track { border-color: #5d6f80; background: linear-gradient(90deg, #3a8de0 var(--p), #2a333c var(--p)); }
+  #volume::-moz-range-track { border-color: #5d6f80; background: linear-gradient(90deg, #3a8de0 var(--p), #2a333c var(--p)); }
 }
 @media (prefers-reduced-motion: reduce) {
   #say.zoom, #say.fold, #say.fade, #play .spin { animation: none; }
@@ -397,6 +418,9 @@ dialog .eq-head h2 { margin: 0; }
   </div>
 
   <footer class="foot" id="foot">
+    <div class="vol-out" id="volOut">
+      <input id="volume" class="needs-vol" type="range" min="0" max="100" value="85" aria-label="Volume suara">
+    </div>
     <div class="wmp" id="wmp" role="group" aria-label="Kendali pemutar">
       <svg class="frame" id="frame" aria-hidden="true">
         <defs>
@@ -440,9 +464,6 @@ dialog .eq-head h2 { margin: 0; }
           <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4v16M12 4v16M18 4v16"/><circle cx="6" cy="14" r="2.2" fill="#fff"/><circle cx="12" cy="8" r="2.2" fill="#fff"/><circle cx="18" cy="15" r="2.2" fill="#fff"/></svg>
         </button>
       </div>
-    </div>
-    <div class="vol-out" id="volOut">
-      <input id="volume" class="needs-vol" type="range" min="0" max="100" value="85" aria-label="Volume suara">
     </div>
   </footer>
 </main>
@@ -932,6 +953,12 @@ $('install').addEventListener('click', async () => {
   installEvent = null;
 });
 addEventListener('appinstalled', () => { $('install').hidden = true; });
+/* Warna bilah status HP mengikuti latar hitam */
+const phoneMq = matchMedia('(max-width: 599px), (max-height: 500px) and (orientation: landscape)');
+const themeMeta = document.querySelector('meta[name="theme-color"]');
+const syncTheme = () => themeMeta.setAttribute('content', phoneMq.matches ? '#000000' : '#cfe7f6');
+syncTheme();
+if (phoneMq.addEventListener) phoneMq.addEventListener('change', () => { syncTheme(); drawWave(); });
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
@@ -1030,7 +1057,7 @@ function drawFrame() {
   const wmp = $('wmp'), W = wmp.clientWidth, H = wmp.clientHeight;
   if (!W) return;
   const em = parseFloat(getComputedStyle(wmp).fontSize);
-  const band = 2.6 * em, R = H / 2 - .5, cy = H / 2, y0 = cy - band / 2 + .5, y1 = cy + band / 2 - .5;
+  const band = wmp.querySelector('.side').offsetHeight, R = H / 2 - .5, cy = H / 2, y0 = cy - band / 2 + .5, y1 = cy + band / 2 - .5;
   const center = $('play').getBoundingClientRect(), box = wmp.getBoundingClientRect();
   const cx = center.left + center.width / 2 - box.left, r = band / 2 - .5, dx = Math.sqrt(R * R - (band / 2 - .5) ** 2);
   const L = .5, Rt = W - .5, f = .35 * em;
@@ -1119,21 +1146,22 @@ function drawWave() {
   const head = Math.round(w * .82), mid = h / 2, slots = Math.floor(head / (BAR + GAP));
   if (history.length > slots) history = history.slice(-slots);
   /* garis tengah tipis */
-  wctx.fillStyle = 'rgba(11,53,88,.18)';
+  const css = getComputedStyle(wave);
+  wctx.fillStyle = css.getPropertyValue('--wave-mid').trim() || 'rgba(11,53,88,.18)';
   wctx.fillRect(0, mid - .5, w, 1);
   /* batang gelombang, yang lama memudar ke kiri */
   history.forEach((v, k) => {
     const x = head - (history.length - k) * (BAR + GAP);
     const bh = Math.max(2, v * (h - 14));
     wctx.globalAlpha = .35 + .65 * (k / Math.max(1, history.length));
-    wctx.fillStyle = '#0b3558';
+    wctx.fillStyle = css.getPropertyValue('--wave-bar').trim() || '#0b3558';
     wctx.beginPath();
     if (wctx.roundRect) wctx.roundRect(x, mid - bh / 2, BAR, bh, 1.5); else wctx.rect(x, mid - bh / 2, BAR, bh);
     wctx.fill();
   });
   wctx.globalAlpha = 1;
   /* garis penanda */
-  wctx.fillStyle = '#1d7fd0';
+  wctx.fillStyle = css.getPropertyValue('--wave-head').trim() || '#1d7fd0';
   wctx.fillRect(head + 2, 5, 1.5, h - 10);
   [5, h - 5].forEach(y => { wctx.beginPath(); wctx.arc(head + 2.75, y, 3, 0, Math.PI * 2); wctx.fill(); });
 }
