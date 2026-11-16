@@ -97,6 +97,16 @@ button { font: inherit; color: inherit; cursor: pointer; }
   display: inline-block; white-space: pre-line; font-size: 23px; line-height: 1.2;
   overflow-wrap: anywhere; transform-origin: center;
 }
+.lcd-right { display: flex; gap: 10px; align-items: center; }
+.now {
+  display: flex; align-items: center; gap: 7px; min-width: 0;
+  padding: 4px 0 0; border-top: 1px dashed rgba(28,36,16,.35); font-size: 15px;
+}
+.now b { flex: none; font-weight: 400; padding: 0 5px; background: var(--lcd-ink); color: var(--lcd); font-size: 12px; letter-spacing: .06em; }
+.now .track { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; }
+.now .track span { display: inline-block; padding-right: 3em; }
+.now .track.scroll span { animation: track var(--dur, 12s) linear infinite; }
+@keyframes track { 0%, 12% { transform: translateX(0); } 100% { transform: translateX(var(--shift, 0)); } }
 #say.big { font-size: 46px; letter-spacing: .1em; font-weight: 700; }
 #say.zoom { animation: zoom 1.8s cubic-bezier(.2,.7,.2,1) both; }
 #say.fold { animation: fold .75s ease-in both; }
@@ -189,6 +199,7 @@ dialog .eq-head h2 { margin: 0; }
 @media (prefers-reduced-motion: reduce) {
   #say.zoom, #say.fold, #say.fade, #play .spin { animation: none; }
   #say.typing::after { content: none; }
+  .now .track.scroll span { animation: none; }
 }
 </style>
 </head>
@@ -203,7 +214,14 @@ dialog .eq-head h2 { margin: 0; }
   <section class="lcd" aria-label="Layar radio">
     <div class="lcd-row">
       <span class="state" id="state" data-s="idle">SIAP</span>
-      <span id="clock" aria-label="Lama mendengarkan">--:--:--</span>
+      <span class="lcd-right">
+        <span id="listeners" hidden aria-label="Jumlah pendengar"></span>
+        <span id="clock" aria-label="Lama mendengarkan">--:--:--</span>
+      </span>
+    </div>
+    <div class="now" id="now" hidden>
+      <b>PUTAR</b>
+      <div class="track" id="track"><span id="song"></span></div>
     </div>
     <div class="marquee" aria-hidden="true"><span id="say">Radio Islam Sragen</span></div>
     <div class="leds" id="leds" aria-hidden="true"></div>
@@ -261,6 +279,8 @@ dialog .eq-head h2 { margin: 0; }
                Selama kosong, aplikasi mencoba alamat di "paths".
    paths     : mount point yang dicoba berurutan.
    texts     : teks berjalan di layar. \n untuk pindah baris.
+   nowPlaying: alamat judul siaran (diteruskan Vercel, lihat vercel.json)
+               yang dicoba berurutan, dan jeda pembaruannya.
    eq        : frekuensi 5 kanal, batas dB, dan preset equalizer.
    Jangan menaruh user dan password siaran di berkas ini.
    ======================================================= */
@@ -274,6 +294,10 @@ const CONFIG = {
   tryTimeoutMs: 10000,
   sleepOptions: [0, 15, 30, 60, 90],
   typeSpeedMs: 85,
+  nowPlaying: {
+    sources: ['/info/stats', '/info/icecast', '/info/song', '/info/7'],
+    everyMs: 15000
+  },
   eq: {
     minDb: -12, maxDb: 12,
     bands: [
@@ -418,7 +442,7 @@ function bindPlayer(el) {
     everLive = true; rounds = 0;
     if (!startedAt) startedAt = Date.now();
     setState('live');
-    note(CONFIG.tagline);
+    note(songTitle || CONFIG.tagline);
     upgradeEq();
   });
   on('waiting', () => { if (wanted && state === 'live') setState('buffering'); });
@@ -658,6 +682,78 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
 
+/* ---------- Judul yang sedang diputar ---------- */
+let songTitle = '', npSource = -1, npTimer = 0;
+
+function decodeHtml(t) { const el = document.createElement('textarea'); el.innerHTML = t; return el.value; }
+
+function parseNowPlaying(path, text) {
+  let title = '', count = null;
+  if (path.endsWith('/stats')) {
+    const j = JSON.parse(text);
+    title = j.songtitle || ''; count = j.currentlisteners;
+  } else if (path.endsWith('/icecast')) {
+    let src = JSON.parse(text).icestats.source;
+    if (Array.isArray(src)) src = src.find(x => x.listenurl && x.listenurl.includes(':' + CONFIG.port)) || src[0];
+    if (src) { title = src.title ? (src.artist ? src.artist + ' - ' + src.title : src.title) : (src.yp_currently_playing || ''); count = src.listeners; }
+  } else if (path.endsWith('/7')) {
+    const body = text.replace(/<[^>]*>/g, '').trim().split(',');
+    if (body.length >= 7) { title = body.slice(6).join(','); count = Number(body[0]); }
+  } else if (!/<html|<!doctype/i.test(text)) {
+    title = text;
+  }
+  return { title: decodeHtml(String(title)).trim(), count: count != null && count !== '' && Number.isFinite(Number(count)) ? Number(count) : null };
+}
+
+async function fetchNowPlaying() {
+  const list = CONFIG.nowPlaying.sources;
+  const order = npSource >= 0 ? [npSource, ...list.keys()].filter((v, i, a) => a.indexOf(v) === i) : [...list.keys()];
+  for (const i of order) {
+    try {
+      const res = await fetch(list[i] + (list[i].includes('?') ? '&' : '?') + 't=' + Date.now(), { cache: 'no-store' });
+      if (!res.ok) continue;
+      const np = parseNowPlaying(list[i], await res.text());
+      if (!np.title && np.count === null) continue;
+      npSource = i;
+      return np;
+    } catch {}
+  }
+  npSource = -1;
+  return null;
+}
+
+function showNowPlaying(np) {
+  const title = np && np.title ? np.title : '';
+  $('listeners').hidden = !(np && np.count !== null);
+  if (np && np.count !== null) $('listeners').textContent = '\u266B ' + np.count;
+  $('now').hidden = !title;
+  if (title === songTitle) return;
+  songTitle = title;
+  $('song').textContent = title;
+  if (state === 'live') note(title || CONFIG.tagline);
+  const track = $('track'), span = $('song');
+  track.classList.remove('scroll');
+  requestAnimationFrame(() => {
+    const extra = span.scrollWidth - track.clientWidth;
+    if (extra > 4) {
+      track.style.setProperty('--shift', -(span.scrollWidth - track.clientWidth + 8) + 'px');
+      track.style.setProperty('--dur', Math.max(8, extra / 22) + 's');
+      track.classList.add('scroll');
+    }
+  });
+  if ('mediaSession' in navigator && navigator.mediaSession.metadata) {
+    navigator.mediaSession.metadata.title = title || CONFIG.name;
+    navigator.mediaSession.metadata.artist = title ? CONFIG.name : CONFIG.tagline;
+  }
+}
+
+async function pollNowPlaying() {
+  clearTimeout(npTimer);
+  if (location.protocol !== 'file:' && !document.hidden) showNowPlaying(await fetchNowPlaying());
+  npTimer = setTimeout(pollNowPlaying, CONFIG.nowPlaying.everyMs);
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) pollNowPlaying(); });
+
 /* ---------- Kontrol di layar kunci ---------- */
 if ('mediaSession' in navigator) {
   const base = new URL('icons/', location.href).href;
@@ -710,6 +806,7 @@ async function scene({ text, effect, holdMs }) {
   say.textContent = '';
   await wait(250);
 }
+pollNowPlaying();
 (async () => { await wait(1200); for (;;) for (const t of CONFIG.texts) await scene(t); })();
 </script>
 </body>
