@@ -51,18 +51,18 @@ body {
   min-height: 100%; margin: 0; color: var(--ink);
   font: 400 1rem/1.4 var(--font-ui);
   background:
-    radial-gradient(55% 32% at 90% 6%, rgba(125,200,245,.32), transparent 70%),
-    radial-gradient(65% 38% at 0% 55%, rgba(160,215,248,.3), transparent 70%),
-    radial-gradient(80% 34% at 60% 108%, rgba(115,190,240,.38), transparent 70%),
-    linear-gradient(176deg, #ffffff 0%, #f3f9fd 38%, #e5f2fb 72%, #d6ebf8 100%);
+    radial-gradient(60% 35% at 85% 8%, rgba(255,255,255,.9), transparent 70%),
+    radial-gradient(70% 40% at 10% 60%, rgba(238,233,222,.55), transparent 70%),
+    radial-gradient(80% 35% at 60% 108%, rgba(232,226,214,.6), transparent 70%),
+    linear-gradient(176deg, #fdfcf9 0%, #f8f6f1 45%, #f2efe8 80%, #ece8df 100%);
   background-attachment: fixed;
 }
 /* Kilau kaca ala Aero: pita cahaya miring */
 body::before {
   content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
   background:
-    linear-gradient(115deg, transparent 16%, rgba(255,255,255,.75) 22%, rgba(190,225,248,.18) 29%, transparent 35%),
-    linear-gradient(115deg, transparent 54%, rgba(255,255,255,.6) 59%, rgba(190,225,248,.15) 64%, transparent 70%),
+    linear-gradient(115deg, transparent 16%, rgba(255,255,255,.8) 22%, rgba(255,255,255,.2) 29%, transparent 35%),
+    linear-gradient(115deg, transparent 54%, rgba(255,255,255,.65) 59%, rgba(255,255,255,.15) 64%, transparent 70%),
     radial-gradient(120% 50% at 50% -15%, rgba(255,255,255,.9), transparent 60%);
 }
 .app { position: relative; z-index: 1; }
@@ -100,7 +100,7 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
 .head { grid-area: head; padding-top: env(safe-area-inset-top, 0px); }
 .head .inner {
   display: grid; grid-template-columns: 2.6rem minmax(0, 1fr) 2.6rem; grid-template-areas: "info note share" "status status status";
-  align-items: center; column-gap: .6rem; row-gap: .45rem; padding-block: .55rem;
+  align-items: center; column-gap: .6rem; row-gap: .9rem; padding-block: .55rem;
 }
 #info { grid-area: info; }
 .menu-wrap { grid-area: share; position: relative; }
@@ -129,12 +129,12 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
 /* Baris status */
 .status {
   grid-area: status; justify-self: center; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: .55rem; text-align: center;
-  font-family: var(--font-lcd); font-size: .95rem; color: var(--display-ink); font-variant-numeric: tabular-nums;
+  font-family: var(--font-lcd); font-size: 1.15rem; color: var(--display-ink); font-variant-numeric: tabular-nums;
 }
-.listeners { font-family: var(--font-ui); font-size: .98rem; color: var(--ink-dim); letter-spacing: .01em; }
+.listeners { font-family: var(--font-ui); font-size: 1.12rem; color: var(--ink-dim); letter-spacing: .01em; }
 .listeners b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
 .state {
-  padding: .18em .95em; border-radius: 999px; color: #fff; letter-spacing: .06em; font-weight: 700;
+  padding: .2em 1.05em; border-radius: 999px; color: #fff; letter-spacing: .06em; font-weight: 700;
   border: 1px solid rgba(255,255,255,.95);
   background: linear-gradient(180deg, #ff8f80 0%, #e2412f 48%, #c22a1b 52%, #d8392a 100%);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 2px 6px rgba(194,42,27,.3);
