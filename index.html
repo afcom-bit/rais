@@ -101,7 +101,7 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
   display: grid; grid-template-columns: 2.6rem minmax(0, 1fr) 2.6rem; grid-template-areas: "info note share" "status status status";
   align-items: center; column-gap: .6rem; row-gap: .9rem; padding-block: .55rem;
 }
-#info { grid-area: info; }
+.head-spacer { grid-area: info; }
 .menu-wrap { grid-area: share; position: relative; }
 /* Pesan siaran sejajar tombol atas, tinggi tetap 2 baris agar label di bawahnya tidak bergeser */
 #note {
@@ -286,23 +286,6 @@ dialog form button {
   background: linear-gradient(180deg, #6ccbf4, var(--accent) 52%, #1665ab);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 4px 12px rgba(29,127,208,.3);
 }
-.eq-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: .9rem; }
-dialog .eq-head h2 { margin: 0; }
-.eq-power, .eq-presets button {
-  min-height: 2.4rem; padding: 2px .8rem; font-size: .95rem; border-radius: 8px; border: 1px solid var(--glass-edge);
-  background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.62) 50%, rgba(228,242,252,.72) 51%, rgba(255,255,255,.88));
-  box-shadow: inset 0 1px 0 #fff, 0 2px 8px var(--shadow);
-}
-.eq-power[aria-pressed="true"], .eq-presets button[aria-pressed="true"] { color: #fff; border-color: rgba(255,255,255,.7); background: linear-gradient(180deg, #6ccbf4, var(--accent) 52%, #1665ab); }
-.eq-bands { --slot: min(170px, 26vh); display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
-.band { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; font-variant-numeric: tabular-nums; }
-.band output { font-family: var(--font-lcd); font-size: .95rem; color: var(--accent); }
-.band .slot { position: relative; width: 100%; height: var(--slot); }
-.band input { position: absolute; left: 50%; top: 50%; margin: 0; width: var(--slot); height: 38px; transform: translate(-50%, -50%) rotate(-90deg); accent-color: var(--accent); touch-action: none; }
-.band span { font-size: .85rem; color: var(--ink-dim); white-space: nowrap; }
-.eq-off .band output, .eq-off .band input { opacity: .5; }
-.eq-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 1rem; }
-#eqNote { margin-top: .8rem; color: var(--ink-dim); }
 
 /* Tablet dan HP mendatar: layar di kiri, kendali di kanan */
 @media (orientation: landscape) and (min-width: 640px) {
@@ -364,9 +347,7 @@ body::after {
 <main class="app">
   <header class="head">
     <div class="inner">
-      <button class="ico" id="info" type="button" aria-label="Info aplikasi">
-        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg>
-      </button>
+      <span class="head-spacer" aria-hidden="true"></span>
       <p id="note" role="status">Ketuk tombol putar untuk mendengarkan siaran.</p>
       <div class="menu-wrap">
         <button class="ico" id="share" type="button" aria-label="Bagikan dan pasang" aria-haspopup="menu" aria-expanded="false" aria-controls="shareMenu">
@@ -446,13 +427,13 @@ body::after {
         </button>
       </div>
       <div class="side side-r">
-        <button class="tb" id="mute" type="button" aria-pressed="false" aria-label="Bisukan suara">
-          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18V6L7.5 9.5z" fill="currentColor"/><path id="muteWave" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+        <button class="tb" id="info" type="button" aria-label="Info aplikasi">
+          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg>
         </button>
         <span class="vol-slot" id="volSlot"></span>
         <span class="sep" aria-hidden="true"></span>
-        <button class="tb" id="eqOpen" type="button" aria-pressed="false" aria-label="Buka equalizer">
-          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4v16M12 4v16M18 4v16"/><circle cx="6" cy="14" r="2.2" fill="#fff"/><circle cx="12" cy="8" r="2.2" fill="#fff"/><circle cx="18" cy="15" r="2.2" fill="#fff"/></svg>
+        <button class="tb" id="mute" type="button" aria-pressed="false" aria-label="Bisukan suara">
+          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18V6L7.5 9.5z" fill="currentColor"/><path id="muteWave" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
         </button>
       </div>
     </div>
@@ -471,17 +452,6 @@ body::after {
   <form method="dialog"><button id="aboutClose">Tutup</button></form>
 </dialog>
 
-<dialog id="eqDialog" aria-labelledby="eqTitle">
-  <div class="eq-head">
-    <h2 id="eqTitle">Equalizer</h2>
-    <button class="eq-power" id="eqPower" type="button" aria-pressed="false">Mati</button>
-  </div>
-  <div class="eq-bands eq-off" id="eqBands"></div>
-  <div class="eq-presets" id="eqPresets"></div>
-  <p id="eqNote" role="status"></p>
-  <form method="dialog"><button id="eqClose">Tutup</button></form>
-</dialog>
-
 <audio id="radio" preload="none"></audio>
 
 <script>
@@ -493,7 +463,6 @@ body::after {
    texts     : teks berjalan di layar. \n untuk pindah baris.
    nowPlaying: alamat judul siaran (diteruskan Vercel, lihat vercel.json)
                yang dicoba berurutan, dan jeda pembaruannya.
-   eq        : frekuensi 5 kanal, batas dB, dan preset equalizer.
    Jangan menaruh user dan password siaran di berkas ini.
    ======================================================= */
 const CONFIG = {
@@ -509,23 +478,6 @@ const CONFIG = {
   nowPlaying: {
     sources: ['/info/stats', '/info/icecast', '/info/song', '/info/7'],
     everyMs: 15000
-  },
-  eq: {
-    minDb: -12, maxDb: 12,
-    bands: [
-      { hz: 60, label: '60 Hz' },
-      { hz: 230, label: '230 Hz' },
-      { hz: 910, label: '910 Hz' },
-      { hz: 3600, label: '3,6 kHz' },
-      { hz: 14000, label: '14 kHz' }
-    ],
-    presets: {
-      Normal: [0, 0, 0, 0, 0],
-      Murattal: [-2, 0, 2, 3, 1],
-      Kajian: [-4, -1, 3, 4, 0],
-      Bass: [7, 4, 0, -1, -1],
-      Treble: [-1, -1, 0, 4, 7]
-    }
   },
   texts: [
     { text: 'RAIS', effect: 'zoom', holdMs: 2800 },
@@ -593,7 +545,6 @@ function nextCandidate() {
 
 function roundFailed() {
   clearTimers();
-  detachEq(); /* Siaran selalu kembali ke jalur biasa agar tetap bisa didengar. */
   rounds += 1;
   if (everLive || rounds < 2) {
     const wait = Math.min(30, 3 * 2 ** (rounds - 1));
@@ -626,7 +577,6 @@ function release() {
 function start() {
   wanted = true; everLive = false; rounds = 0;
   note('Menyambungkan ke siaran...');
-  prepareEq();
   reconnect();
 }
 
@@ -655,7 +605,6 @@ function bindPlayer(el) {
     if (!startedAt) startedAt = Date.now();
     setState('live');
     note('');
-    upgradeEq();
   });
   on('waiting', () => { if (wanted && state === 'live') setState('buffering'); });
   on('error', () => {
@@ -748,158 +697,6 @@ audio.volume = .5;
 const canSetVolume = audio.volume === .5;
 audio.volume = vol.value / 100;
 if (!canSetVolume) { document.querySelectorAll('.needs-vol').forEach(el => { el.hidden = true; }); }
-
-/* ---------- Equalizer 5 kanal ----------
-   Web Audio hanya boleh mengolah siaran yang mengizinkan CORS. Karena itu radio
-   selalu bisa berjalan di jalur biasa, dan equalizer baru dipasang setelah
-   izin dari server terbukti ada. iPhone dan Safari memakai jalur biasa saja. */
-const eqCfg = CONFIG.eq;
-const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-const eqSupported = canSetVolume && !isSafari && !!window.AudioContext;
-let eqOn = false, eqGains = eqCfg.bands.map(() => 0);
-let ctx = null, preamp = null, filters = [], eqSource = null, analyser = null;
-let upgrading = false, lastUpgrade = 0, corsBlocked = false;
-try {
-  const s = JSON.parse(store.get('eq'));
-  if (s && Array.isArray(s.gains) && s.gains.length === eqCfg.bands.length) { eqOn = !!s.on; eqGains = s.gains.map(Number); }
-} catch {}
-const saveEq = () => store.set('eq', JSON.stringify({ on: eqOn, gains: eqGains }));
-
-function ensureCtx() {
-  if (!ctx) {
-    ctx = new AudioContext();
-    preamp = ctx.createGain();
-    filters = eqCfg.bands.map(b => {
-      const f = ctx.createBiquadFilter();
-      f.type = 'peaking'; f.frequency.value = b.hz; f.Q.value = .9;
-      return f;
-    });
-    [preamp, ...filters, ctx.destination].reduce((a, b) => (a.connect(b), b));
-    analyser = ctx.createAnalyser(); analyser.fftSize = 1024;
-    filters[filters.length - 1].connect(analyser);
-    applyEq();
-  }
-  ctx.resume().catch(() => {});
-}
-
-function applyEq() {
-  if (!ctx) return;
-  const t = ctx.currentTime;
-  filters.forEach((f, i) => f.gain.setTargetAtTime(eqOn ? eqGains[i] : 0, t, .02));
-  /* Penguatan awal diturunkan agar suara tidak pecah saat kanal dinaikkan. */
-  const peak = eqOn ? Math.max(0, ...eqGains) : 0;
-  preamp.gain.setTargetAtTime(10 ** (-peak * .6 / 20), t, .02);
-}
-
-function attachEq() {
-  ensureCtx();
-  audio.crossOrigin = 'anonymous';
-  eqSource = ctx.createMediaElementSource(audio);
-  eqSource.connect(preamp);
-  renderEq();
-}
-
-function detachEq() {
-  if (!eqSource) return;
-  eqSource.disconnect();
-  eqSource = null;
-  const old = audio, fresh = new Audio();
-  fresh.preload = 'none';
-  fresh.volume = old.volume;
-  fresh.muted = old.muted;
-  audio = fresh;
-  bindPlayer(fresh);
-  old.pause(); old.removeAttribute('src'); old.load();
-  renderEq();
-}
-
-function prepareEq() {
-  if (!eqSupported || !eqOn) return;
-  ensureCtx();
-  const known = store.get('cors');
-  if (!eqSource && known && buildCandidates()[0] === known) attachEq();
-}
-
-async function corsAllowed(url) {
-  const ctl = new AbortController();
-  const timer = setTimeout(() => ctl.abort(), 5000);
-  try {
-    const res = await fetch(url, { mode: 'cors', cache: 'no-store', signal: ctl.signal });
-    return res.ok;
-  } catch { return false; }
-  finally { clearTimeout(timer); ctl.abort(); }
-}
-
-async function upgradeEq(force) {
-  if (!eqSupported || !eqOn || eqSource || upgrading || !wanted) return;
-  if (!force && Date.now() - lastUpgrade < 60000) return;
-  upgrading = true; lastUpgrade = Date.now();
-  const url = audio.getAttribute('src');
-  const ok = !!url && await corsAllowed(url);
-  upgrading = false;
-  if (!wanted || !eqOn || eqSource || audio.getAttribute('src') !== url) return;
-  corsBlocked = !ok;
-  if (!ok) { store.set('cors', ''); renderEq(); return; }
-  store.set('cors', url);
-  attachEq();
-  setState('buffering');
-  tune();
-}
-
-function renderEq() {
-  $('eqOpen').setAttribute('aria-pressed', eqOn ? 'true' : 'false');
-  $('eqPower').setAttribute('aria-pressed', eqOn ? 'true' : 'false');
-  $('eqPower').textContent = eqOn ? 'Aktif' : 'Mati';
-  $('eqBands').classList.toggle('eq-off', !eqOn);
-  eqCfg.bands.forEach((_, i) => {
-    const v = eqGains[i];
-    $('eqBand' + i).value = v;
-    $('eqVal' + i).textContent = v > 0 ? '+' + v : String(v).replace('-', '\u2212');
-    $('eqBand' + i).setAttribute('aria-valuetext', v + ' desibel');
-  });
-  $('eqPresets').querySelectorAll('button').forEach(b => {
-    b.setAttribute('aria-pressed', eqCfg.presets[b.textContent].every((v, i) => v === eqGains[i]) ? 'true' : 'false');
-  });
-  $('eqNote').textContent = !eqOn ? 'Equalizer mati. Geser kanal atau pilih preset untuk mengaktifkan.'
-    : corsBlocked ? 'Equalizer belum bisa dipakai pada siaran ini. Radio tetap berjalan seperti biasa.'
-    : eqSource ? 'Equalizer sedang mengolah suara siaran.'
-    : wanted ? 'Menyiapkan equalizer...' : 'Equalizer bekerja saat siaran diputar.';
-}
-
-function setEqOn(value) {
-  eqOn = value;
-  if (eqOn) { corsBlocked = false; ensureCtx(); }
-  applyEq(); saveEq(); renderEq();
-  if (eqOn && state === 'live') upgradeEq(true);
-}
-
-function changeGains(next, turnOn) {
-  eqGains = next;
-  if (turnOn && !eqOn) setEqOn(true);
-  applyEq(); saveEq(); renderEq();
-}
-
-eqCfg.bands.forEach((b, i) => {
-  const el = document.createElement('div');
-  el.className = 'band';
-  el.innerHTML = `<output id="eqVal${i}" for="eqBand${i}">0</output>
-    <div class="slot"><input id="eqBand${i}" type="range" min="${eqCfg.minDb}" max="${eqCfg.maxDb}" step="1" value="0" aria-label="Kanal ${b.label}"></div>
-    <span>${b.label}</span>`;
-  $('eqBands').appendChild(el);
-  el.querySelector('input').addEventListener('input', e => {
-    changeGains(eqGains.map((v, j) => j === i ? Number(e.target.value) : v), true);
-  });
-});
-Object.keys(eqCfg.presets).forEach(name => {
-  const btn = document.createElement('button');
-  btn.type = 'button'; btn.textContent = name;
-  btn.addEventListener('click', () => changeGains([...eqCfg.presets[name]], name !== 'Normal'));
-  $('eqPresets').appendChild(btn);
-});
-$('eqPower').addEventListener('click', () => setEqOn(!eqOn));
-$('eqOpen').addEventListener('click', () => { renderEq(); $('eqDialog').showModal(); });
-$('eqOpen').hidden = !eqSupported;
-renderEq();
 
 /* ---------- Bagikan, info, pasang ---------- */
 const shareMenu = $('shareMenu');
@@ -1101,21 +898,13 @@ if ('mediaSession' in navigator) {
   set('stop', () => { if (wanted) stop(); });
 }
 
-/* ---------- Gelombang suara ----------
-   Mengikuti suara asli bila equalizer sedang mengolah siaran; selain itu
-   gerak hiasan yang menyerupai suara orang membaca. */
+/* ---------- Gelombang suara: gerak hiasan yang menyerupai suara orang membaca ---------- */
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const wave = $('wave'), wctx = wave.getContext('2d');
 const BAR = 2, GAP = 2;
-let history = [], phase = 0, wavebuf = null;
+let history = [], phase = 0;
 function waveLevel() {
   if (state !== 'live') return 0;
-  if (analyser && eqSource) {
-    wavebuf = wavebuf || new Float32Array(analyser.fftSize);
-    analyser.getFloatTimeDomainData(wavebuf);
-    let sum = 0; for (const v of wavebuf) sum += v * v;
-    return Math.min(1, Math.sqrt(sum / wavebuf.length) * 4.5);
-  }
   phase += .09;
   const phrase = (Math.sin(phase * .55) + Math.sin(phase * .23 + 1)) * .25 + .5;
   return Math.max(.05, Math.min(1, phrase * (.35 + Math.random() * .75)));
