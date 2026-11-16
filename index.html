@@ -170,7 +170,7 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
   position: relative; isolation: isolate;
   display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
   width: fit-content; height: var(--bump); margin: 0 auto;
-  font-size: clamp(14px, 4.1vw, 21px);
+  font-size: clamp(13px, 4vw, 21px);
 }
 .frame { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; overflow: visible; filter: drop-shadow(0 2px 5px rgba(40,80,120,.18)); }
 .wmp svg.i { width: 1.2em; height: 1.2em; }
@@ -183,23 +183,23 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
   border: 1px solid transparent; background: transparent; color: #1e5f9c;
 }
 .tb:hover, .tb:focus-visible { border-color: #a7bacb; background: linear-gradient(180deg, #fff, #e9f1f8 50%, #dbe7f2 51%, #eef4f9); }
-.tb[aria-pressed="true"] { color: #fff; border-color: #2b6db0; background: linear-gradient(180deg, #8cc8f5, #3c8fe0 48%, #1d6cc8 52%, #2a7fd6); }
+#mute[aria-pressed="true"] { color: #fff; border-color: #2b6db0; background: linear-gradient(180deg, #8cc8f5, #3c8fe0 48%, #1d6cc8 52%, #2a7fd6); }
 .tb:active { transform: translateY(1px); }
 .sep { width: 1px; height: 1.5em; background: linear-gradient(transparent, #aebccb 25%, #aebccb 75%, transparent); box-shadow: 1px 0 0 #fff; }
 /* Tengah: kapsul perak gelap (suara - / +) dengan tombol putar bulat di atasnya */
 .center { position: relative; display: flex; align-items: center; height: var(--bump); }
 .capsule {
   position: absolute; left: 0; right: 0; top: 50%; height: 2.05em; transform: translateY(-50%);
-  border: 1px solid #8597aa; border-radius: 1.1em;
+  border: 1px solid #8597aa; border-radius: .75em;
   background: linear-gradient(180deg, #fbfdff 0%, #e4ebf2 46%, #cfd9e4 52%, #dee6ef 100%);
   box-shadow: inset 0 1px 0 #fff, 0 1px 1px rgba(0,0,0,.06);
 }
 .cap-btn {
   position: relative; display: grid; place-items: center; flex: none;
-  width: 2.8em; height: 2.05em; padding: 0; border: 0; background: transparent; color: #2f4d69;
+  width: 3.45em; height: 2.05em; padding: 0; border: 0; background: transparent; color: #2f4d69;
 }
-.cap-l { border-radius: 1.1em 0 0 1.1em; padding-right: .7em; margin-right: -.55em; }
-.cap-r { border-radius: 0 1.1em 1.1em 0; padding-left: .7em; margin-left: -.55em; }
+.cap-l { border-radius: .75em 0 0 .75em; padding-right: 1.25em; margin-right: -.4em; }
+.cap-r { border-radius: 0 .75em .75em 0; padding-left: 1.25em; margin-left: -.4em; }
 .cap-btn:hover, .cap-btn:focus-visible { color: #1e5f9c; background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(190,220,245,.6)); }
 .cap-btn:active { background: rgba(150,195,235,.55); }
 .center:has(.cap-btn[hidden]) .capsule { display: none; }
@@ -289,7 +289,7 @@ dialog .eq-head h2 { margin: 0; }
   .head, .foot { padding: 0; }
   .art .screen { min-height: 0; padding: 0 clamp(8px, 2vw, 24px); }
   .now { font-size: clamp(.95rem, 1.7vw, 1.25rem); max-width: 24em; }
-  .wmp { font-size: clamp(12px, 1.55vw, 20px); }
+  .wmp { font-size: clamp(11.5px, 1.45vw, 20px); }
   .foot { padding-left: 0; padding-right: 0; }
   .timer { font-size: clamp(2.2rem, 5.5vw, 4.4rem); }
   :root { --orb: clamp(72px, min(13vw, 22vh), 140px); --key: clamp(42px, min(7vw, 12vh), 66px); }
