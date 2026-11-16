@@ -51,42 +51,34 @@ body {
   min-height: 100%; margin: 0; color: var(--ink);
   font: 400 1rem/1.4 var(--font-ui);
   background:
-    radial-gradient(70% 30% at 20% 0%, rgba(255,255,255,.45), transparent 70%),
-    radial-gradient(60% 40% at 100% 35%, rgba(90,220,255,.55), transparent 70%),
-    radial-gradient(80% 40% at 0% 75%, rgba(40,150,230,.45), transparent 70%),
-    linear-gradient(172deg, #0f5fae 0%, #2a8ad6 26%, #63b8ec 55%, #b7e0f7 82%, #e4f4fd 100%);
+    radial-gradient(55% 32% at 90% 6%, rgba(125,200,245,.32), transparent 70%),
+    radial-gradient(65% 38% at 0% 55%, rgba(160,215,248,.3), transparent 70%),
+    radial-gradient(80% 34% at 60% 108%, rgba(115,190,240,.38), transparent 70%),
+    linear-gradient(176deg, #ffffff 0%, #f3f9fd 38%, #e5f2fb 72%, #d6ebf8 100%);
   background-attachment: fixed;
 }
 /* Kilau kaca ala Aero: pita cahaya miring */
 body::before {
   content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
   background:
-    linear-gradient(115deg, transparent 18%, rgba(255,255,255,.22) 24%, rgba(255,255,255,.05) 31%, transparent 36%),
-    linear-gradient(115deg, transparent 52%, rgba(255,255,255,.14) 57%, transparent 64%),
-    radial-gradient(120% 60% at 50% -20%, rgba(255,255,255,.35), transparent 60%);
+    linear-gradient(115deg, transparent 16%, rgba(255,255,255,.75) 22%, rgba(190,225,248,.18) 29%, transparent 35%),
+    linear-gradient(115deg, transparent 54%, rgba(255,255,255,.6) 59%, rgba(190,225,248,.15) 64%, transparent 70%),
+    radial-gradient(120% 50% at 50% -15%, rgba(255,255,255,.9), transparent 60%);
 }
 .app { position: relative; z-index: 1; }
 button { font: inherit; color: inherit; cursor: pointer; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
-.glass {
-  position: relative; isolation: isolate;
-  border: 1px solid var(--glass-edge);
-  background: linear-gradient(180deg, rgba(255,255,255,.62) 0%, rgba(255,255,255,.3) 46%, rgba(255,255,255,.14) 50%, rgba(255,255,255,.28) 100%);
-  -webkit-backdrop-filter: blur(14px) saturate(1.8);
-  backdrop-filter: blur(14px) saturate(1.8);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 0 0 1px rgba(255,255,255,.35), inset 0 -12px 24px rgba(255,255,255,.18), 0 12px 32px rgba(6,50,100,.3);
-}
 /* Tombol kaca bulat */
 .ico, .key {
   display: grid; place-items: center; flex: none; padding: 0; border-radius: 50%;
-  border: 1px solid rgba(255,255,255,.85); color: #0b3a63;
+  border: 1px solid rgba(255,255,255,.95); color: #0d4a7c;
   background:
-    radial-gradient(80% 50% at 50% 100%, rgba(120,215,255,.55), transparent 70%),
-    linear-gradient(180deg, rgba(255,255,255,.92) 0%, rgba(255,255,255,.55) 48%, rgba(170,220,250,.45) 52%, rgba(225,245,255,.8) 100%);
-  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
-  box-shadow: inset 0 1px 0 #fff, inset 0 -2px 6px rgba(29,127,208,.18), 0 4px 14px rgba(6,50,100,.3);
+    radial-gradient(80% 45% at 50% 100%, rgba(140,210,250,.45), transparent 70%),
+    linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.7) 48%, rgba(220,238,250,.6) 52%, rgba(245,251,255,.9) 100%);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 #fff, 0 0 0 1px rgba(120,175,215,.28), inset 0 -2px 6px rgba(29,127,208,.12), 0 6px 16px rgba(40,100,150,.18);
 }
 .ico { width: 2.6rem; height: 2.6rem; }
 .key { position: relative; width: var(--key); height: var(--key); }
@@ -113,42 +105,44 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
 .head { grid-area: head; padding-top: env(safe-area-inset-top, 0px); }
 .head .inner { display: flex; align-items: center; gap: .7rem; padding-block: .55rem; }
 .title { flex: 1; min-width: 0; text-align: center; }
-.title h1 { margin: 0; font-size: 1.15rem; font-weight: 700; line-height: 1.25; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 3px rgba(4,35,75,.55); }
-.title p { margin: 0; font-size: .8rem; color: rgba(255,255,255,.92); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 2px rgba(4,35,75,.5); }
+.title h1 { margin: 0; font-size: 1.15rem; font-weight: 600; line-height: 1.25; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 0 #fff; }
+.title p { margin: 0; font-size: .8rem; color: var(--ink-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .install { border: 1px solid var(--glass-edge); border-radius: 1em; padding: .15em .7em; font-size: .8rem; background: rgba(255,255,255,.8); }
 
 /* Baris status */
 .meta { grid-area: meta; display: flex; align-items: center; justify-content: space-between; gap: .6rem; }
 .status {
   display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: .3rem .7rem; min-width: 0;
-  font-family: var(--font-lcd); font-size: .95rem; color: #fff; font-variant-numeric: tabular-nums; text-shadow: 0 1px 2px rgba(4,35,75,.5);
+  font-family: var(--font-lcd); font-size: .95rem; color: var(--display-ink); font-variant-numeric: tabular-nums;
 }
-.state { padding: .05em .5em; border-radius: 4px; color: #0f5fae; background: #fff; letter-spacing: .05em; box-shadow: 0 1px 4px rgba(4,35,75,.3); }
-.state[data-s="idle"] { background: transparent; color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.9); }
+#clock { font-size: clamp(1.05rem, 5vw, 1.55rem); letter-spacing: .02em; }
+#listeners { font-size: 1rem; }
+.state { padding: .05em .5em; border-radius: 5px; color: #fff; letter-spacing: .05em; background: linear-gradient(180deg, #5cc4f2, var(--accent) 52%, #1568b0); box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 2px 6px rgba(29,127,208,.3); }
+.state[data-s="idle"] { background: rgba(255,255,255,.6); color: var(--display-ink); box-shadow: inset 0 0 0 1px rgba(13,53,82,.45); }
 .meta-spacer { width: 2.6rem; flex: none; }
 
 /* Layar besar */
 .art { grid-area: art; display: flex; min-height: 0; }
 .art .screen {
-  flex: 1; min-width: 0; min-height: clamp(170px, 30vh, 520px);
-  display: flex; flex-direction: column; gap: .6rem;
-  padding: 1rem; border-radius: 20px;
+  flex: 1; min-width: 0; min-height: clamp(200px, 34vh, 560px);
+  display: flex; flex-direction: column; justify-content: center; gap: clamp(10px, 2.4vh, 26px);
+  padding: 0 clamp(8px, 5vw, 36px);
   font-family: var(--font-lcd); color: var(--display-ink);
 }
-.screen::after {
-  content: ""; position: absolute; inset: 7px; border-radius: 14px; pointer-events: none; z-index: -1;
-  background: linear-gradient(125deg, rgba(255,255,255,.6) 0%, rgba(255,255,255,.15) 30%, transparent 31%), var(--display);
-  box-shadow: inset 0 1px 5px rgba(13,53,82,.18);
+/* Judul siaran: kotak 5 baris, judul pendek tetap di tengah (baris ke-3) */
+.now {
+  --lh: 1.5;
+  display: flex; align-items: center; justify-content: center; min-width: 0;
+  height: calc(5 * var(--lh) * 1em);
+  font: 500 clamp(1rem, 3.9vw, 1.35rem)/var(--lh) var(--font-ui); color: #0b3558;
+  text-shadow: 0 1px 0 rgba(255,255,255,.9);
 }
-.now { display: flex; flex-direction: column; align-items: flex-start; gap: .35rem; min-width: 0; padding-bottom: .7rem; border-bottom: 1px solid rgba(13,53,82,.18); }
-.now b { font-weight: 400; padding: .05em .45em; border-radius: 3px; background: #0f5fae; color: #fff; font-size: .72rem; letter-spacing: .1em; }
 .now .track {
-  width: 100%; min-width: 0;
-  font: 700 clamp(1.3rem, 5.4vw, 2.1rem)/1.22 var(--font-ui); color: #08365e;
+  width: 100%; min-width: 0; text-align: center;
   overflow-wrap: anywhere; text-wrap: balance;
-  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; line-clamp: 5; overflow: hidden;
 }
-.marquee { flex: 1; min-height: 44px; display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
+.marquee { min-height: clamp(56px, 10vh, 110px); display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
 #say { display: inline-block; white-space: pre-line; font-size: clamp(1.1rem, 4.2vw, 1.9rem); line-height: 1.2; overflow-wrap: anywhere; transform-origin: center; }
 #say.big { font-size: clamp(2.2rem, 10vw, 4.6rem); letter-spacing: .1em; font-weight: 700; }
 #say.zoom { animation: zoom 1.8s cubic-bezier(.2,.7,.2,1) both; }
@@ -158,8 +152,8 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
 @keyframes zoom { from { transform: scale(.02); opacity: 0; } 15% { opacity: 1; } to { transform: scale(1); opacity: 1; } }
 @keyframes fold { 55% { transform: scale(1, .05); opacity: 1; } to { transform: scale(0, .05); opacity: 0; } }
 @keyframes fade { to { opacity: 0; } }
-.leds { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; height: clamp(34px, 11vh, 120px); }
-.leds i { display: block; border-radius: 3px; background: var(--display-ghost); position: relative; overflow: hidden; }
+.leds { display: grid; grid-template-columns: repeat(10, 1fr); gap: clamp(5px, 1.4vw, 10px); height: clamp(34px, 10vh, 110px); }
+.leds i { display: block; border-radius: 4px; background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(200,228,248,.55)); box-shadow: inset 0 0 0 1px rgba(255,255,255,.9), 0 2px 6px rgba(40,100,150,.12); position: relative; overflow: hidden; }
 .leds i::after { content: ""; position: absolute; inset: 0; transform-origin: bottom; transform: scaleY(var(--v, .08)); background: linear-gradient(0deg, var(--accent), var(--accent-2)); }
 
 #note { grid-area: note; margin: 0; min-height: 1.4em; font-size: .9rem; font-weight: 500; color: #0b3a63; text-align: center; text-wrap: balance; }
@@ -173,7 +167,7 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
   position: relative; width: var(--orb); height: var(--orb); flex: none; border-radius: 50%; border: 0;
   display: grid; place-items: center; color: #fff;
   background: radial-gradient(circle at 50% 72%, #7fd6ff 0%, transparent 55%), radial-gradient(circle at 50% 35%, #3aa6ec, var(--accent) 55%, #0c4f8e 100%);
-  box-shadow: 0 0 0 calc(var(--orb) * .07) rgba(255,255,255,.6), 0 0 0 calc(var(--orb) * .07 + 1px) var(--glass-edge), 0 10px 26px rgba(13,79,142,.35), inset 0 -5px 14px rgba(5,40,80,.35);
+  box-shadow: 0 0 0 calc(var(--orb) * .07) rgba(255,255,255,.85), 0 0 0 calc(var(--orb) * .07 + 1px) rgba(120,175,215,.45), 0 12px 28px rgba(13,79,142,.3), inset 0 -5px 14px rgba(5,40,80,.35);
 }
 #play::before { content: ""; position: absolute; left: 14%; right: 14%; top: 5%; height: 46%; border-radius: 50% / 60% 60% 40% 40%; background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.08)); pointer-events: none; }
 #play svg.glyph { position: relative; width: 40%; height: 40%; fill: currentColor; filter: drop-shadow(0 2px 3px rgba(5,40,80,.45)); }
@@ -234,21 +228,23 @@ dialog .eq-head h2 { margin: 0; }
   }
   .inner { padding-left: 1rem; padding-right: 1rem; }
   .head, .foot { padding: 0; }
-  #note, .vol { color: #fff; text-shadow: 0 1px 3px rgba(4,35,75,.55); }
-  #note.bad { color: #ffe1d8; }
-  .art .screen { min-height: 0; }
+  .art .screen { min-height: 0; padding: 0 clamp(8px, 2vw, 24px); }
+  .now { font-size: clamp(1rem, 2vw, 1.4rem); }
+  #clock { font-size: clamp(1rem, 2.3vw, 1.55rem); }
   :root { --orb: clamp(72px, min(13vw, 22vh), 140px); --key: clamp(42px, min(7vw, 12vh), 66px); }
   #say.big { font-size: clamp(2.4rem, 7vw, 5.5rem); }
   #say { font-size: clamp(1.1rem, 2.6vw, 2.2rem); }
 }
+@media (max-height: 640px) {
+  .art .screen { min-height: 0; }
+  .marquee { min-height: 48px; }
+}
 @media (max-height: 480px) {
+  .now { --lh: 1.4; }
   .leds { height: 24px; }
   .marquee { min-height: 40px; }
   .foot .inner { padding-block: .5rem; gap: .4rem; }
   .head .inner { padding-block: .35rem; }
-}
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass { background: rgba(255,255,255,.9); }
 }
 @media (prefers-reduced-motion: reduce) {
   #say.zoom, #say.fold, #say.fade, #play .spin { animation: none; }
@@ -289,9 +285,8 @@ dialog .eq-head h2 { margin: 0; }
   </div>
 
   <section class="art inner" aria-label="Layar radio">
-    <div class="screen glass">
-      <div class="now" id="now" hidden>
-        <b>SEDANG DIPUTAR</b>
+    <div class="screen">
+      <div class="now" id="now" hidden aria-label="Sedang diputar">
         <div class="track" id="track"><span id="song"></span></div>
       </div>
       <div class="marquee" aria-hidden="true"><span id="say">Radio Islam Sragen</span></div>
