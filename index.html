@@ -17,12 +17,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap">
 <style>
-/* Konsep: Aero Glass putih memenuhi layar, tanpa bingkai.
-   Satu kolom di HP; dua kolom di tablet/HP mendatar. */
+/* Konsep: tata letak pemutar musik, Aero Glass putih memenuhi layar.
+   Pita atas (judul), baris status, layar besar di tengah, pita bawah (tombol + suara).
+   Tablet/HP mendatar: layar di kiri, tombol di kanan. */
 :root {
   --sky-top: #bfe0f5;
   --sky-bottom: #f3f9fd;
-  --glow: #8fd8ff;
   --glass: rgba(255, 255, 255, .5);
   --glass-hi: rgba(255, 255, 255, .82);
   --glass-edge: rgba(255, 255, 255, .92);
@@ -37,16 +37,18 @@
   --warn: #b3361f;
   --font-ui: "Segoe UI", "Noto Sans", Roboto, system-ui, sans-serif;
   --font-lcd: "Share Tech Mono", ui-monospace, "Courier New", monospace;
-  --gap: clamp(10px, 2.2vh, 24px);
-  --orb: clamp(118px, min(40vw, 28vh), 230px);
+  --gutter: max(14px, env(safe-area-inset-left, 0px));
+  --gutter-r: max(14px, env(safe-area-inset-right, 0px));
+  --gap: clamp(8px, 1.6vh, 18px);
+  --orb: clamp(78px, min(23vw, 13vh), 132px);
+  --key: clamp(44px, min(13vw, 7.5vh), 66px);
   color-scheme: light;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 [hidden] { display: none !important; }
-html { height: 100%; font-size: clamp(15px, .9vw + 12px, 19px); }
+html { height: 100%; font-size: clamp(15px, .8vw + 12px, 19px); }
 body {
-  min-height: 100%; margin: 0;
-  color: var(--ink);
+  min-height: 100%; margin: 0; color: var(--ink);
   font: 400 1rem/1.4 var(--font-ui);
   background:
     radial-gradient(60% 40% at 15% 8%, rgba(255,255,255,.85), transparent 70%),
@@ -57,68 +59,83 @@ body {
 }
 button { font: inherit; color: inherit; cursor: pointer; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
-/* Kaca: lapisan buram, kilau setengah atas, tepi putih */
 .glass {
   position: relative; isolation: isolate;
   border: 1px solid var(--glass-edge);
   background: linear-gradient(180deg, var(--glass-hi) 0%, rgba(255,255,255,.55) 48%, rgba(255,255,255,.38) 52%, var(--glass) 100%);
   -webkit-backdrop-filter: blur(18px) saturate(1.5);
   backdrop-filter: blur(18px) saturate(1.5);
-  box-shadow: inset 0 1px 0 #fff, inset 0 -1px 0 rgba(255,255,255,.5), 0 10px 30px var(--shadow);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -1px 0 rgba(255,255,255,.5), 0 8px 26px var(--shadow);
+}
+/* Tombol kaca bulat */
+.ico, .key {
+  display: grid; place-items: center; flex: none; padding: 0; border-radius: 50%;
+  border: 1px solid var(--glass-edge); color: var(--ink);
+  background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.62) 50%, rgba(228,242,252,.72) 51%, rgba(255,255,255,.88));
+  box-shadow: inset 0 1px 0 #fff, 0 2px 8px var(--shadow);
+}
+.ico { width: 2.6rem; height: 2.6rem; }
+.key { position: relative; width: var(--key); height: var(--key); }
+.key svg.i { width: 46%; height: 46%; }
+.ico[aria-pressed="true"], .key[aria-pressed="true"] { color: #fff; border-color: rgba(255,255,255,.7); background: linear-gradient(180deg, #6ccbf4, var(--accent) 52%, #1665ab); }
+.ico:active, .key:active { transform: scale(.95); }
+.badge-min {
+  position: absolute; right: -4px; top: -4px; min-width: 1.6em; padding: 0 .3em; border-radius: 1em;
+  font-size: .68rem; line-height: 1.6; font-variant-numeric: tabular-nums; color: #fff; background: var(--accent);
+  box-shadow: 0 0 0 2px #fff;
 }
 
 .app {
   min-height: 100vh; min-height: 100dvh;
-  width: 100%; max-width: 640px; margin: 0 auto;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto auto 1fr auto;
-  grid-template-areas: "head" "lcd" "deck" "ctl";
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  grid-template-areas: "head" "meta" "art" "note" "foot";
   gap: var(--gap);
-  padding-block: max(14px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-bottom, 0px));
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
-.top { grid-area: head; display: flex; align-items: center; gap: .6rem; }
-.badge {
-  font-weight: 700; font-size: .85rem; letter-spacing: .16em;
-  padding: .12em .5em .12em .62em; border-radius: 6px; color: #fff;
-  background: linear-gradient(180deg, #5cc4f2, var(--accent) 52%, #1568b0);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 2px 6px rgba(29,127,208,.35);
-}
-.top h1 { flex: 1; min-width: 0; margin: 0; font-size: 1.2rem; font-weight: 600; text-shadow: 0 1px 0 rgba(255,255,255,.8); }
-.install, .eq-open, .keys button, .eq-power, .eq-presets button {
-  border: 1px solid var(--glass-edge); border-radius: 8px;
-  background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.6) 50%, rgba(232,244,252,.7) 51%, rgba(255,255,255,.85));
-  box-shadow: inset 0 1px 0 #fff, 0 2px 8px var(--shadow);
-}
-.install { padding: .2em .8em; font-size: .9rem; }
-button:active { filter: brightness(.95); }
+.inner { width: 100%; max-width: 720px; margin: 0 auto; padding-left: var(--gutter); padding-right: var(--gutter-r); }
 
-.lcd {
-  grid-area: lcd;
+/* Pita atas */
+.head { grid-area: head; border-width: 0 0 1px; border-radius: 0 0 18px 18px; padding-top: env(safe-area-inset-top, 0px); }
+.head .inner { display: flex; align-items: center; gap: .7rem; padding-block: .55rem; }
+.title { flex: 1; min-width: 0; text-align: center; }
+.title h1 { margin: 0; font-size: 1.1rem; font-weight: 600; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 0 rgba(255,255,255,.8); }
+.title p { margin: 0; font-size: .8rem; color: var(--ink-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.install { border: 1px solid var(--glass-edge); border-radius: 1em; padding: .15em .7em; font-size: .8rem; background: rgba(255,255,255,.8); }
+
+/* Baris status */
+.meta { grid-area: meta; display: flex; align-items: center; justify-content: space-between; gap: .6rem; }
+.status {
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: .3rem .7rem; min-width: 0;
+  font-family: var(--font-lcd); font-size: .9rem; color: var(--display-ink); font-variant-numeric: tabular-nums;
+}
+.state { padding: .05em .5em; border-radius: 4px; color: #fff; background: var(--accent); letter-spacing: .05em; }
+.state[data-s="idle"] { background: transparent; color: var(--display-ink); box-shadow: inset 0 0 0 1px var(--display-ink); }
+.meta-spacer { width: 2.6rem; flex: none; }
+
+/* Layar besar */
+.art { grid-area: art; display: flex; min-height: 0; }
+.art .screen {
+  flex: 1; min-width: 0; min-height: clamp(170px, 30vh, 520px);
   display: flex; flex-direction: column; gap: .6rem;
-  padding: .8rem .9rem .9rem; border-radius: 16px;
+  padding: 1rem; border-radius: 20px;
   font-family: var(--font-lcd); color: var(--display-ink);
 }
-.lcd::after {
-  content: ""; position: absolute; inset: 6px; border-radius: 11px; pointer-events: none;
-  background: var(--display); box-shadow: inset 0 1px 4px rgba(13,53,82,.18); z-index: -1;
+.screen::after {
+  content: ""; position: absolute; inset: 7px; border-radius: 14px; pointer-events: none; z-index: -1;
+  background: var(--display); box-shadow: inset 0 1px 5px rgba(13,53,82,.18);
 }
-.lcd-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: .85rem; font-variant-numeric: tabular-nums; }
-.lcd-right { display: flex; gap: 10px; align-items: center; }
-.state { padding: 0 .45em; border-radius: 4px; color: #fff; background: var(--accent); letter-spacing: .05em; }
-.state[data-s="idle"] { background: transparent; color: var(--display-ink); box-shadow: inset 0 0 0 1px var(--display-ink); }
-.now { display: flex; align-items: center; gap: 7px; min-width: 0; padding-top: .3rem; border-top: 1px dashed rgba(13,53,82,.28); font-size: .9rem; }
+.now { display: flex; align-items: center; gap: 7px; min-width: 0; padding-bottom: .4rem; border-bottom: 1px dashed rgba(13,53,82,.28); font-size: .95rem; }
 .now b { flex: none; font-weight: 400; padding: 0 .35em; border-radius: 3px; background: var(--display-ink); color: #eaf6ff; font-size: .72rem; letter-spacing: .06em; }
 .now .track { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; }
 .now .track span { display: inline-block; padding-right: 3em; }
 .now .track.scroll span { animation: track var(--dur, 12s) linear infinite; }
 @keyframes track { 0%, 12% { transform: translateX(0); } 100% { transform: translateX(var(--shift, 0)); } }
-.marquee { height: clamp(52px, 8vh, 84px); display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
-#say { display: inline-block; white-space: pre-line; font-size: 1.4rem; line-height: 1.2; overflow-wrap: anywhere; transform-origin: center; }
-#say.big { font-size: 2.8rem; letter-spacing: .1em; font-weight: 700; }
+.marquee { flex: 1; min-height: 56px; display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
+#say { display: inline-block; white-space: pre-line; font-size: clamp(1.3rem, 5vw, 2.2rem); line-height: 1.2; overflow-wrap: anywhere; transform-origin: center; }
+#say.big { font-size: clamp(2.8rem, 13vw, 5.5rem); letter-spacing: .1em; font-weight: 700; }
 #say.zoom { animation: zoom 1.8s cubic-bezier(.2,.7,.2,1) both; }
 #say.fold { animation: fold .75s ease-in both; }
 #say.fade { animation: fade .8s ease-in both; }
@@ -126,50 +143,39 @@ button:active { filter: brightness(.95); }
 @keyframes zoom { from { transform: scale(.02); opacity: 0; } 15% { opacity: 1; } to { transform: scale(1); opacity: 1; } }
 @keyframes fold { 55% { transform: scale(1, .05); opacity: 1; } to { transform: scale(0, .05); opacity: 0; } }
 @keyframes fade { to { opacity: 0; } }
-.leds { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; height: clamp(22px, 3.4vh, 34px); }
-.leds i { display: block; border-radius: 2px; background: var(--display-ghost); position: relative; overflow: hidden; }
-.leds i::after {
-  content: ""; position: absolute; inset: 0; transform-origin: bottom; transform: scaleY(var(--v, .08));
-  background: linear-gradient(0deg, var(--accent), var(--accent-2));
-}
+.leds { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; height: clamp(34px, 11vh, 120px); }
+.leds i { display: block; border-radius: 3px; background: var(--display-ghost); position: relative; overflow: hidden; }
+.leds i::after { content: ""; position: absolute; inset: 0; transform-origin: bottom; transform: scaleY(var(--v, .08)); background: linear-gradient(0deg, var(--accent), var(--accent-2)); }
 
-.deck { grid-area: deck; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--gap); min-height: calc(var(--orb) + 40px); }
-#play {
-  position: relative; width: var(--orb); height: var(--orb); border-radius: 50%; border: 0;
-  display: grid; place-items: center; color: #fff;
-  background: radial-gradient(circle at 50% 70%, #7fd6ff 0%, transparent 55%), radial-gradient(circle at 50% 35%, #3aa6ec, var(--accent) 55%, #0c4f8e 100%);
-  box-shadow: 0 0 0 calc(var(--orb) * .06) rgba(255,255,255,.55), 0 0 0 calc(var(--orb) * .06 + 1px) var(--glass-edge), 0 14px 34px rgba(13,79,142,.35), inset 0 -6px 18px rgba(5,40,80,.35);
-}
-#play::before {
-  content: ""; position: absolute; left: 14%; right: 14%; top: 5%; height: 46%; border-radius: 50% / 60% 60% 40% 40%;
-  background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.08));
-  pointer-events: none;
-}
-#play svg.glyph { position: relative; width: 38%; height: 38%; fill: currentColor; filter: drop-shadow(0 2px 3px rgba(5,40,80,.45)); }
-#play:active { transform: scale(.975); }
-#play .spin { position: absolute; inset: calc(var(--orb) * -.075); width: calc(100% + var(--orb) * .15); height: calc(100% + var(--orb) * .15); display: none; animation: spin 1.1s linear infinite; }
-#play.busy .spin { display: block; }
-@keyframes spin { to { transform: rotate(360deg); } }
-#note { margin: 0; min-height: 2.8em; max-width: 34em; font-size: .95rem; color: var(--ink-dim); text-align: center; text-wrap: balance; }
+#note { grid-area: note; margin: 0; min-height: 1.4em; font-size: .9rem; color: var(--ink-dim); text-align: center; text-wrap: balance; }
 #note.bad { color: var(--warn); }
 
-.controls { grid-area: ctl; display: flex; flex-direction: column; gap: .8rem; padding: .9rem; border-radius: 16px; }
-.vol { display: flex; align-items: center; gap: .8rem; }
-.vol label { font-size: .85rem; letter-spacing: .08em; color: var(--ink-dim); font-weight: 600; }
-#volume { flex: 1; min-width: 0; height: 32px; accent-color: var(--accent); }
-.eq-open { min-width: 3rem; min-height: 2.3rem; font-size: .95rem; font-weight: 700; letter-spacing: .06em; }
-.eq-open[aria-pressed="true"], .eq-presets button[aria-pressed="true"], .eq-power[aria-pressed="true"], .keys button[aria-pressed="true"] {
-  color: #fff; border-color: rgba(255,255,255,.7);
-  background: linear-gradient(180deg, #6ccbf4, var(--accent) 52%, #1665ab);
+/* Pita bawah */
+.foot { grid-area: foot; border-width: 1px 0 0; border-radius: 18px 18px 0 0; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.foot .inner { display: flex; flex-direction: column; gap: .8rem; padding-block: .9rem 1rem; }
+.transport { display: flex; align-items: center; justify-content: space-evenly; gap: .4rem; }
+#play {
+  position: relative; width: var(--orb); height: var(--orb); flex: none; border-radius: 50%; border: 0;
+  display: grid; place-items: center; color: #fff;
+  background: radial-gradient(circle at 50% 72%, #7fd6ff 0%, transparent 55%), radial-gradient(circle at 50% 35%, #3aa6ec, var(--accent) 55%, #0c4f8e 100%);
+  box-shadow: 0 0 0 calc(var(--orb) * .07) rgba(255,255,255,.6), 0 0 0 calc(var(--orb) * .07 + 1px) var(--glass-edge), 0 10px 26px rgba(13,79,142,.35), inset 0 -5px 14px rgba(5,40,80,.35);
 }
-.keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
-.keys button { min-height: 2.9rem; padding: 4px; font-size: .95rem; font-variant-numeric: tabular-nums; }
+#play::before { content: ""; position: absolute; left: 14%; right: 14%; top: 5%; height: 46%; border-radius: 50% / 60% 60% 40% 40%; background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.08)); pointer-events: none; }
+#play svg.glyph { position: relative; width: 40%; height: 40%; fill: currentColor; filter: drop-shadow(0 2px 3px rgba(5,40,80,.45)); }
+#play:active { transform: scale(.97); }
+#play .spin { position: absolute; inset: calc(var(--orb) * -.09); width: calc(100% + var(--orb) * .18); height: calc(100% + var(--orb) * .18); display: none; animation: spin 1.1s linear infinite; }
+#play.busy .spin { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.vol { display: flex; align-items: center; gap: .7rem; color: var(--ink-dim); font-variant-numeric: tabular-nums; font-size: .85rem; }
+.vol svg.i { width: 1.2em; height: 1.2em; flex: none; }
+#volume { flex: 1; min-width: 0; height: 28px; accent-color: var(--accent); }
+#volPct { width: 2.6em; text-align: right; }
 
+/* Dialog */
 dialog {
   width: min(420px, calc(100vw - 32px)); max-height: 82vh; overflow: auto;
-  border: 1px solid var(--glass-edge); border-radius: 16px; padding: 1.2rem;
-  color: var(--ink);
-  background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(244,250,254,.9));
+  border: 1px solid var(--glass-edge); border-radius: 16px; padding: 1.2rem; color: var(--ink);
+  background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(244,250,254,.92));
   box-shadow: inset 0 1px 0 #fff, 0 20px 50px rgba(13,53,82,.3);
 }
 dialog::backdrop { background: rgba(160,200,230,.35); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
@@ -184,7 +190,12 @@ dialog form button {
 }
 .eq-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: .9rem; }
 dialog .eq-head h2 { margin: 0; }
-.eq-power, .eq-presets button { min-height: 2.4rem; padding: 2px .8rem; font-size: .95rem; }
+.eq-power, .eq-presets button {
+  min-height: 2.4rem; padding: 2px .8rem; font-size: .95rem; border-radius: 8px; border: 1px solid var(--glass-edge);
+  background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.62) 50%, rgba(228,242,252,.72) 51%, rgba(255,255,255,.88));
+  box-shadow: inset 0 1px 0 #fff, 0 2px 8px var(--shadow);
+}
+.eq-power[aria-pressed="true"], .eq-presets button[aria-pressed="true"] { color: #fff; border-color: rgba(255,255,255,.7); background: linear-gradient(180deg, #6ccbf4, var(--accent) 52%, #1665ab); }
 .eq-bands { --slot: min(170px, 26vh); display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
 .band { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; font-variant-numeric: tabular-nums; }
 .band output { font-family: var(--font-lcd); font-size: .95rem; color: var(--accent); }
@@ -195,39 +206,32 @@ dialog .eq-head h2 { margin: 0; }
 .eq-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 1rem; }
 #eqNote { margin-top: .8rem; color: var(--ink-dim); }
 
-/* Tablet dan HP mendatar: dua kolom, tombol putar di kanan */
+/* Tablet dan HP mendatar: layar di kiri, kendali di kanan */
 @media (orientation: landscape) and (min-width: 640px) {
   .app {
-    max-width: 1080px;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-rows: auto 1fr auto auto 1fr;
-    grid-template-areas: "head head" ". deck" "lcd deck" "ctl deck" ". deck";
-    column-gap: clamp(16px, 4vw, 48px);
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    grid-template-rows: 1fr auto auto auto auto 1fr;
+    grid-template-areas: "art ." "art head" "art meta" "art note" "art foot" "art .";
+    row-gap: clamp(8px, 2.4vh, 26px);
+    column-gap: clamp(14px, 3vw, 40px);
+    padding-block: max(12px, env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-bottom, 0px));
+    padding-left: var(--gutter); padding-right: var(--gutter-r);
   }
-  :root { --orb: clamp(110px, min(26vw, 42vh), 260px); }
-}
-/* Tablet tegak: lebih lapang */
-@media (orientation: portrait) and (min-width: 600px) {
-  .app { max-width: 680px; padding-left: max(32px, env(safe-area-inset-left, 0px)); padding-right: max(32px, env(safe-area-inset-right, 0px)); }
-}
-/* Layar pendek (HP kecil atau mendatar) */
-@media (max-height: 600px) {
-  :root { --gap: 10px; }
-  #note { min-height: 1.4em; }
+  .inner { padding-left: 1rem; padding-right: 1rem; }
+  .head, .foot { border-width: 1px; border-radius: 18px; padding: 0; }
+  .art .screen { min-height: 0; }
+  :root { --orb: clamp(72px, min(13vw, 22vh), 140px); --key: clamp(42px, min(7vw, 12vh), 66px); }
+  #say.big { font-size: clamp(2.4rem, 7vw, 5.5rem); }
+  #say { font-size: clamp(1.1rem, 2.6vw, 2.2rem); }
 }
 @media (max-height: 480px) {
-  .app { padding-block: max(10px, env(safe-area-inset-top, 0px)) max(10px, env(safe-area-inset-bottom, 0px)); }
-  .lcd { gap: .35rem; padding: .6rem .8rem .7rem; }
-  .marquee { height: 38px; }
-  #say { font-size: 1.1rem; }
-  #say.big { font-size: 1.9rem; }
-  .leds { height: 18px; }
-  .controls { padding: .6rem; gap: .5rem; }
-  .keys button { min-height: 2.4rem; }
+  .leds { height: 24px; }
+  .marquee { min-height: 40px; }
+  .foot .inner { padding-block: .5rem; gap: .4rem; }
+  .head .inner { padding-block: .35rem; }
 }
-/* Kaca buram tidak didukung: pakai putih padat agar tetap terbaca */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass { background: rgba(255,255,255,.88); }
+  .glass { background: rgba(255,255,255,.9); }
 }
 @media (prefers-reduced-motion: reduce) {
   #say.zoom, #say.fold, #say.fade, #play .spin, .now .track.scroll span { animation: none; }
@@ -237,49 +241,77 @@ dialog .eq-head h2 { margin: 0; }
 </head>
 <body>
 <main class="app">
-  <header class="top">
-    <span class="badge">RAIS</span>
-    <h1>Radio Islam Sragen</h1>
-    <button class="install" id="install" type="button" hidden>Pasang</button>
+  <header class="head glass">
+    <div class="inner">
+      <button class="ico" id="info" type="button" aria-label="Info aplikasi">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg>
+      </button>
+      <div class="title">
+        <h1>Radio Islam Sragen</h1>
+        <p>Lantunan Murattal &amp; Kajian Islam Ilmiah</p>
+      </div>
+      <button class="install" id="install" type="button" hidden>Pasang</button>
+      <button class="ico" id="share" type="button" aria-label="Bagikan aplikasi">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1"/></svg>
+      </button>
+    </div>
   </header>
 
-  <section class="lcd glass" aria-label="Layar radio">
-    <div class="lcd-row">
+  <div class="meta inner">
+    <button class="ico" id="mute" type="button" aria-pressed="false" aria-label="Bisukan suara">
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18V6L7.5 9.5z"/><path id="muteWave" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+    </button>
+    <div class="status">
       <span class="state" id="state" data-s="idle">SIAP</span>
-      <span class="lcd-right">
-        <span id="listeners" hidden aria-label="Jumlah pendengar"></span>
-        <span id="clock" aria-label="Lama mendengarkan">--:--:--</span>
-      </span>
+      <span id="listeners" hidden aria-label="Jumlah pendengar"></span>
+      <span id="clock" aria-label="Lama mendengarkan">--:--:--</span>
     </div>
-    <div class="now" id="now" hidden>
-      <b>PUTAR</b>
-      <div class="track" id="track"><span id="song"></span></div>
+    <button class="ico" id="eqOpen" type="button" aria-pressed="false" aria-label="Buka equalizer">
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4v16M12 4v16M18 4v16"/><circle cx="6" cy="14" r="2" fill="#fff"/><circle cx="12" cy="8" r="2" fill="#fff"/><circle cx="18" cy="15" r="2" fill="#fff"/></svg>
+    </button>
+  </div>
+
+  <section class="art inner" aria-label="Layar radio">
+    <div class="screen glass">
+      <div class="now" id="now" hidden>
+        <b>PUTAR</b>
+        <div class="track" id="track"><span id="song"></span></div>
+      </div>
+      <div class="marquee" aria-hidden="true"><span id="say">Radio Islam Sragen</span></div>
+      <div class="leds" id="leds" aria-hidden="true"></div>
     </div>
-    <div class="marquee" aria-hidden="true"><span id="say">Radio Islam Sragen</span></div>
-    <div class="leds" id="leds" aria-hidden="true"></div>
   </section>
 
-  <div class="deck">
-    <button id="play" type="button" aria-label="Putar siaran">
-      <svg class="glyph" viewBox="0 0 24 24" aria-hidden="true"><path id="glyph" d="M7 4.5v15l13-7.5z"/></svg>
-      <svg class="spin" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="48.2" fill="none" stroke="#3fb6ea" stroke-width="3.2" stroke-dasharray="48 255"/></svg>
-    </button>
-    <p id="note" role="status">Ketuk tombol untuk mendengarkan siaran.</p>
-  </div>
+  <p id="note" class="inner" role="status">Ketuk tombol untuk mendengarkan siaran.</p>
 
-  <div class="controls glass">
-  <div class="vol" id="volRow">
-    <label for="volume">SUARA</label>
-    <input id="volume" type="range" min="0" max="100" value="85">
-    <button class="eq-open" id="eqOpen" type="button" aria-pressed="false" aria-label="Buka equalizer">EQ</button>
-  </div>
-
-  <div class="keys">
-    <button id="sleep" type="button" aria-pressed="false">Tidur: mati</button>
-    <button id="share" type="button">Bagikan</button>
-    <button id="info" type="button">Info</button>
-  </div>
-  </div>
+  <footer class="foot glass">
+    <div class="inner">
+      <div class="transport">
+        <button class="key" id="sleep" type="button" aria-pressed="false" aria-label="Timer tidur: mati">
+          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></svg>
+          <span class="badge-min" id="sleepBadge" hidden></span>
+        </button>
+        <button class="key needs-vol" id="volDown" type="button" aria-label="Kecilkan suara">
+          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5v5h3.5L11 18V6L6.5 9.5z"/><path d="M15 12h6"/></svg>
+        </button>
+        <button id="play" type="button" aria-label="Putar siaran">
+          <svg class="glyph" viewBox="0 0 24 24" aria-hidden="true"><path id="glyph" d="M7 4.5v15l13-7.5z"/></svg>
+          <svg class="spin" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="48.2" fill="none" stroke="#3fb6ea" stroke-width="3.2" stroke-dasharray="48 255"/></svg>
+        </button>
+        <button class="key needs-vol" id="volUp" type="button" aria-label="Besarkan suara">
+          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5v5h3.5L11 18V6L6.5 9.5z"/><path d="M15 12h6M18 9v6"/></svg>
+        </button>
+        <button class="key" id="retry" type="button" aria-label="Sambungkan ulang siaran">
+          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4.5H15"/></svg>
+        </button>
+      </div>
+      <div class="vol" id="volRow">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18V6L7.5 9.5z"/><path d="M15.5 9a4 4 0 0 1 0 6"/></svg>
+        <input id="volume" type="range" min="0" max="100" value="85" aria-label="Volume suara">
+        <span id="volPct">85%</span>
+      </div>
+    </div>
+  </footer>
 </main>
 
 <dialog id="about" aria-labelledby="aboutTitle">
@@ -288,7 +320,9 @@ dialog .eq-head h2 { margin: 0; }
   <h3>PASANG DI HP</h3>
   <p>Android: buka menu Chrome, lalu pilih Instal aplikasi. iPhone: buka di Safari, ketuk Bagikan, lalu pilih Tambah ke Layar Utama.</p>
   <h3>TIMER TIDUR</h3>
-  <p>Ketuk tombol Tidur untuk memilih 15, 30, 60, atau 90 menit. Siaran berhenti sendiri setelah waktunya habis.</p>
+  <p>Ketuk tombol bulan di kiri bawah untuk memilih 15, 30, 60, atau 90 menit. Siaran berhenti sendiri setelah waktunya habis.</p>
+  <h3>SIARAN TERPUTUS?</h3>
+  <p>Ketuk tombol panah melingkar di kanan bawah untuk menyambungkan ulang siaran.</p>
   <form method="dialog"><button id="aboutClose">Tutup</button></form>
 </dialog>
 
@@ -475,7 +509,7 @@ function bindPlayer(el) {
     everLive = true; rounds = 0;
     if (!startedAt) startedAt = Date.now();
     setState('live');
-    note(songTitle || CONFIG.tagline);
+    note('Siaran sedang mengudara.');
     upgradeEq();
   });
   on('waiting', () => { if (wanted && state === 'live') setState('buffering'); });
@@ -504,12 +538,17 @@ setInterval(() => {
 let sleepAt = 0, sleepStep = 0;
 const pad = n => String(n).padStart(2, '0');
 
+function showSleep(mins) {
+  $('sleep').setAttribute('aria-pressed', mins ? 'true' : 'false');
+  $('sleep').setAttribute('aria-label', mins ? `Timer tidur: ${mins} menit lagi` : 'Timer tidur: mati');
+  $('sleepBadge').hidden = !mins;
+  $('sleepBadge').textContent = mins || '';
+}
 function setSleep(step) {
   sleepStep = step;
   const mins = CONFIG.sleepOptions[step];
   sleepAt = mins ? Date.now() + mins * 60000 : 0;
-  $('sleep').setAttribute('aria-pressed', mins ? 'true' : 'false');
-  $('sleep').textContent = mins ? `Tidur: ${mins}m` : 'Tidur: mati';
+  showSleep(mins);
 }
 $('sleep').addEventListener('click', () => setSleep((sleepStep + 1) % CONFIG.sleepOptions.length));
 
@@ -523,7 +562,7 @@ setInterval(() => {
     if (left <= 0) {
       if (wanted) stop('Timer tidur selesai. Siaran dihentikan.'); else setSleep(0);
     } else {
-      $('sleep').textContent = `Tidur: ${Math.ceil(left / 60000)}m`;
+      showSleep(Math.ceil(left / 60000));
     }
   }
 }, 1000);
@@ -533,12 +572,29 @@ const vol = $('volume');
 const savedVol = store.get('vol');
 if (savedVol !== null) vol.value = savedVol;
 audio.volume = vol.value / 100;
-vol.addEventListener('input', () => { audio.volume = vol.value / 100; store.set('vol', vol.value); });
+function setVolume(v) {
+  vol.value = Math.max(0, Math.min(100, Math.round(v)));
+  audio.volume = vol.value / 100;
+  $('volPct').textContent = vol.value + '%';
+  store.set('vol', vol.value);
+}
+vol.addEventListener('input', () => setVolume(Number(vol.value)));
+$('volDown').addEventListener('click', () => setVolume(Number(vol.value) - 10));
+$('volUp').addEventListener('click', () => setVolume(Number(vol.value) + 10));
+$('volPct').textContent = vol.value + '%';
+let muted = false;
+$('mute').addEventListener('click', () => {
+  muted = !muted;
+  audio.muted = muted;
+  $('mute').setAttribute('aria-pressed', muted ? 'true' : 'false');
+  $('mute').setAttribute('aria-label', muted ? 'Nyalakan suara' : 'Bisukan suara');
+  $('muteWave').setAttribute('d', muted ? 'M16 9.5l5 5M21 9.5l-5 5' : 'M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11');
+});
 /* iPhone mengatur suara hanya lewat tombol fisik, jadi slider disembunyikan. */
 audio.volume = .5;
 const canSetVolume = audio.volume === .5;
 audio.volume = vol.value / 100;
-if (!canSetVolume) $('volRow').hidden = true;
+if (!canSetVolume) { $('volRow').hidden = true; document.querySelectorAll('.needs-vol').forEach(el => { el.hidden = true; }); }
 
 /* ---------- Equalizer 5 kanal ----------
    Web Audio hanya boleh mengolah siaran yang mengizinkan CORS. Karena itu radio
@@ -595,6 +651,7 @@ function detachEq() {
   const old = audio, fresh = new Audio();
   fresh.preload = 'none';
   fresh.volume = old.volume;
+  fresh.muted = old.muted;
   audio = fresh;
   bindPlayer(fresh);
   old.pause(); old.removeAttribute('src'); old.load();
@@ -686,7 +743,7 @@ Object.keys(eqCfg.presets).forEach(name => {
 });
 $('eqPower').addEventListener('click', () => setEqOn(!eqOn));
 $('eqOpen').addEventListener('click', () => { renderEq(); $('eqDialog').showModal(); });
-$('eqOpen').hidden = !eqSupported;
+$('eqOpen').style.visibility = eqSupported ? '' : 'hidden';
 renderEq();
 
 /* ---------- Bagikan, info, pasang ---------- */
@@ -701,6 +758,12 @@ $('share').addEventListener('click', async () => {
   }
 });
 $('info').addEventListener('click', () => $('about').showModal());
+$('retry').addEventListener('click', () => {
+  const step = sleepStep, at = sleepAt;
+  if (wanted) stop();
+  start();
+  if (at) { sleepStep = step; sleepAt = at; showSleep(Math.ceil((at - Date.now()) / 60000)); }
+});
 
 let installEvent = null;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvent = e; $('install').hidden = false; });
@@ -763,7 +826,6 @@ function showNowPlaying(np) {
   if (title === songTitle) return;
   songTitle = title;
   $('song').textContent = title;
-  if (state === 'live') note(title || CONFIG.tagline);
   const track = $('track'), span = $('song');
   track.classList.remove('scroll');
   requestAnimationFrame(() => {
