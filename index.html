@@ -118,19 +118,20 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
   -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
   box-shadow: inset 0 1px 0 #fff, 0 12px 30px rgba(20,60,100,.22);
 }
-.menu button {
+.menu button, .menu a {
   display: flex; align-items: center; gap: .65rem; padding: .6rem .7rem; border: 0; border-radius: .45rem;
-  background: transparent; color: var(--ink); font-size: .92rem; text-align: left;
+  background: transparent; color: var(--ink); font-size: .92rem; text-align: left; text-decoration: none;
 }
-.menu button svg.i { width: 1.15rem; height: 1.15rem; color: #1e5f9c; flex: none; }
-.menu button:hover, .menu button:focus-visible { background: linear-gradient(180deg, #f4f9fd, #dfecf7); }
+.menu button svg.i, .menu a svg.i { width: 1.15rem; height: 1.15rem; color: #1e5f9c; flex: none; }
+.menu a svg.wa { color: #1fa855; }
+.menu button:hover, .menu button:focus-visible, .menu a:hover, .menu a:focus-visible { background: linear-gradient(180deg, #f4f9fd, #dfecf7); }
 
 /* Baris status */
 .status {
-  grid-area: status; justify-self: center; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: .55rem; text-align: center;
+  grid-area: status; justify-self: center; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: .85rem; text-align: center;
   font-family: var(--font-lcd); font-size: 1.15rem; color: var(--display-ink); font-variant-numeric: tabular-nums;
 }
-.listeners { font-family: var(--font-ui); font-size: 1.12rem; color: var(--ink-dim); letter-spacing: .01em; }
+.listeners { font-family: var(--font-ui); font-size: 1.3rem; color: var(--ink-dim); letter-spacing: .01em; }
 .listeners b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
 .state {
   padding: .2em 1.05em; border-radius: 999px; color: #fff; letter-spacing: .06em; font-weight: 700;
@@ -335,6 +336,8 @@ dialog .eq-head h2 { margin: 0; }
 }
 @media (max-height: 480px) {
   .now { --lh: 1.25; font-size: .85rem; }
+  .status { gap: .4rem; }
+  .listeners { font-size: 1.05rem; }
   .foot { gap: .3rem; }
   .wave { height: 54px; }
   .timer { font-size: 1.8rem; }
@@ -370,10 +373,10 @@ body::after {
           <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1"/></svg>
         </button>
         <div class="menu" id="shareMenu" role="menu" hidden>
-          <button type="button" role="menuitem" id="menuShare">
-            <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1"/></svg>
-            Bagikan
-          </button>
+          <a role="menuitem" id="menuWa" href="https://wa.me/" target="_blank" rel="noopener">
+            <svg class="i wa" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 19.5l1.1-3.9A8 8 0 1 1 8.6 18.5z"/><path d="M9.2 8.6c.2-.5.6-.5.9-.5l.6.1 1 2.1-.6.9a5 5 0 0 0 2.2 2.2l.9-.6 2.1 1v.6c0 .4-.2.8-.6 1-1 .5-2.5.3-4.2-1.2s-2.6-3.3-2.3-4.4z" fill="currentColor" stroke="none"/></svg>
+            WhatsApp
+          </a>
           <button type="button" role="menuitem" id="menuCopy">
             <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
             Salin tautan
@@ -903,7 +906,7 @@ const shareMenu = $('shareMenu');
 function toggleMenu(open) {
   shareMenu.hidden = !open;
   $('share').setAttribute('aria-expanded', open ? 'true' : 'false');
-  if (open) shareMenu.querySelector('button:not([hidden])').focus();
+  if (open) shareMenu.querySelector('[role=menuitem]:not([hidden])').focus();
 }
 $('share').addEventListener('click', e => { e.stopPropagation(); toggleMenu(shareMenu.hidden); });
 document.addEventListener('click', e => { if (!shareMenu.hidden && !shareMenu.contains(e.target)) toggleMenu(false); });
@@ -913,12 +916,9 @@ async function copyLink() {
   try { await navigator.clipboard.writeText(appUrl()); note('Tautan aplikasi sudah disalin.'); }
   catch { note('Tautan belum bisa disalin.', true); }
 }
-$('menuShare').addEventListener('click', async () => {
-  toggleMenu(false);
-  if (!navigator.share) return copyLink();
-  try { await navigator.share({ title: CONFIG.name, text: CONFIG.tagline, url: appUrl() }); }
-  catch (e) { if (e.name !== 'AbortError') copyLink(); }
-});
+/* WhatsApp: buka obrolan dengan pesan berisi tautan aplikasi */
+$('menuWa').href = 'https://wa.me/?text=' + encodeURIComponent(`${CONFIG.name} - ${CONFIG.tagline}\n${appUrl()}`);
+$('menuWa').addEventListener('click', () => toggleMenu(false));
 $('menuCopy').addEventListener('click', () => { toggleMenu(false); copyLink(); });
 $('info').addEventListener('click', () => $('about').showModal());
 $('retry').addEventListener('click', () => {
