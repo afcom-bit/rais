@@ -89,8 +89,8 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
   min-height: 100vh; min-height: 100dvh;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
-  grid-template-areas: "head" "note" "art" "song" "foot";
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  grid-template-areas: "head" "art" "song" "foot";
   padding-bottom: max(18px, env(safe-area-inset-bottom, 0px));
   gap: var(--gap);
 }
@@ -98,12 +98,37 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
 
 /* Pita atas */
 .head { grid-area: head; padding-top: env(safe-area-inset-top, 0px); }
-.head .inner { display: flex; align-items: center; gap: .7rem; padding-block: .55rem; }
-.install { border: 1px solid var(--glass-edge); border-radius: 1em; padding: .15em .7em; font-size: .8rem; background: rgba(255,255,255,.8); }
+.head .inner {
+  display: grid; grid-template-columns: 2.6rem minmax(0, 1fr) 2.6rem; grid-template-areas: "info note share" "status status status";
+  align-items: center; column-gap: .6rem; row-gap: .45rem; padding-block: .55rem;
+}
+#info { grid-area: info; }
+.menu-wrap { grid-area: share; position: relative; }
+/* Pesan siaran sejajar tombol atas, tinggi tetap 2 baris agar label di bawahnya tidak bergeser */
+#note {
+  grid-area: note; margin: 0; height: 2.6em; display: flex; align-items: center; justify-content: center;
+  font-size: .8rem; line-height: 1.3; font-weight: 500; color: var(--ink-dim); text-align: center; text-wrap: balance; overflow: hidden;
+}
+#note.bad { color: var(--warn); }
+/* Menu bagikan */
+.menu {
+  position: absolute; right: 0; top: calc(100% + .4rem); z-index: 20; min-width: 12.5rem;
+  display: flex; flex-direction: column; padding: .35rem;
+  border: 1px solid #9fb0c1; border-radius: .7rem;
+  background: linear-gradient(180deg, rgba(255,255,255,.97), rgba(240,246,251,.95));
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 #fff, 0 12px 30px rgba(20,60,100,.22);
+}
+.menu button {
+  display: flex; align-items: center; gap: .65rem; padding: .6rem .7rem; border: 0; border-radius: .45rem;
+  background: transparent; color: var(--ink); font-size: .92rem; text-align: left;
+}
+.menu button svg.i { width: 1.15rem; height: 1.15rem; color: #1e5f9c; flex: none; }
+.menu button:hover, .menu button:focus-visible { background: linear-gradient(180deg, #f4f9fd, #dfecf7); }
 
 /* Baris status */
 .status {
-  flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: .3rem;
+  grid-area: status; justify-self: center; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: .3rem; text-align: center;
   font-family: var(--font-lcd); font-size: .95rem; color: var(--display-ink); font-variant-numeric: tabular-nums;
 }
 .listeners { font-family: var(--font-ui); font-size: .8rem; color: var(--ink-dim); letter-spacing: .01em; }
@@ -152,14 +177,12 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
 .wave canvas { display: block; width: 100%; height: 100%; }
 /* Lama mendengarkan, besar di bawah gelombang; nol di depan dibuat redup */
 .timer {
-  text-align: center; font: 300 clamp(2.6rem, 12vw, 4.4rem)/1 var(--font-ui);
+  text-align: center; font: 300 clamp(2.2rem, 10vw, 3.6rem)/1 var(--font-ui);
   color: #0b3558; font-variant-numeric: tabular-nums; letter-spacing: .01em;
   text-shadow: 0 1px 0 #fff;
 }
 .timer .dim { color: #9db3c6; }
 
-#note { grid-area: note; margin: 0; min-height: 1.4em; font-size: .85rem; font-weight: 500; color: var(--ink-dim); text-align: center; text-wrap: balance; }
-#note.bad { color: var(--warn); }
 
 /* Pita bawah: bilah kaca perak berujung bulat. Garis bingkai naik-turun
    melingkari tombol putar di tengah (digambar dengan SVG agar lengkungnya menyatu). */
@@ -190,16 +213,22 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
 .center { position: relative; display: flex; align-items: center; height: var(--bump); }
 .capsule {
   position: absolute; left: 0; right: 0; top: 50%; height: 2.05em; transform: translateY(-50%);
-  border: 1px solid #8597aa; border-radius: .75em;
-  background: linear-gradient(180deg, #fbfdff 0%, #e4ebf2 46%, #cfd9e4 52%, #dee6ef 100%);
-  box-shadow: inset 0 1px 0 #fff, 0 1px 1px rgba(0,0,0,.06);
+  border: 1px solid #5d7893; border-radius: .9em; overflow: hidden;
+  background:
+    radial-gradient(70% 60% at 50% 115%, rgba(120,200,255,.55), transparent 70%),
+    linear-gradient(180deg, #ffffff 0%, #dbe6f1 46%, #b4c6d9 52%, #c9d8e7 100%);
+  box-shadow: inset 0 1px 0 #fff, inset 0 0 0 1px rgba(255,255,255,.45), 0 1px 3px rgba(20,60,100,.18);
+}
+.capsule::before {
+  content: ""; position: absolute; left: 3px; right: 3px; top: 1px; height: 45%; border-radius: .8em .8em .3em .3em;
+  background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.25));
 }
 .cap-btn {
   position: relative; display: grid; place-items: center; flex: none;
-  width: 3.45em; height: 2.05em; padding: 0; border: 0; background: transparent; color: #2f4d69;
+  width: 3.45em; height: 2.05em; padding: 0; border: 0; background: transparent; color: #163d63;
 }
-.cap-l { border-radius: .75em 0 0 .75em; padding-right: 1.25em; margin-right: -.4em; }
-.cap-r { border-radius: 0 .75em .75em 0; padding-left: 1.25em; margin-left: -.4em; }
+.cap-l { border-radius: .9em 0 0 .9em; padding-right: .6em; margin-right: -.4em; }
+.cap-r { border-radius: 0 .9em .9em 0; padding-left: .6em; margin-left: -.4em; }
 .cap-btn:hover, .cap-btn:focus-visible { color: #1e5f9c; background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(190,220,245,.6)); }
 .cap-btn:active { background: rgba(150,195,235,.55); }
 .center:has(.cap-btn[hidden]) .capsule { display: none; }
@@ -278,8 +307,8 @@ dialog .eq-head h2 { margin: 0; }
 @media (orientation: landscape) and (min-width: 640px) {
   .app {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-rows: 1fr auto auto auto auto 1fr;
-    grid-template-areas: "art ." "art head" "art note" "art song" "art foot" "art .";
+    grid-template-rows: 1fr auto auto auto 1fr;
+    grid-template-areas: "art ." "art head" "art song" "art foot" "art .";
     row-gap: clamp(8px, 2.4vh, 26px);
     column-gap: clamp(14px, 3vw, 40px);
     padding-block: max(12px, env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-bottom, 0px));
@@ -291,7 +320,7 @@ dialog .eq-head h2 { margin: 0; }
   .now { font-size: clamp(.95rem, 1.7vw, 1.25rem); max-width: 24em; }
   .wmp { font-size: clamp(11.5px, 1.45vw, 20px); }
   .foot { padding-left: 0; padding-right: 0; }
-  .timer { font-size: clamp(2.2rem, 5.5vw, 4.4rem); }
+  .timer { font-size: clamp(2rem, 4.6vw, 3.6rem); }
   :root { --orb: clamp(72px, min(13vw, 22vh), 140px); --key: clamp(42px, min(7vw, 12vh), 66px); }
   #say.big { font-size: clamp(2.4rem, 7vw, 5.5rem); }
   #say { font-size: clamp(1.1rem, 2.6vw, 2.2rem); }
@@ -301,14 +330,14 @@ dialog .eq-head h2 { margin: 0; }
   .marquee { min-height: 40px; }
   #say.big { font-size: 2rem; }
   .wave { height: 56px; }
-  .timer { font-size: 2.3rem; }
+  .timer { font-size: 2rem; }
   .now { --lh: 1.35; }
 }
 @media (max-height: 480px) {
   .now { --lh: 1.3; font-size: .85rem; }
   .foot { gap: .3rem; }
   .wave { height: 54px; }
-  .timer { font-size: 2rem; }
+  .timer { font-size: 1.8rem; }
   .marquee { min-height: 40px; }
   .foot .inner { padding-block: .5rem; gap: .4rem; }
   .head .inner { padding-block: .35rem; }
@@ -326,18 +355,32 @@ dialog .eq-head h2 { margin: 0; }
       <button class="ico" id="info" type="button" aria-label="Info aplikasi">
         <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg>
       </button>
+      <p id="note" role="status">Ketuk tombol putar untuk mendengarkan siaran.</p>
+      <div class="menu-wrap">
+        <button class="ico" id="share" type="button" aria-label="Bagikan dan pasang" aria-haspopup="menu" aria-expanded="false" aria-controls="shareMenu">
+          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1"/></svg>
+        </button>
+        <div class="menu" id="shareMenu" role="menu" hidden>
+          <button type="button" role="menuitem" id="menuShare">
+            <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1"/></svg>
+            Bagikan
+          </button>
+          <button type="button" role="menuitem" id="menuCopy">
+            <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+            Salin tautan
+          </button>
+          <button type="button" role="menuitem" id="install">
+            <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5"/><path d="M5 19h14"/></svg>
+            Pasang aplikasi
+          </button>
+        </div>
+      </div>
       <div class="status">
         <span class="state" id="state" data-s="idle">OFF AIR</span>
         <span class="listeners" id="listeners" hidden></span>
       </div>
-      <button class="install" id="install" type="button" hidden>Pasang</button>
-      <button class="ico" id="share" type="button" aria-label="Bagikan aplikasi">
-        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1"/></svg>
-      </button>
     </div>
   </header>
-
-  <p id="note" class="inner" role="status">Ketuk tombol putar untuk mendengarkan siaran.</p>
 
   <section class="art inner" aria-label="Layar radio">
     <div class="screen">
@@ -549,7 +592,7 @@ function roundFailed() {
     wanted = false;
     release();
     setState('error');
-    note('Siaran belum tersambung. Periksa internet Anda, lalu ketuk tombol untuk mencoba lagi.', true);
+    note('Siaran belum tersambung. Periksa internet, lalu coba lagi.', true);
   }
 }
 
@@ -847,16 +890,27 @@ $('eqOpen').hidden = !eqSupported;
 renderEq();
 
 /* ---------- Bagikan, info, pasang ---------- */
-$('share').addEventListener('click', async () => {
-  const data = { title: CONFIG.name, text: CONFIG.tagline, url: location.href.split('#')[0] };
-  try {
-    if (navigator.share) { await navigator.share(data); return; }
-    await navigator.clipboard.writeText(data.url);
-    note('Tautan aplikasi sudah disalin.');
-  } catch (e) {
-    if (e.name !== 'AbortError') note('Tautan belum bisa dibagikan. Salin alamat dari browser.', true);
-  }
+const shareMenu = $('shareMenu');
+function toggleMenu(open) {
+  shareMenu.hidden = !open;
+  $('share').setAttribute('aria-expanded', open ? 'true' : 'false');
+  if (open) shareMenu.querySelector('button:not([hidden])').focus();
+}
+$('share').addEventListener('click', e => { e.stopPropagation(); toggleMenu(shareMenu.hidden); });
+document.addEventListener('click', e => { if (!shareMenu.hidden && !shareMenu.contains(e.target)) toggleMenu(false); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !shareMenu.hidden) { toggleMenu(false); $('share').focus(); } });
+const appUrl = () => location.href.split('#')[0];
+async function copyLink() {
+  try { await navigator.clipboard.writeText(appUrl()); note('Tautan aplikasi sudah disalin.'); }
+  catch { note('Tautan belum bisa disalin.', true); }
+}
+$('menuShare').addEventListener('click', async () => {
+  toggleMenu(false);
+  if (!navigator.share) return copyLink();
+  try { await navigator.share({ title: CONFIG.name, text: CONFIG.tagline, url: appUrl() }); }
+  catch (e) { if (e.name !== 'AbortError') copyLink(); }
 });
+$('menuCopy').addEventListener('click', () => { toggleMenu(false); copyLink(); });
 $('info').addEventListener('click', () => $('about').showModal());
 $('retry').addEventListener('click', () => {
   const step = sleepStep, at = sleepAt;
@@ -866,12 +920,16 @@ $('retry').addEventListener('click', () => {
 });
 
 let installEvent = null;
-addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvent = e; $('install').hidden = false; });
+/* Pasang aplikasi: pakai jendela pasang dari browser bila ada, selain itu tampilkan caranya */
+const installed = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+$('install').hidden = !!installed;
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvent = e; });
 $('install').addEventListener('click', async () => {
-  if (!installEvent) return;
+  toggleMenu(false);
+  if (!installEvent) { $('about').showModal(); return; }
   installEvent.prompt();
   await installEvent.userChoice;
-  installEvent = null; $('install').hidden = true;
+  installEvent = null;
 });
 addEventListener('appinstalled', () => { $('install').hidden = true; });
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
