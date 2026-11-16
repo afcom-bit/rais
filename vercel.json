@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/stream", "destination": "http://streamy1.radioislam.my.id:9210/;" }
+  ]
+}
