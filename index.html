@@ -37,8 +37,8 @@
   --warn: #b3361f;
   --font-ui: "Segoe UI", "Noto Sans", Roboto, system-ui, sans-serif;
   --font-lcd: "Share Tech Mono", ui-monospace, "Courier New", monospace;
-  --gutter: max(14px, env(safe-area-inset-left, 0px));
-  --gutter-r: max(14px, env(safe-area-inset-right, 0px));
+  --gutter: max(clamp(20px, 6vw, 48px), env(safe-area-inset-left, 0px));
+  --gutter-r: max(clamp(20px, 6vw, 48px), env(safe-area-inset-right, 0px));
   --gap: clamp(8px, 1.6vh, 18px);
   --orb: clamp(78px, min(23vw, 13vh), 132px);
   --key: clamp(44px, min(13vw, 7.5vh), 66px);
@@ -70,33 +70,30 @@ button { font: inherit; color: inherit; cursor: pointer; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
-/* Tombol kaca bulat */
-.ico, .key {
-  display: grid; place-items: center; flex: none; padding: 0; border-radius: 50%;
-  border: 1px solid rgba(255,255,255,.95); color: #0d4a7c;
-  background:
-    radial-gradient(80% 45% at 50% 100%, rgba(140,210,250,.45), transparent 70%),
-    linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.7) 48%, rgba(220,238,250,.6) 52%, rgba(245,251,255,.9) 100%);
-  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-  box-shadow: inset 0 1px 0 #fff, 0 0 0 1px rgba(120,175,215,.28), inset 0 -2px 6px rgba(29,127,208,.12), 0 6px 16px rgba(40,100,150,.18);
+/* Tombol atas: kaca perak seperti bilah kendali */
+.ico {
+  display: grid; place-items: center; flex: none; padding: 0;
+  width: 2.5rem; height: 2.5rem; border-radius: .45rem; color: #1e5f9c;
+  border: 1px solid #9fb0c1;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f6fa 44%, #e3eaf1 50%, #eaf0f6 100%);
+  box-shadow: inset 0 1px 0 #fff, 0 2px 8px rgba(40,80,120,.14);
 }
-.ico { width: 2.6rem; height: 2.6rem; }
-.key { position: relative; width: var(--key); height: var(--key); }
-.key svg.i { width: 46%; height: 46%; }
-.ico[aria-pressed="true"], .key[aria-pressed="true"] { color: #fff; border-color: rgba(255,255,255,.8); background: radial-gradient(80% 50% at 50% 100%, rgba(120,215,255,.8), transparent 70%), linear-gradient(180deg, #7fd3f7, #2289dc 50%, #0f5fae 52%, #1d7fd0); }
-.ico:active, .key:active { transform: scale(.95); }
+.ico svg.i { width: 1.25rem; height: 1.25rem; }
+.ico:hover, .ico:focus-visible { background: linear-gradient(180deg, #fff, #e9f1f8 50%, #dbe7f2 51%, #eef4f9); border-color: #7f9ab3; }
+.ico:active { transform: translateY(1px); }
 .badge-min {
-  position: absolute; right: -4px; top: -4px; min-width: 1.6em; padding: 0 .3em; border-radius: 1em;
+  position: absolute; right: -.45em; top: -.45em; min-width: 1.5em; padding: 0 .3em; border-radius: 1em;
   font-size: .68rem; line-height: 1.6; font-variant-numeric: tabular-nums; color: #fff; background: var(--accent);
-  box-shadow: 0 0 0 2px #fff;
+  box-shadow: 0 0 0 1.5px #fff;
 }
 
 .app {
   min-height: 100vh; min-height: 100dvh;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
-  grid-template-areas: "head" "meta" "art" "note" "foot";
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto auto;
+  grid-template-areas: "head" "meta" "note" "art" "song" "foot";
+  padding-bottom: max(18px, env(safe-area-inset-bottom, 0px));
   gap: var(--gap);
 }
 .inner { width: 100%; max-width: 720px; margin: 0 auto; padding-left: var(--gutter); padding-right: var(--gutter-r); }
@@ -110,16 +107,22 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
 .install { border: 1px solid var(--glass-edge); border-radius: 1em; padding: .15em .7em; font-size: .8rem; background: rgba(255,255,255,.8); }
 
 /* Baris status */
-.meta { grid-area: meta; display: flex; align-items: center; justify-content: space-between; gap: .6rem; }
+.meta { grid-area: meta; display: flex; align-items: center; justify-content: center; }
 .status {
   display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: .3rem .7rem; min-width: 0;
   font-family: var(--font-lcd); font-size: .95rem; color: var(--display-ink); font-variant-numeric: tabular-nums;
 }
 #clock { font-size: clamp(1.05rem, 5vw, 1.55rem); letter-spacing: .02em; }
 #listeners { font-size: 1rem; }
-.state { padding: .05em .5em; border-radius: 5px; color: #fff; letter-spacing: .05em; background: linear-gradient(180deg, #5cc4f2, var(--accent) 52%, #1568b0); box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 2px 6px rgba(29,127,208,.3); }
-.state[data-s="idle"] { background: rgba(255,255,255,.6); color: var(--display-ink); box-shadow: inset 0 0 0 1px rgba(13,53,82,.45); }
-.meta-spacer { width: 2.6rem; flex: none; }
+.state {
+  padding: .1em .6em; border-radius: 5px; color: #fff; letter-spacing: .06em; font-weight: 700;
+  border: 1px solid #a3261b;
+  background: linear-gradient(180deg, #ff8f80 0%, #e2412f 48%, #c22a1b 52%, #d8392a 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 2px 6px rgba(194,42,27,.3);
+}
+.state[data-s="live"] { border-color: #1f7a2c; background: linear-gradient(180deg, #8ee59a 0%, #34b84a 48%, #1e9a34 52%, #2fae45 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 2px 6px rgba(30,154,52,.35); }
+.state[data-s="connecting"], .state[data-s="buffering"] { border-color: #a86a00; background: linear-gradient(180deg, #ffd27a 0%, #f0a21c 48%, #d98a00 52%, #eba020 100%); animation: blink 1.2s ease-in-out infinite; }
+@keyframes blink { 50% { opacity: .55; } }
 
 /* Layar besar */
 .art { grid-area: art; display: flex; min-height: 0; }
@@ -129,8 +132,10 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
   padding: 0 clamp(8px, 5vw, 36px);
   font-family: var(--font-lcd); color: var(--display-ink);
 }
-/* Judul siaran: kotak 5 baris, judul pendek tetap di tengah (baris ke-3) */
+/* Judul siaran: kotak 5 baris di atas tombol, judul pendek tetap di tengah (baris ke-3) */
+.song { grid-area: song; display: flex; justify-content: center; }
 .now {
+  width: 100%; max-width: 26em;
   --lh: 1.5;
   display: flex; align-items: center; justify-content: center; min-width: 0;
   height: calc(5 * var(--lh) * 1em);
@@ -156,29 +161,76 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
 .leds i { display: block; border-radius: 4px; background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(200,228,248,.55)); box-shadow: inset 0 0 0 1px rgba(255,255,255,.9), 0 2px 6px rgba(40,100,150,.12); position: relative; overflow: hidden; }
 .leds i::after { content: ""; position: absolute; inset: 0; transform-origin: bottom; transform: scaleY(var(--v, .08)); background: linear-gradient(0deg, var(--accent), var(--accent-2)); }
 
-#note { grid-area: note; margin: 0; min-height: 1.4em; font-size: .9rem; font-weight: 500; color: #0b3a63; text-align: center; text-wrap: balance; }
+#note { grid-area: note; margin: 0; min-height: 1.4em; font-size: .85rem; font-weight: 500; color: var(--ink-dim); text-align: center; text-wrap: balance; }
 #note.bad { color: var(--warn); }
 
-/* Pita bawah */
-.foot { grid-area: foot; padding-bottom: env(safe-area-inset-bottom, 0px); }
-.foot .inner { display: flex; flex-direction: column; gap: .8rem; padding-block: .9rem 1rem; }
-.transport { display: flex; align-items: center; justify-content: space-evenly; gap: .4rem; }
-#play {
-  position: relative; width: var(--orb); height: var(--orb); flex: none; border-radius: 50%; border: 0;
-  display: grid; place-items: center; color: #fff;
-  background: radial-gradient(circle at 50% 72%, #7fd6ff 0%, transparent 55%), radial-gradient(circle at 50% 35%, #3aa6ec, var(--accent) 55%, #0c4f8e 100%);
-  box-shadow: 0 0 0 calc(var(--orb) * .07) rgba(255,255,255,.85), 0 0 0 calc(var(--orb) * .07 + 1px) rgba(120,175,215,.45), 0 12px 28px rgba(13,79,142,.3), inset 0 -5px 14px rgba(5,40,80,.35);
+/* Pita bawah: bilah kendali kaca perak, tombol putar bulat biru di tengah kapsul */
+.foot { grid-area: foot; padding-left: var(--gutter); padding-right: var(--gutter-r); }
+.wmp {
+  --line: #9fb0c1;
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: .3em;
+  width: fit-content; max-width: 100%; margin: 0 auto;
+  padding: .45em .7em; border-radius: .5em;
+  font-size: clamp(14px, 3.9vw, 21px);
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, #ffffff 0%, #f2f6fa 44%, #e3eaf1 50%, #eaf0f6 100%);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -1px 0 rgba(255,255,255,.7), 0 3px 12px rgba(40,80,120,.16);
 }
-#play::before { content: ""; position: absolute; left: 14%; right: 14%; top: 5%; height: 46%; border-radius: 50% / 60% 60% 40% 40%; background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.08)); pointer-events: none; }
-#play svg.glyph { position: relative; width: 40%; height: 40%; fill: currentColor; filter: drop-shadow(0 2px 3px rgba(5,40,80,.45)); }
-#play:active { transform: scale(.97); }
-#play .spin { position: absolute; inset: calc(var(--orb) * -.09); width: calc(100% + var(--orb) * .18); height: calc(100% + var(--orb) * .18); display: none; animation: spin 1.1s linear infinite; }
+.wmp svg.i { width: 1.15em; height: 1.15em; }
+.tb {
+  position: relative; display: grid; place-items: center; flex: none; padding: 0;
+  width: 1.95em; height: 1.95em; border-radius: .35em;
+  border: 1px solid transparent; background: transparent; color: #1e5f9c;
+}
+.tb:hover, .tb:focus-visible { border-color: #a7bacb; background: linear-gradient(180deg, #fff, #e9f1f8 50%, #dbe7f2 51%, #eef4f9); }
+.tb[aria-pressed="true"] { color: #fff; border-color: #2b6db0; background: linear-gradient(180deg, #8cc8f5, #3c8fe0 48%, #1d6cc8 52%, #2a7fd6); }
+.tb:active { transform: translateY(1px); }
+.sep { width: 1px; height: 1.6em; margin: 0 .25em; background: linear-gradient(transparent, #aebccb 30%, #aebccb 70%, transparent); box-shadow: 1px 0 0 #fff; }
+.cap {
+  display: flex; align-items: center; height: 2em; margin: 0 .35em;
+  border: 1px solid #8a9db0; border-radius: 1em;
+  background: linear-gradient(180deg, #fdfeff 0%, #e8eef4 46%, #d3dde8 52%, #e1e9f1 100%);
+  box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(0,0,0,.08);
+}
+.cap-btn {
+  display: grid; place-items: center; width: 2.55em; height: 100%; padding: 0; border: 0;
+  background: transparent; color: #3c5872;
+}
+.cap-btn:first-child { border-radius: 1em 0 0 1em; padding-right: .3em; }
+.cap-btn:last-child { border-radius: 0 1em 1em 0; padding-left: .3em; }
+.cap-btn:hover, .cap-btn:focus-visible { background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(200,225,248,.6)); color: #1e5f9c; }
+.cap-btn:active { background: rgba(160,200,235,.5); }
+#play {
+  position: relative; z-index: 1; display: grid; place-items: center; flex: none;
+  width: 3.05em; height: 3.05em; margin: -.6em -.1em; padding: 0;
+  border-radius: 50%; border: 1px solid #174d88; color: #fff;
+  background:
+    radial-gradient(60% 40% at 50% 88%, rgba(140,220,255,.9), transparent 70%),
+    linear-gradient(180deg, #86c4f3 0%, #3a8de0 47%, #145fbf 53%, #1b6fcf 100%);
+  box-shadow: 0 0 0 .14em #fbfdff, 0 0 0 calc(.14em + 1px) #8a9db0, 0 .2em .5em rgba(10,50,100,.35), inset 0 1px 0 rgba(255,255,255,.75);
+}
+#play::before {
+  content: ""; position: absolute; left: 12%; right: 12%; top: 4%; height: 46%; border-radius: 50% / 70% 70% 30% 30%;
+  background: linear-gradient(180deg, rgba(255,255,255,.8), rgba(255,255,255,.12)); pointer-events: none;
+}
+#play svg.glyph { position: relative; width: 44%; height: 44%; fill: currentColor; filter: drop-shadow(0 1px 1px rgba(5,40,80,.55)); }
+#play:active { transform: scale(.96); }
+#play .spin { position: absolute; inset: -.32em; width: calc(100% + .64em); height: calc(100% + .64em); display: none; animation: spin 1.1s linear infinite; }
 #play.busy .spin { display: block; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.vol { display: flex; align-items: center; gap: .7rem; color: #0b3a63; font-variant-numeric: tabular-nums; font-size: .85rem; }
-.vol svg.i { width: 1.2em; height: 1.2em; flex: none; }
-#volume { flex: 1; min-width: 0; height: 28px; accent-color: var(--accent); }
-#volPct { width: 2.6em; text-align: right; }
+.cap:has(.cap-btn[hidden]) { border-color: transparent; background: none; box-shadow: none; }
+#volume {
+  --p: 85%;
+  -webkit-appearance: none; appearance: none; flex: 1 1 5.5em; min-width: 4.5em; max-width: 8em; height: 1.6em; margin: 0 .2em; background: transparent;
+}
+#volume::-webkit-slider-runnable-track { height: .3em; border-radius: .3em; border: 1px solid var(--line); background: linear-gradient(90deg, #3a8de0 var(--p), #f4f7fa var(--p)); box-shadow: inset 0 1px 1px rgba(0,0,0,.12); }
+#volume::-moz-range-track { height: .3em; border-radius: .3em; border: 1px solid var(--line); background: linear-gradient(90deg, #3a8de0 var(--p), #f4f7fa var(--p)); }
+#volume::-webkit-slider-thumb { -webkit-appearance: none; width: .95em; height: .95em; margin-top: -.37em; border-radius: 50%; border: 1px solid #4f6f8f; background: radial-gradient(circle at 50% 30%, #fff, #c9d9e8 60%, #8fa9c2); box-shadow: 0 1px 2px rgba(0,0,0,.3); }
+#volume::-moz-range-thumb { width: .95em; height: .95em; border-radius: 50%; border: 1px solid #4f6f8f; background: radial-gradient(circle at 50% 30%, #fff, #c9d9e8 60%, #8fa9c2); }
+/* HP sempit: pengatur suara turun ke baris kedua di dalam bilah */
+@media (max-width: 479px) {
+  #volume { flex: 1 1 100%; max-width: none; order: 9; margin: .35em .4em .1em; }
+}
 
 /* Dialog */
 dialog {
@@ -218,18 +270,20 @@ dialog .eq-head h2 { margin: 0; }
 /* Tablet dan HP mendatar: layar di kiri, kendali di kanan */
 @media (orientation: landscape) and (min-width: 640px) {
   .app {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-    grid-template-rows: 1fr auto auto auto auto 1fr;
-    grid-template-areas: "art ." "art head" "art meta" "art note" "art foot" "art .";
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: 1fr auto auto auto auto auto 1fr;
+    grid-template-areas: "art ." "art head" "art meta" "art note" "art song" "art foot" "art .";
     row-gap: clamp(8px, 2.4vh, 26px);
     column-gap: clamp(14px, 3vw, 40px);
     padding-block: max(12px, env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-bottom, 0px));
     padding-left: var(--gutter); padding-right: var(--gutter-r);
   }
-  .inner { padding-left: 1rem; padding-right: 1rem; }
+  .inner { padding-left: 0; padding-right: 0; }
   .head, .foot { padding: 0; }
   .art .screen { min-height: 0; padding: 0 clamp(8px, 2vw, 24px); }
-  .now { font-size: clamp(1rem, 2vw, 1.4rem); }
+  .now { font-size: clamp(.95rem, 1.7vw, 1.25rem); max-width: 24em; }
+  .wmp { font-size: clamp(12px, 1.5vw, 19px); }
+  #volume { flex: 1 1 5.5em; max-width: 8em; order: 0; margin: 0 .2em; }
   #clock { font-size: clamp(1rem, 2.3vw, 1.55rem); }
   :root { --orb: clamp(72px, min(13vw, 22vh), 140px); --key: clamp(42px, min(7vw, 12vh), 66px); }
   #say.big { font-size: clamp(2.4rem, 7vw, 5.5rem); }
@@ -240,7 +294,7 @@ dialog .eq-head h2 { margin: 0; }
   .marquee { min-height: 48px; }
 }
 @media (max-height: 480px) {
-  .now { --lh: 1.4; }
+  .now { --lh: 1.35; font-size: .9rem; }
   .leds { height: 24px; }
   .marquee { min-height: 40px; }
   .foot .inner { padding-block: .5rem; gap: .4rem; }
@@ -271,57 +325,57 @@ dialog .eq-head h2 { margin: 0; }
   </header>
 
   <div class="meta inner">
-    <button class="ico" id="mute" type="button" aria-pressed="false" aria-label="Bisukan suara">
-      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18V6L7.5 9.5z"/><path id="muteWave" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
-    </button>
     <div class="status">
-      <span class="state" id="state" data-s="idle">SIAP</span>
+      <span class="state" id="state" data-s="idle">OFF AIR</span>
       <span id="listeners" hidden aria-label="Jumlah pendengar"></span>
       <span id="clock" aria-label="Lama mendengarkan">--:--:--</span>
     </div>
-    <button class="ico" id="eqOpen" type="button" aria-pressed="false" aria-label="Buka equalizer">
-      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4v16M12 4v16M18 4v16"/><circle cx="6" cy="14" r="2" fill="#fff"/><circle cx="12" cy="8" r="2" fill="#fff"/><circle cx="18" cy="15" r="2" fill="#fff"/></svg>
-    </button>
   </div>
+
+  <p id="note" class="inner" role="status">Ketuk tombol putar untuk mendengarkan siaran.</p>
 
   <section class="art inner" aria-label="Layar radio">
     <div class="screen">
-      <div class="now" id="now" hidden aria-label="Sedang diputar">
-        <div class="track" id="track"><span id="song"></span></div>
-      </div>
       <div class="marquee" aria-hidden="true"><span id="say">Radio Islam Sragen</span></div>
       <div class="leds" id="leds" aria-hidden="true"></div>
     </div>
   </section>
 
-  <p id="note" class="inner" role="status">Ketuk tombol untuk mendengarkan siaran.</p>
+  <div class="song inner">
+    <div class="now" id="now" hidden aria-label="Sedang diputar">
+      <div class="track" id="track"><span id="song"></span></div>
+    </div>
+  </div>
 
   <footer class="foot">
-    <div class="inner">
-      <div class="transport">
-        <button class="key" id="sleep" type="button" aria-pressed="false" aria-label="Timer tidur: mati">
-          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></svg>
-          <span class="badge-min" id="sleepBadge" hidden></span>
-        </button>
-        <button class="key needs-vol" id="volDown" type="button" aria-label="Kecilkan suara">
-          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5v5h3.5L11 18V6L6.5 9.5z"/><path d="M15 12h6"/></svg>
+    <div class="wmp" role="group" aria-label="Kendali pemutar">
+      <button class="tb" id="sleep" type="button" aria-pressed="false" aria-label="Timer tidur: mati">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></svg>
+        <span class="badge-min" id="sleepBadge" hidden></span>
+      </button>
+      <button class="tb" id="eqOpen" type="button" aria-pressed="false" aria-label="Buka equalizer">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4v16M12 4v16M18 4v16"/><circle cx="6" cy="14" r="2.2" fill="#fff"/><circle cx="12" cy="8" r="2.2" fill="#fff"/><circle cx="18" cy="15" r="2.2" fill="#fff"/></svg>
+      </button>
+      <span class="sep" aria-hidden="true"></span>
+      <button class="tb" id="retry" type="button" aria-label="Sambungkan ulang siaran">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4.5H15"/></svg>
+      </button>
+      <div class="cap">
+        <button class="cap-btn needs-vol" id="volDown" type="button" aria-label="Kecilkan suara">
+          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5v5h3.5L11 18V6L6.5 9.5z" fill="currentColor"/><path d="M15 12h6"/></svg>
         </button>
         <button id="play" type="button" aria-label="Putar siaran">
           <svg class="glyph" viewBox="0 0 24 24" aria-hidden="true"><path id="glyph" d="M7 4.5v15l13-7.5z"/></svg>
-          <svg class="spin" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="48.2" fill="none" stroke="#3fb6ea" stroke-width="3.2" stroke-dasharray="48 255"/></svg>
+          <svg class="spin" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="47" fill="none" stroke="#3fb6ea" stroke-width="5" stroke-dasharray="50 250"/></svg>
         </button>
-        <button class="key needs-vol" id="volUp" type="button" aria-label="Besarkan suara">
-          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5v5h3.5L11 18V6L6.5 9.5z"/><path d="M15 12h6M18 9v6"/></svg>
-        </button>
-        <button class="key" id="retry" type="button" aria-label="Sambungkan ulang siaran">
-          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4.5H15"/></svg>
+        <button class="cap-btn needs-vol" id="volUp" type="button" aria-label="Besarkan suara">
+          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5v5h3.5L11 18V6L6.5 9.5z" fill="currentColor"/><path d="M15 12h6M18 9v6"/></svg>
         </button>
       </div>
-      <div class="vol" id="volRow">
-        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18V6L7.5 9.5z"/><path d="M15.5 9a4 4 0 0 1 0 6"/></svg>
-        <input id="volume" type="range" min="0" max="100" value="85" aria-label="Volume suara">
-        <span id="volPct">85%</span>
-      </div>
+      <button class="tb" id="mute" type="button" aria-pressed="false" aria-label="Bisukan suara">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18V6L7.5 9.5z" fill="currentColor"/><path id="muteWave" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+      </button>
+      <input id="volume" class="needs-vol" type="range" min="0" max="100" value="85" aria-label="Volume suara">
     </div>
   </footer>
 </main>
@@ -420,7 +474,7 @@ function buildCandidates() {
 }
 
 /* ---------- Pemutar ---------- */
-const LABEL = { idle: 'SIAP', connecting: 'MENYAMBUNG', live: 'ON AIR', buffering: 'MEMUAT', retry: 'SAMBUNG ULANG', error: 'GANGGUAN' };
+const LABEL = { idle: 'OFF AIR', connecting: 'MENYAMBUNG', live: 'ON AIR', buffering: 'MEMUAT', retry: 'OFF AIR', error: 'OFF AIR' };
 let state = 'idle', wanted = false, everLive = false;
 let candidates = [], idx = 0, rounds = 0;
 let tryTimer = 0, retryTimer = 0, startedAt = 0, lastTime = -1, stuck = 0;
@@ -430,7 +484,7 @@ function note(text, bad) { noteEl.textContent = text; noteEl.classList.toggle('b
 function setState(s) {
   state = s;
   stateEl.textContent = LABEL[s];
-  stateEl.dataset.s = s === 'idle' ? 'idle' : 'on';
+  stateEl.dataset.s = s;
   const on = s !== 'idle' && s !== 'error';
   $('glyph').setAttribute('d', on ? STOP : PLAY);
   playBtn.setAttribute('aria-label', on ? 'Hentikan siaran' : 'Putar siaran');
@@ -521,7 +575,7 @@ function bindPlayer(el) {
     everLive = true; rounds = 0;
     if (!startedAt) startedAt = Date.now();
     setState('live');
-    note('Siaran sedang mengudara.');
+    note('');
     upgradeEq();
   });
   on('waiting', () => { if (wanted && state === 'live') setState('buffering'); });
@@ -587,13 +641,13 @@ audio.volume = vol.value / 100;
 function setVolume(v) {
   vol.value = Math.max(0, Math.min(100, Math.round(v)));
   audio.volume = vol.value / 100;
-  $('volPct').textContent = vol.value + '%';
+  vol.style.setProperty('--p', vol.value + '%');
   store.set('vol', vol.value);
 }
 vol.addEventListener('input', () => setVolume(Number(vol.value)));
 $('volDown').addEventListener('click', () => setVolume(Number(vol.value) - 10));
 $('volUp').addEventListener('click', () => setVolume(Number(vol.value) + 10));
-$('volPct').textContent = vol.value + '%';
+vol.style.setProperty('--p', vol.value + '%');
 let muted = false;
 $('mute').addEventListener('click', () => {
   muted = !muted;
@@ -606,7 +660,7 @@ $('mute').addEventListener('click', () => {
 audio.volume = .5;
 const canSetVolume = audio.volume === .5;
 audio.volume = vol.value / 100;
-if (!canSetVolume) { $('volRow').hidden = true; document.querySelectorAll('.needs-vol').forEach(el => { el.hidden = true; }); }
+if (!canSetVolume) { document.querySelectorAll('.needs-vol').forEach(el => { el.hidden = true; }); }
 
 /* ---------- Equalizer 5 kanal ----------
    Web Audio hanya boleh mengolah siaran yang mengizinkan CORS. Karena itu radio
@@ -755,7 +809,7 @@ Object.keys(eqCfg.presets).forEach(name => {
 });
 $('eqPower').addEventListener('click', () => setEqOn(!eqOn));
 $('eqOpen').addEventListener('click', () => { renderEq(); $('eqDialog').showModal(); });
-$('eqOpen').style.visibility = eqSupported ? '' : 'hidden';
+$('eqOpen').hidden = !eqSupported;
 renderEq();
 
 /* ---------- Bagikan, info, pasang ---------- */
