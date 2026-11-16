@@ -1,5 +1,5 @@
 /* Service worker RAIS. Ubah VERSI setiap kali file aplikasi diperbarui agar cache lama diganti. */
-var VERSI = 'rais-v13';
+var VERSI = 'rais-v14';
 var INTI = [
   './',
   './index.html',
