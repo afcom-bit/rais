@@ -10,6 +10,18 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="RAIS">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
+<script>
+/* Mode sematan (dipasang di web lain lewat iframe): ?sematan=1&ukuran=mini|besar&tema=terang|gelap
+   Ukuran dan tema bisa diganti tanpa memuat ulang lewat postMessage (lihat bagian "Sematan" di bawah). */
+(function () {
+  var q = new URLSearchParams(location.search);
+  if (q.get('sematan') !== '1') return;
+  var d = document.documentElement;
+  d.classList.add('sematan');
+  d.dataset.ukuran = q.get('ukuran') === 'mini' ? 'mini' : 'besar';
+  d.dataset.tema = q.get('tema') === 'gelap' ? 'gelap' : 'terang';
+})();
+</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -341,6 +353,153 @@ body::after {
   #say.zoom, #say.fold, #say.fade, #play .spin { animation: none; }
   #say.typing::after { content: none; }
 }
+
+/* =====================================================================
+   SEMATAN: pemutar dipasang di web lain (iframe). Latar dibuat bening,
+   efek kaca (blur) diberikan oleh web induk di belakang iframe.
+   Warna mengikuti web Pondok Pesantren Darul Qur'an (hijau toska).
+   ===================================================================== */
+.mini-judul { display: none; }
+html.sematan {
+  --ink: #0b3b2e; --ink-dim: #3d6a5c; --accent: #0d9488; --accent-2: #2dd4bf;
+  --display-ink: #064e3b; --warn: #b4321f;
+  --em-ikon: #0f766e; --em-ikon-bayang: rgba(255,255,255,.9);
+  --em-gel-bar: #065f46; --em-gel-mid: rgba(6,95,70,.2); --em-gel-head: #0d9488;
+  --em-redup: rgba(6,78,59,.3);
+  --em-bingkai: rgba(255,255,255,.55); --em-bingkai-garis: rgba(255,255,255,.95); --em-bingkai-kilau: #fff;
+  --em-kapsul: linear-gradient(180deg, rgba(255,255,255,.96) 0%, rgba(222,246,239,.9) 46%, rgba(178,224,212,.9) 52%, rgba(206,238,229,.92) 100%);
+  --em-kapsul-garis: rgba(13,110,95,.42);
+  --em-kapsul-ikon: #0b4f42;
+  --em-tombol-hover: rgba(255,255,255,.55);
+  --em-menu: linear-gradient(180deg, rgba(255,255,255,.98), rgba(238,250,246,.97));
+  --em-menu-garis: rgba(13,110,95,.26);
+  --em-menu-hover: linear-gradient(180deg, #f2fbf8, #d9f2ea);
+  --em-cincin: rgba(255,255,255,.95); --em-cincin-garis: rgba(13,110,95,.45);
+  --em-lencana-teks: #fff;
+  color-scheme: light;
+}
+html.sematan[data-tema="gelap"] {
+  --ink: #f4f4f6; --ink-dim: rgba(255,255,255,.7); --accent: #2dd4bf; --accent-2: #5eead4;
+  --display-ink: #ffffff; --warn: #ff8f80;
+  --em-ikon: #e6fffa; --em-ikon-bayang: rgba(0,0,0,.55);
+  --em-gel-bar: #ecfffb; --em-gel-mid: rgba(255,255,255,.16); --em-gel-head: #2dd4bf;
+  --em-redup: rgba(255,255,255,.28);
+  --em-bingkai: rgba(255,255,255,.1); --em-bingkai-garis: rgba(255,255,255,.26); --em-bingkai-kilau: rgba(255,255,255,.34);
+  --em-kapsul: linear-gradient(180deg, rgba(255,255,255,.24) 0%, rgba(255,255,255,.11) 48%, rgba(255,255,255,.05) 52%, rgba(255,255,255,.1) 100%);
+  --em-kapsul-garis: rgba(255,255,255,.28);
+  --em-kapsul-ikon: #f4f4f6;
+  --em-tombol-hover: rgba(255,255,255,.14);
+  --em-menu: linear-gradient(180deg, rgba(44,44,48,.98), rgba(26,26,29,.98));
+  --em-menu-garis: rgba(255,255,255,.18);
+  --em-menu-hover: rgba(255,255,255,.1);
+  --em-cincin: rgba(255,255,255,.22); --em-cincin-garis: rgba(255,255,255,.4);
+  --em-lencana-teks: #042f2a;
+  color-scheme: dark;
+}
+html.sematan, html.sematan body { height: 100%; overflow: hidden; background: transparent; }
+html.sematan { font-size: 14px; }
+html.sematan body { min-height: 0; color: var(--ink); }
+html.sematan body::before, html.sematan body::after, html.sematan .app::before { display: none; }
+html.sematan :focus-visible { outline-color: var(--accent); }
+
+/* --- Besar: pemutar lengkap yang pas di kotak kecil (mis. 300 x 280) --- */
+html.sematan .app {
+  min-height: 0; height: 100%;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  grid-template-areas: "head" "art" "song" "foot";
+  gap: 4px; padding: 10px 12px;
+}
+html.sematan .inner { max-width: none; padding-left: 0; padding-right: 0; }
+html.sematan .head { padding-top: 0; }
+html.sematan .head .inner {
+  grid-template-columns: auto minmax(0, 1fr) 2.2rem; grid-template-areas: "status note share";
+  column-gap: .5rem; row-gap: 0; padding-block: 0;
+}
+html.sematan .head-spacer { display: none; }
+html.sematan .status { justify-self: start; align-items: flex-start; gap: 3px; font-size: .74rem; }
+html.sematan .state { padding: .12em .75em; }
+html.sematan .listeners { font-size: .7rem; padding-left: .2em; color: var(--ink-dim); }
+html.sematan .listeners b { color: var(--ink); }
+html.sematan #note { font-size: .7rem; height: 2.6em; color: var(--ink-dim); }
+html.sematan #note.bad { color: var(--warn); }
+html.sematan .ico { width: 2.2rem; height: 2.2rem; color: var(--em-ikon); }
+html.sematan .ico svg.i { width: 1.25rem; height: 1.25rem; filter: drop-shadow(0 1px 0 var(--em-ikon-bayang)); }
+html.sematan .ico:hover, html.sematan .ico:focus-visible { background: var(--em-tombol-hover); }
+html.sematan .menu { min-width: 11.5rem; padding: .3rem; border-color: var(--em-menu-garis); background: var(--em-menu); box-shadow: 0 12px 30px rgba(0,0,0,.25); }
+html.sematan .menu button, html.sematan .menu a { padding: .5rem .6rem; font-size: .86rem; color: var(--ink); }
+html.sematan .menu button svg.i, html.sematan .menu a svg.i { color: var(--em-ikon); }
+html.sematan .menu a svg.wa { color: #1fa855; }
+html.sematan .menu button:hover, html.sematan .menu button:focus-visible, html.sematan .menu a:hover, html.sematan .menu a:focus-visible { background: var(--em-menu-hover); }
+html.sematan .art .screen { min-height: 0; gap: 4px; padding: 0 2px; color: var(--display-ink); }
+html.sematan .marquee { min-height: 0; height: 2.8rem; margin: 0; }
+html.sematan #say { font-size: 1.05rem; }
+html.sematan #say.big { font-size: 2.1rem; }
+html.sematan .wave { flex: 1 1 0; height: auto; min-height: 20px; max-height: 76px; }
+html.sematan .wave canvas { --wave-bar: var(--em-gel-bar); --wave-mid: var(--em-gel-mid); --wave-head: var(--em-gel-head); }
+html.sematan .timer { font-size: 1.55rem; color: var(--display-ink); text-shadow: none; }
+html.sematan .timer .dim { color: var(--em-redup); }
+html.sematan .now { --lh: 1.3; height: calc(2 * var(--lh) * 1em); max-width: none; font-size: .84rem; color: var(--ink); text-shadow: none; }
+html.sematan .foot { padding: 0; gap: 0; }
+html.sematan .vol-out, html.sematan #volume { display: none; }
+html.sematan .wmp { font-size: clamp(9px, 3.7vw, 13px); }
+html.sematan .frame { filter: drop-shadow(0 2px 5px rgba(0,0,0,.14)); }
+html.sematan #framePath { fill: var(--em-bingkai); stroke: var(--em-bingkai-garis); }
+html.sematan #frameShine { stroke: var(--em-bingkai-kilau); }
+html.sematan .tb { color: var(--em-ikon); }
+html.sematan .tb:hover, html.sematan .tb:focus-visible { border-color: var(--em-kapsul-garis); background: var(--em-tombol-hover); }
+html.sematan #mute[aria-pressed="true"] { color: #fff; border-color: #0f766e; background: linear-gradient(180deg, #5eead4, #14b8a6 48%, #0f766e 52%, #0d9488); }
+html.sematan .badge-min { color: var(--em-lencana-teks); background: var(--accent); box-shadow: 0 0 0 1.5px var(--em-bingkai-garis); }
+html.sematan .sep { background: linear-gradient(transparent, var(--em-kapsul-garis) 25%, var(--em-kapsul-garis) 75%, transparent); box-shadow: none; }
+html.sematan .capsule { border-color: var(--em-kapsul-garis); background: var(--em-kapsul); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 1px 3px rgba(0,0,0,.15); }
+html.sematan[data-tema="gelap"] .capsule::before { background: linear-gradient(180deg, rgba(255,255,255,.26), rgba(255,255,255,.03)); }
+html.sematan .cap-btn { color: var(--em-kapsul-ikon); }
+html.sematan .cap-btn:hover, html.sematan .cap-btn:focus-visible { color: var(--accent); background: var(--em-tombol-hover); }
+html.sematan .cap-btn:active { background: var(--em-tombol-hover); }
+html.sematan #play {
+  border-color: #0f5f55;
+  background:
+    radial-gradient(60% 40% at 50% 88%, rgba(153,246,228,.9), transparent 70%),
+    linear-gradient(180deg, #5eead4 0%, #14b8a6 47%, #0f766e 53%, #0d9488 100%);
+  box-shadow: 0 0 0 .13em var(--em-cincin), 0 0 0 calc(.13em + 1px) var(--em-cincin-garis), 0 .12em .35em rgba(0,40,30,.3), inset 0 1px 0 rgba(255,255,255,.75);
+}
+html.sematan #play svg.glyph { filter: drop-shadow(0 1px 1px rgba(0,50,40,.55)); }
+html.sematan #play .spin circle { stroke: var(--accent-2); }
+html.sematan dialog { padding: 1rem; font-size: .88rem; color: var(--ink); border-color: var(--em-menu-garis); background: var(--em-menu); box-shadow: 0 16px 40px rgba(0,0,0,.3); }
+html.sematan dialog::backdrop { background: rgba(0,0,0,.25); -webkit-backdrop-filter: none; backdrop-filter: none; }
+html.sematan dialog h2 { font-size: 1.05rem; }
+html.sematan dialog h3 { color: var(--accent); }
+html.sematan dialog form button { min-height: 2.4rem; border-color: rgba(255,255,255,.6); background: linear-gradient(180deg, #5eead4, #0d9488 52%, #0f766e); box-shadow: inset 0 1px 0 rgba(255,255,255,.5); }
+@media (max-height: 250px) {
+  html.sematan .timer { display: none; }
+  html.sematan .marquee { height: 2.4rem; }
+}
+@media (max-height: 205px) {
+  html.sematan .wave { display: none; }
+}
+
+/* --- Mini: satu pita kecil (tombol putar, status, judul berjalan) --- */
+html.sematan[data-ukuran="mini"] .app {
+  grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto;
+  grid-template-areas: "play status" "play judul";
+  align-content: center; column-gap: .6rem; row-gap: 2px; padding: 0 14px 0 6px;
+}
+html.sematan[data-ukuran="mini"] :is(.head, .head .inner, .foot, .wmp, .center) { display: contents; }
+html.sematan[data-ukuran="mini"] :is(#note, .menu-wrap, .art, .song, .side, .capsule, .cap-btn, .frame, .vol-out) { display: none !important; }
+html.sematan[data-ukuran="mini"] #play { grid-area: play; align-self: center; font-size: 8.4px; }
+html.sematan[data-ukuran="mini"] .status { grid-area: status; align-self: end; flex-direction: row; align-items: center; gap: .45rem; font-size: .64rem; }
+html.sematan[data-ukuran="mini"] .listeners { font-size: .64rem; padding: 0; }
+html.sematan[data-ukuran="mini"] .mini-judul {
+  grid-area: judul; align-self: start; display: block; min-width: 0; overflow: hidden; white-space: nowrap;
+  font: 600 .8rem/1.3 var(--font-ui); color: var(--ink);
+}
+html.sematan .mini-judul span { display: inline-block; }
+html.sematan .mini-judul.gulir { -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 88%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 88%, transparent); }
+html.sematan .mini-judul.gulir span { animation: gulir-judul var(--lama, 14s) linear infinite; }
+@keyframes gulir-judul { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  html.sematan .mini-judul.gulir span { animation: none; }
+}
 </style>
 </head>
 <body>
@@ -354,6 +513,10 @@ body::after {
           <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1"/></svg>
         </button>
         <div class="menu" id="shareMenu" role="menu" hidden>
+          <button type="button" role="menuitem" id="menuShare" hidden>
+            <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M8 11H6a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1h-2"/></svg>
+            Bagikan...
+          </button>
           <a role="menuitem" id="menuWa" href="https://wa.me/" target="_blank" rel="noopener">
             <svg class="i wa" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 19.5l1.1-3.9A8 8 0 1 1 8.6 18.5z"/><path d="M9.2 8.6c.2-.5.6-.5.9-.5l.6.1 1 2.1-.6.9a5 5 0 0 0 2.2 2.2l.9-.6 2.1 1v.6c0 .4-.2.8-.6 1-1 .5-2.5.3-4.2-1.2s-2.6-3.3-2.3-4.4z" fill="currentColor" stroke="none"/></svg>
             WhatsApp
@@ -366,6 +529,10 @@ body::after {
             <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5"/><path d="M5 19h14"/></svg>
             Pasang aplikasi
           </button>
+          <a role="menuitem" id="menuBuka" href="/" target="_blank" rel="noopener" hidden>
+            <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-8.5 8.5"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></svg>
+            Buka aplikasi radio
+          </a>
         </div>
       </div>
       <div class="status">
@@ -388,6 +555,8 @@ body::after {
       <div class="track" id="track"><span id="song"></span></div>
     </div>
   </div>
+
+  <div class="mini-judul" id="miniJudul" aria-hidden="true"><span>Radio Islam Sragen</span></div>
 
   <footer class="foot" id="foot">
     <div class="vol-out" id="volOut">
@@ -487,6 +656,11 @@ const CONFIG = {
 };
 
 const $ = id => document.getElementById(id);
+/* Sematan: dipasang di web lain lewat iframe (lihat skrip di <head>) */
+const SEMATAN = document.documentElement.classList.contains('sematan');
+/* Alamat yang dibagikan selalu alamat aplikasi radio, bukan alamat web yang menyematkan */
+const ALAMAT_RADIO = location.protocol === 'file:' ? location.href.split(/[?#]/)[0] : location.origin + '/';
+let lapor = () => {};
 let audio = $('radio');
 const playBtn = $('play'), noteEl = $('note'), stateEl = $('state');
 const PLAY = 'M7 4.5v15l13-7.5z', STOP = 'M5 5h14v14H5z';
@@ -521,6 +695,7 @@ function setState(s) {
   playBtn.setAttribute('aria-label', on ? 'Hentikan siaran' : 'Putar siaran');
   playBtn.classList.toggle('busy', s === 'connecting' || s === 'buffering' || s === 'retry');
   if ('mediaSession' in navigator) navigator.mediaSession.playbackState = on ? 'playing' : 'paused';
+  lapor(s);
 }
 
 function clearTimers() { clearTimeout(tryTimer); clearTimeout(retryTimer); }
@@ -708,15 +883,37 @@ function toggleMenu(open) {
 $('share').addEventListener('click', e => { e.stopPropagation(); toggleMenu(shareMenu.hidden); });
 document.addEventListener('click', e => { if (!shareMenu.hidden && !shareMenu.contains(e.target)) toggleMenu(false); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !shareMenu.hidden) { toggleMenu(false); $('share').focus(); } });
-const appUrl = () => location.href.split('#')[0];
+const appUrl = () => SEMATAN ? ALAMAT_RADIO : location.href.split('#')[0];
 async function copyLink() {
-  try { await navigator.clipboard.writeText(appUrl()); note('Tautan aplikasi sudah disalin.'); }
-  catch { note('Tautan belum bisa disalin.', true); }
+  const url = appUrl();
+  try { await navigator.clipboard.writeText(url); note('Tautan aplikasi sudah disalin.'); return; } catch {}
+  /* Cadangan untuk iframe/browser yang menolak clipboard API */
+  try {
+    const t = document.createElement('textarea');
+    t.value = url; t.setAttribute('readonly', ''); t.style.cssText = 'position:fixed;left:-9999px;opacity:0';
+    document.body.append(t); t.select();
+    const ok = document.execCommand('copy');
+    t.remove();
+    if (ok) { note('Tautan aplikasi sudah disalin.'); return; }
+  } catch {}
+  note('Tautan belum bisa disalin.', true);
 }
 /* WhatsApp: buka obrolan dengan pesan berisi tautan aplikasi */
 $('menuWa').href = 'https://wa.me/?text=' + encodeURIComponent(`${CONFIG.name} - ${CONFIG.tagline}\n${appUrl()}`);
 $('menuWa').addEventListener('click', () => toggleMenu(false));
 $('menuCopy').addEventListener('click', () => { toggleMenu(false); copyLink(); });
+/* Sematan: menu bagikan bawaan HP/komputer dan tautan ke aplikasi radio (pengganti "Pasang aplikasi") */
+if (SEMATAN) {
+  $('menuShare').hidden = typeof navigator.share !== 'function';
+  $('menuBuka').hidden = false;
+  $('menuBuka').href = ALAMAT_RADIO;
+  $('menuBuka').addEventListener('click', () => toggleMenu(false));
+}
+$('menuShare').addEventListener('click', async () => {
+  toggleMenu(false);
+  try { await navigator.share({ title: CONFIG.name, text: `${CONFIG.name} - ${CONFIG.tagline}`, url: appUrl() }); }
+  catch (e) { if (e && e.name !== 'AbortError') copyLink(); }
+});
 $('info').addEventListener('click', () => $('about').showModal());
 $('retry').addEventListener('click', () => {
   const step = sleepStep, at = sleepAt;
@@ -728,7 +925,7 @@ $('retry').addEventListener('click', () => {
 let installEvent = null;
 /* Pasang aplikasi: pakai jendela pasang dari browser bila ada, selain itu tampilkan caranya */
 const installed = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
-$('install').hidden = !!installed;
+$('install').hidden = !!installed || SEMATAN;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvent = e; });
 $('install').addEventListener('click', async () => {
   toggleMenu(false);
@@ -738,7 +935,7 @@ $('install').addEventListener('click', async () => {
   installEvent = null;
 });
 addEventListener('appinstalled', () => { $('install').hidden = true; });
-if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+if (!SEMATAN && 'serviceWorker' in navigator && location.protocol !== 'file:') {
   addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
 
@@ -806,8 +1003,9 @@ function shapeTitle() {
   measureCtx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
   const measure = t => measureCtx.measureText(t).width;
   const words = songTitle.split(/\s+/).filter(Boolean), W = box.clientWidth;
+  const M = SEMATAN ? 2 : 5;
   let lines = null;
-  for (let n = 1; n <= 5 && !lines; n++) {
+  for (let n = 1; n <= M && !lines; n++) {
     if (!fitLines(words, n, W, 1, measure)) continue;
     let lo = .35, hi = 1;
     for (let k = 0; k < 14; k++) { const mid = (lo + hi) / 2; if (fitLines(words, n, W, mid, measure)) hi = mid; else lo = mid; }
@@ -815,20 +1013,20 @@ function shapeTitle() {
   }
   if (!lines) {
     lines = []; let i = 0;
-    for (let k = 0; k < 5; k++) {
+    for (let k = 0; k < M; k++) {
       let line = '';
-      while (i < words.length) { const next = line ? line + ' ' + words[i] : words[i]; if (line && measure(next) > TITLE_SHAPE[5][k] * W) break; line = next; i++; }
+      while (i < words.length) { const next = line ? line + ' ' + words[i] : words[i]; if (line && measure(next) > TITLE_SHAPE[M][k] * W) break; line = next; i++; }
       lines.push(line);
     }
     if (i < words.length) {
-      let last = lines[4] + ' ' + words.slice(i).join(' ');
-      while (last.length > 1 && measure(last + '…') > TITLE_SHAPE[5][4] * W) last = last.slice(0, -1);
-      lines[4] = last.trimEnd() + '…';
+      let last = lines[M - 1] + ' ' + words.slice(i).join(' ');
+      while (last.length > 1 && measure(last + '…') > TITLE_SHAPE[M][M - 1] * W) last = last.slice(0, -1);
+      lines[M - 1] = last.trimEnd() + '…';
     }
   }
   el.replaceChildren(...lines.flatMap((l, k) => k ? [document.createElement('br'), document.createTextNode(l)] : [document.createTextNode(l)]));
 }
-addEventListener('resize', () => shapeTitle());
+addEventListener('resize', () => { shapeTitle(); judulMini(); });
 if (document.fonts) document.fonts.ready.then(() => shapeTitle());
 
 /* Bingkai bilah: ujung bulat, melengkung melingkari tombol putar */
@@ -871,6 +1069,7 @@ function showNowPlaying(np) {
   songTitle = title;
   $('song').textContent = title;
   shapeTitle();
+  judulMini();
   $('track').title = title;
   if ('mediaSession' in navigator && navigator.mediaSession.metadata) {
     navigator.mediaSession.metadata.title = title || CONFIG.name;
@@ -968,6 +1167,40 @@ async function scene({ text, effect, holdMs }) {
   say.textContent = '';
   await wait(250);
 }
+/* ---------- Sematan: judul berjalan mode mini dan jembatan ke web induk ---------- */
+function judulMini() {
+  if (!SEMATAN) return;
+  const box = $('miniJudul'), span = box.firstElementChild, teks = songTitle || CONFIG.name;
+  box.classList.remove('gulir');
+  span.textContent = teks;
+  if (document.documentElement.dataset.ukuran !== 'mini' || !box.clientWidth) return;
+  if (span.offsetWidth > box.clientWidth + 1) {
+    /* Dua salinan berurutan agar gulirannya bersambung tanpa jeda */
+    const jarak = '\u00a0'.repeat(8);
+    span.textContent = teks + jarak + teks + jarak;
+    box.style.setProperty('--lama', Math.max(8, Math.round(teks.length * .3)) + 's');
+    box.classList.add('gulir');
+  }
+}
+if (SEMATAN) {
+  const kirim = data => { try { parent.postMessage(Object.assign({ sumber: 'rais' }, data), '*'); } catch {} };
+  lapor = s => kirim({ jenis: 'status', status: s });
+  addEventListener('message', e => {
+    const d = e.data;
+    if (e.source !== parent || !d || d.sumber !== 'pdq-radio' || d.jenis !== 'atur') return;
+    const root = document.documentElement;
+    if (d.ukuran === 'mini' || d.ukuran === 'besar') root.dataset.ukuran = d.ukuran;
+    if (d.tema === 'terang' || d.tema === 'gelap') root.dataset.tema = d.tema;
+    if (root.dataset.ukuran === 'mini') {
+      if (!shareMenu.hidden) toggleMenu(false);
+      if ($('about').open) $('about').close();
+    }
+    requestAnimationFrame(() => { layoutBar(); shapeTitle(); drawWave(); judulMini(); });
+  });
+  kirim({ jenis: 'siap', status: state });
+  judulMini();
+}
+
 pollNowPlaying();
 (async () => { await wait(1200); for (;;) for (const t of CONFIG.texts) await scene(t); })();
 </script>
