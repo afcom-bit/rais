@@ -5,21 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Radio Islam Sragen</title>
 <meta name="description" content="Lantunan murattal dan kajian Islam ilmiah 24 jam nonstop dari Bumi Sukowati.">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="RAIS">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script>
-/* Mode sematan (dipasang di web lain lewat iframe): ?sematan=1&ukuran=mini|besar&tema=terang|gelap
-   Ukuran dan tema bisa diganti tanpa memuat ulang lewat postMessage (lihat bagian "Sematan" di bawah). */
 (function () {
   var q = new URLSearchParams(location.search);
-  if (q.get('sematan') !== '1') return;
   var d = document.documentElement;
-  d.classList.add('sematan');
-  d.dataset.ukuran = q.get('ukuran') === 'mini' ? 'mini' : 'besar';
-  d.dataset.tema = q.get('tema') === 'gelap' ? 'gelap' : 'terang';
+  if (q.get('sematan') === '1') {
+    d.classList.add('sematan');
+    d.dataset.ukuran = q.get('ukuran') === 'mini' ? 'mini' : 'besar';
+    d.dataset.tema = q.get('tema') === 'gelap' ? 'gelap' : 'terang';
+  } else {
+    try {
+      var saved = localStorage.getItem('rais.tema');
+      d.dataset.tema = (saved === 'gelap' || saved === 'terang') ? saved : 'terang';
+    } catch (e) {
+      d.dataset.tema = 'terang';
+    }
+  }
 })();
 </script>
 <link rel="manifest" href="manifest.webmanifest">
@@ -27,7 +33,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Quicksand:wght@300;400;500&family=Share+Tech+Mono&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Quicksand:wght@300;400;500&family=Share+Tech+Mono&display=swap">
 <style>
 /* Konsep: tata letak pemutar musik, Aero Glass putih memenuhi layar.
    Pita atas (judul), baris status, layar besar di tengah, pita bawah (tombol + suara).
@@ -143,8 +149,20 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
   margin-top: -.15rem;
   font-family: var(--font-lcd); font-size: 1.15rem; color: var(--display-ink); font-variant-numeric: tabular-nums;
 }
-.listeners { font-family: var(--font-ui); font-size: 1.3rem; color: var(--ink-dim); letter-spacing: .01em; }
-.listeners b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.listeners {
+  font-family: var(--font-say); font-size: clamp(.84rem, 2.3vw, 1.02rem); font-weight: 300;
+  color: #7c3834; letter-spacing: .02em; transition: color .35s ease;
+}
+.listeners b {
+  font-weight: 700; font-size: 1.18em; color: #5c1f1c; font-variant-numeric: tabular-nums;
+  transition: color .35s ease;
+}
+.state[data-s="live"] ~ .listeners, .listeners[data-s="live"] { color: #195d38; }
+.state[data-s="live"] ~ .listeners b, .listeners[data-s="live"] b { color: #0e3d23; }
+.state[data-s="connecting"] ~ .listeners, .state[data-s="buffering"] ~ .listeners,
+.listeners[data-s="connecting"], .listeners[data-s="buffering"] { color: #7a4e12; }
+.state[data-s="connecting"] ~ .listeners b, .state[data-s="buffering"] ~ .listeners b,
+.listeners[data-s="connecting"] b, .listeners[data-s="buffering"] b { color: #523307; }
 .state {
   position: relative; isolation: isolate; overflow: hidden;
   display: inline-flex; align-items: center; justify-content: center;
@@ -381,7 +399,7 @@ dialog form button {
 @media (max-height: 480px) {
   .now { --lh: 1.25; font-size: .98rem; }
   .status { gap: .4rem; }
-  .listeners { font-size: 1.05rem; }
+  .listeners { font-size: .84rem; }
   .foot { gap: .3rem; }
   .wave { height: 54px; }
   .timer { font-size: 1.8rem; }
@@ -485,8 +503,14 @@ html.sematan[data-tema="gelap"] .state[data-s="buffering"] {
   color: #fde68a; border-color: rgba(253,230,138,.3);
   background: linear-gradient(180deg, rgba(253,230,138,.22) 0%, rgba(230,175,70,.14) 49%, rgba(205,150,50,.16) 51%, rgba(253,230,138,.14) 100%);
 }
-html.sematan .listeners { font-size: .7rem; padding-left: .2em; color: var(--ink-dim); }
-html.sematan .listeners b { color: var(--ink); }
+html.sematan .listeners { font-size: .7rem; padding-left: .2em; color: var(--ink-dim); transition: color .35s ease; }
+html.sematan .listeners b { color: var(--ink); transition: color .35s ease; }
+html.sematan[data-tema="gelap"] .listeners { color: #f8cbc6; }
+html.sematan[data-tema="gelap"] .listeners b { color: #ffffff; }
+html.sematan[data-tema="gelap"] .state[data-s="live"] ~ .listeners,
+html.sematan[data-tema="gelap"] .listeners[data-s="live"] { color: #bbf7d0; }
+html.sematan[data-tema="gelap"] .state[data-s="connecting"] ~ .listeners,
+html.sematan[data-tema="gelap"] .listeners[data-s="connecting"] { color: #fde68a; }
 html.sematan #note { font-size: .7rem; height: 2.6em; color: var(--ink-dim); }
 html.sematan #note.bad { color: var(--warn); }
 html.sematan .ico { width: 2.2rem; height: 2.2rem; color: var(--em-ikon); }
@@ -585,10 +609,7 @@ html.sematan .mini-judul.gulir span { animation: gulir-judul var(--lama, 14s) li
   html.sematan .mini-judul.gulir span { animation: none; }
 }
 
-/* Tampilan gelap hitam pekat: layar tanpa bingkai pembungkus, sementara bingkai tombol tetap utuh (tidak berlaku di mode sematan) */
-html:not(.sematan) { color-scheme: dark; }
-html:not(.sematan) body { background: #000; }
-html:not(.sematan) body::before { display: none; }
+/* Tata letak non-sematan: layar lapang tanpa bingkai pembungkus, bilah kendali tetap di bawah */
 html:not(.sematan) .app {
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr) auto;
@@ -612,124 +633,389 @@ html:not(.sematan) .panel > * { position: relative; z-index: 1; }
 html:not(.sematan) .panel > .head { z-index: 5; padding-top: 0; flex: none; }
 html:not(.sematan) .panel .inner { max-width: none; padding-left: 0; padding-right: 0; }
 html:not(.sematan) .head .inner { padding-block: 0 .35rem; }
-html:not(.sematan) .ico { color: #9bc3e6; }
-html:not(.sematan) .ico svg.i { filter: drop-shadow(0 1px 2px rgba(0,0,0,.45)); }
-html:not(.sematan) .ico:hover, html:not(.sematan) .ico:focus-visible { background: rgba(150,205,255,.14); color: #cde5fa; }
-html:not(.sematan) #note { color: #ded6c4; }
-html:not(.sematan) #note.bad { color: #e28d7e; }
-html:not(.sematan) .state {
-  color: #ddb2ae; text-shadow: 0 1px 2px rgba(0,0,0,.45);
-  border-color: rgba(215,150,145,.28);
-  background: linear-gradient(180deg, rgba(215,140,135,.16) 0%, rgba(160,82,78,.11) 49%, rgba(135,64,60,.14) 51%, rgba(185,115,110,.12) 100%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.18), inset 0 -1px 0 rgba(255,255,255,.06), 0 3px 10px rgba(0,0,0,.28);
+html:not(.sematan) .listeners {
+  min-height: 1.4em; line-height: 1.4; font-weight: 300;
+  transition: color .35s ease;
 }
-html:not(.sematan) .state::before { background: linear-gradient(180deg, rgba(255,255,255,.15), rgba(255,255,255,.02)); }
-html:not(.sematan) .state[data-s="live"] {
-  color: #9fd8b8; border-color: rgba(120,210,160,.28);
-  background: linear-gradient(180deg, rgba(120,215,165,.18) 0%, rgba(60,155,105,.12) 49%, rgba(45,130,85,.15) 51%, rgba(105,195,145,.13) 100%);
+html:not(.sematan) .listeners b {
+  font-weight: 700; font-size: 1.18em;
+  transition: color .35s ease;
 }
-html:not(.sematan) .state[data-s="connecting"],
-html:not(.sematan) .state[data-s="buffering"] {
-  color: #dfd09e; border-color: rgba(225,195,115,.28);
-  background: linear-gradient(180deg, rgba(235,205,125,.18) 0%, rgba(185,140,60,.12) 49%, rgba(160,120,45,.15) 51%, rgba(215,180,100,.13) 100%);
-}
-html:not(.sematan) .listeners { min-height: 1.4em; line-height: 1.4; color: #ded6c4; }
-html:not(.sematan) .listeners b { color: #f2eee3; }
 html:not(.sematan) .listeners[hidden] { display: inline-block !important; visibility: hidden; }
 html:not(.sematan) .art { flex: 1 1 auto; align-items: center; justify-content: center; min-height: 0; }
 html:not(.sematan) .art .screen {
   flex: 1; width: 100%; min-height: 0; padding: 0;
-  gap: clamp(20px, 4vh, 40px);
+  gap: clamp(14px, 2.5vh, 28px);
   justify-content: center; align-items: center;
 }
 html:not(.sematan) .marquee {
-  flex: none; width: 100%; height: clamp(78px, 5.5rem, 110px); min-height: 0;
+  flex: none; width: 100%; height: clamp(88px, 6.8rem, 136px); min-height: 0;
+  margin-top: clamp(-24px, -3.5vh, -12px);
   margin-bottom: 0; display: flex; align-items: center; justify-content: center; overflow: hidden;
 }
-html:not(.sematan) #say { max-width: 100%; font-size: clamp(1.4rem, 4.8vw, 2.2rem); line-height: 1.25; color: #d1f0ff; text-shadow: 0 1px 6px rgba(0,0,0,.35); }
-html:not(.sematan) #say.big { font-size: clamp(2.8rem, 9.5vw, 4.2rem); line-height: 1.2; color: #ebf9ff; }
-html:not(.sematan) .timer { flex: none; font-size: clamp(2.8rem, 11vw, 4.6rem); color: #d1f0ff; text-shadow: 0 1px 4px rgba(0,0,0,.4); }
-html:not(.sematan) .timer .dim { color: rgba(209,240,255,.26); }
-html:not(.sematan) .timer.sleep-on { color: #cc6868; text-shadow: 0 1px 4px rgba(0,0,0,.4), 0 0 10px rgba(204,104,104,.24); }
-html:not(.sematan) .timer.sleep-on .dim { color: rgba(204,104,104,.26); }
-html:not(.sematan) .song { flex: none; }
-html:not(.sematan) .now { --lh: 1.35; font-size: clamp(1.08rem, 3.8vw, 1.42rem); color: #f2eee3; text-shadow: 0 1px 4px rgba(0,0,0,.4); }
-html:not(.sematan) .now[hidden] { display: flex !important; visibility: hidden; }
-html:not(.sematan) .menu {
-  border-color: rgba(255,255,255,.18);
-  background: #000;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 14px 34px rgba(0,0,0,.9);
+html:not(.sematan) #say { max-width: 100%; font-size: clamp(1.75rem, 6.2vw, 2.85rem); line-height: 1.25; }
+html:not(.sematan) #say.big { font-size: clamp(3.4rem, 11.5vw, 5.2rem); line-height: 1.2; }
+html:not(.sematan) .wave {
+  flex: none; width: 100%; max-width: min(100%, 340px); height: clamp(78px, 16vh, 160px);
+  margin-inline: auto;
+  cursor: pointer; user-select: none; border-radius: 12px; transition: transform .12s ease;
 }
-html:not(.sematan) .menu button, html:not(.sematan) .menu a { color: #f2eee3; }
-html:not(.sematan) .menu button svg.i, html:not(.sematan) .menu a svg.i { color: #84bce8; }
-html:not(.sematan) .menu a svg.wa { color: #36c46d; }
-html:not(.sematan) .menu button:hover, html:not(.sematan) .menu button:focus-visible,
-html:not(.sematan) .menu a:hover, html:not(.sematan) .menu a:focus-visible { background: rgba(255,255,255,.09); }
+html:not(.sematan) .timer { flex: none; font-size: clamp(3.4rem, 14vw, 5.6rem); }
+html:not(.sematan) .song { flex: none; }
+html:not(.sematan) .now { --lh: 1.35; font-size: clamp(1.08rem, 3.8vw, 1.42rem); }
+html:not(.sematan) .now[hidden] { display: flex !important; visibility: hidden; }
 html:not(.sematan) .foot { padding-left: 0; padding-right: 0; }
-html:not(.sematan) .frame { filter: drop-shadow(0 10px 24px rgba(0,0,0,.85)); }
-html:not(.sematan) #framePath { fill: #000; stroke: rgba(255,255,255,.22); }
-html:not(.sematan) #frameShine { stroke: rgba(255,255,255,.16); }
-html:not(.sematan) .capsule {
+
+/* ==========================================================================
+   TEMA TERANG / CERAH (DEFAULT)
+   Gaya aero-glass elegan, langit awan cerah, bilah perak, teks biru laut
+   ========================================================================== */
+html:not(.sematan)[data-tema="terang"] { color-scheme: light; }
+html:not(.sematan)[data-tema="terang"] body {
+  background:
+    radial-gradient(70% 40% at 10% 60%, rgba(236,243,249,.6), transparent 70%),
+    radial-gradient(80% 35% at 60% 108%, rgba(228,238,246,.7), transparent 70%),
+    linear-gradient(176deg, #ffffff 0%, #fdfeff 45%, #f7fafc 80%, #f1f5f9 100%);
+  color: var(--ink);
+}
+html:not(.sematan)[data-tema="terang"] body::before { display: block; }
+html:not(.sematan)[data-tema="terang"] .ico { color: #1e5f9c; }
+html:not(.sematan)[data-tema="terang"] .ico svg.i { filter: drop-shadow(0 1px 0 #fff); }
+html:not(.sematan)[data-tema="terang"] .ico:hover,
+html:not(.sematan)[data-tema="terang"] .ico:focus-visible { background: rgba(255,255,255,.6); color: #164f84; }
+html:not(.sematan)[data-tema="terang"] #note { color: var(--ink-dim); }
+html:not(.sematan)[data-tema="terang"] #note.bad { color: var(--warn); }
+html:not(.sematan)[data-tema="terang"] .state {
+  color: #7c3834; text-shadow: 0 1px 0 rgba(255,255,255,.75);
+  border-color: rgba(188, 122, 118, .38);
+  background: linear-gradient(180deg, rgba(255,247,246,.82) 0%, rgba(242,214,210,.58) 49%, rgba(232,198,194,.62) 51%, rgba(247,232,230,.72) 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.88), inset 0 -1px 0 rgba(255,255,255,.35), 0 3px 10px rgba(18,50,74,.08);
+}
+html:not(.sematan)[data-tema="terang"] .state::before { background: linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.16)); }
+html:not(.sematan)[data-tema="terang"] .state[data-s="live"] {
+  color: #195d38; border-color: rgba(86, 166, 120, .4);
+  background: linear-gradient(180deg, rgba(242,253,247,.84) 0%, rgba(202,238,217,.6) 49%, rgba(186,229,204,.64) 51%, rgba(228,248,236,.74) 100%);
+}
+html:not(.sematan)[data-tema="terang"] .state[data-s="connecting"],
+html:not(.sematan)[data-tema="terang"] .state[data-s="buffering"] {
+  color: #7a4e12; border-color: rgba(202, 152, 72, .42);
+  background: linear-gradient(180deg, rgba(255,251,240,.84) 0%, rgba(246,226,180,.6) 49%, rgba(240,214,158,.64) 51%, rgba(250,238,208,.74) 100%);
+}
+
+/* Warna kbps & pendengar mengikuti status siaran (Terang) */
+html:not(.sematan)[data-tema="terang"] .listeners { color: #7c3834; text-shadow: 0 1px 0 rgba(255,255,255,.8); }
+html:not(.sematan)[data-tema="terang"] .listeners b { color: #5c1f1c; }
+html:not(.sematan)[data-tema="terang"] .state[data-s="live"] ~ .listeners,
+html:not(.sematan)[data-tema="terang"] .listeners[data-s="live"] { color: #195d38; }
+html:not(.sematan)[data-tema="terang"] .state[data-s="live"] ~ .listeners b,
+html:not(.sematan)[data-tema="terang"] .listeners[data-s="live"] b { color: #0e3d23; }
+html:not(.sematan)[data-tema="terang"] .state[data-s="connecting"] ~ .listeners,
+html:not(.sematan)[data-tema="terang"] .state[data-s="buffering"] ~ .listeners,
+html:not(.sematan)[data-tema="terang"] .listeners[data-s="connecting"],
+html:not(.sematan)[data-tema="terang"] .listeners[data-s="buffering"] { color: #7a4e12; }
+html:not(.sematan)[data-tema="terang"] .state[data-s="connecting"] ~ .listeners b,
+html:not(.sematan)[data-tema="terang"] .state[data-s="buffering"] ~ .listeners b,
+html:not(.sematan)[data-tema="terang"] .listeners[data-s="connecting"] b,
+html:not(.sematan)[data-tema="terang"] .listeners[data-s="buffering"] b { color: #523307; }
+html:not(.sematan)[data-tema="terang"] .state:not([data-s="live"]):not([data-s="connecting"]):not([data-s="buffering"]) ~ .listeners,
+html:not(.sematan)[data-tema="terang"] .listeners[data-s="idle"],
+html:not(.sematan)[data-tema="terang"] .listeners[data-s="retry"],
+html:not(.sematan)[data-tema="terang"] .listeners[data-s="error"] { color: #7c3834; }
+html:not(.sematan)[data-tema="terang"] .state:not([data-s="live"]):not([data-s="connecting"]):not([data-s="buffering"]) ~ .listeners b,
+html:not(.sematan)[data-tema="terang"] .listeners[data-s="idle"] b,
+html:not(.sematan)[data-tema="terang"] .listeners[data-s="retry"] b,
+html:not(.sematan)[data-tema="terang"] .listeners[data-s="error"] b { color: #5c1f1c; }
+
+html:not(.sematan)[data-tema="terang"] #say { color: var(--say-ink); text-shadow: 0 1px 0 rgba(255,255,255,.9); }
+html:not(.sematan)[data-tema="terang"] #say.big { color: var(--say-big); }
+html:not(.sematan)[data-tema="terang"] .wave canvas {
+  --wave-bar: #258ee4; --wave-mid: rgba(37,142,228,.2); --wave-head: #105290;
+}
+html:not(.sematan)[data-tema="terang"] .timer { color: #0b3558; text-shadow: 0 1px 0 rgba(255,255,255,.8); }
+html:not(.sematan)[data-tema="terang"] .timer .dim { color: #9db3c6; }
+html:not(.sematan)[data-tema="terang"] .timer.sleep-on { color: #dc2626; text-shadow: 0 1px 0 rgba(255,255,255,.8), 0 0 10px rgba(220,38,38,.2); }
+html:not(.sematan)[data-tema="terang"] .timer.sleep-on .dim { color: rgba(220,38,38,.35); }
+html:not(.sematan)[data-tema="terang"] .now { color: #0b3558; text-shadow: 0 1px 0 rgba(255,255,255,.9); }
+
+html:not(.sematan)[data-tema="terang"] .menu {
+  border-color: #9fb0c1;
+  background: linear-gradient(180deg, rgba(255,255,255,.97), rgba(240,246,251,.95));
+  box-shadow: inset 0 1px 0 #fff, 0 12px 30px rgba(20,60,100,.22);
+}
+html:not(.sematan)[data-tema="terang"] .menu button,
+html:not(.sematan)[data-tema="terang"] .menu a { color: var(--ink); }
+html:not(.sematan)[data-tema="terang"] .menu button svg.i,
+html:not(.sematan)[data-tema="terang"] .menu a svg.i { color: #1e5f9c; }
+html:not(.sematan)[data-tema="terang"] .menu a svg.wa { color: #1fa855; }
+html:not(.sematan)[data-tema="terang"] .menu button:hover,
+html:not(.sematan)[data-tema="terang"] .menu button:focus-visible,
+html:not(.sematan)[data-tema="terang"] .menu a:hover,
+html:not(.sematan)[data-tema="terang"] .menu a:focus-visible {
+  background: linear-gradient(180deg, #f4f9fd, #dfecf7); color: var(--ink);
+}
+
+/* Bilah kendali perak 3D (Terang): bingkai pembungkus dibuat samar, tombol menonjol 3D ala mode gelap */
+html:not(.sematan)[data-tema="terang"] .frame { filter: drop-shadow(0 4px 12px rgba(24, 72, 116, .06)); }
+html:not(.sematan)[data-tema="terang"] #framePath { fill: rgba(247, 250, 253, .52); stroke: rgba(135, 168, 198, .22); }
+html:not(.sematan)[data-tema="terang"] #frameShine { stroke: rgba(255, 255, 255, .65); opacity: .5; }
+html:not(.sematan)[data-tema="terang"] .capsule {
+  background: #c5d6e8;
+  border-color: rgba(78, 116, 154, .46);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 .24em .48em rgba(18, 58, 98, .26);
+}
+html:not(.sematan)[data-tema="terang"] .cap-ring {
+  border-color: rgba(135, 172, 208, .38);
+  box-shadow: 0 0 .24em rgba(24, 72, 120, .14), inset 0 0 .16em rgba(255,255,255,.65);
+}
+html:not(.sematan)[data-tema="terang"] .wmp.live .cap-ring {
+  border-color: rgba(56, 168, 232, .55);
+  box-shadow: 0 0 .34em rgba(56, 168, 232, .28), inset 0 0 .2em rgba(255,255,255,.8);
+}
+html:not(.sematan)[data-tema="terang"] .tb,
+html:not(.sematan)[data-tema="terang"] .cap-btn {
+  color: #154a78;
+  background: linear-gradient(180deg, #ffffff 0%, #e4eff8 47%, #c7daec 52%, #dce9f5 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.98),
+    inset 0 -2px 4px rgba(32, 78, 124, .26);
+  transition: transform .08s ease, box-shadow .12s ease, background .15s ease, color .15s ease;
+}
+html:not(.sematan)[data-tema="terang"] .side-l .tb {
+  border-right: 1px solid rgba(72, 112, 152, .38);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.98), inset -1px 0 0 rgba(32,78,124,.14), inset 0 -2px 4px rgba(32,78,124,.26);
+}
+html:not(.sematan)[data-tema="terang"] .side-r .tb {
+  border-left: 1px solid rgba(255,255,255,.78);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.98), inset 1px 0 0 rgba(255,255,255,.6), inset 0 -2px 4px rgba(32,78,124,.26);
+}
+html:not(.sematan)[data-tema="terang"] .cap-l {
+  border-left: 1px solid rgba(255,255,255,.78);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.98), inset 1px 0 0 rgba(255,255,255,.6), inset 0 -2px 4px rgba(32,78,124,.26);
+}
+html:not(.sematan)[data-tema="terang"] .cap-r {
+  border-right: 1px solid rgba(72, 112, 152, .38);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.98), inset -1px 0 0 rgba(32,78,124,.14), inset 0 -2px 4px rgba(32,78,124,.26);
+}
+html:not(.sematan)[data-tema="terang"] .tb svg.i,
+html:not(.sematan)[data-tema="terang"] .cap-btn svg.i {
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.9));
+}
+html:not(.sematan)[data-tema="terang"] .tb:hover,
+html:not(.sematan)[data-tema="terang"] .tb:focus-visible,
+html:not(.sematan)[data-tema="terang"] .cap-btn:hover,
+html:not(.sematan)[data-tema="terang"] .cap-btn:focus-visible {
+  color: #0e63ad;
+  background: linear-gradient(180deg, #ffffff 0%, #eff6fd 47%, #d5e6f6 52%, #e9f2fb 100%);
+}
+html:not(.sematan)[data-tema="terang"] .tb:hover svg.i,
+html:not(.sematan)[data-tema="terang"] .tb:focus-visible svg.i,
+html:not(.sematan)[data-tema="terang"] .cap-btn:hover svg.i,
+html:not(.sematan)[data-tema="terang"] .cap-btn:focus-visible svg.i {
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.95)) drop-shadow(0 0 3px rgba(30,127,208,.25));
+}
+html:not(.sematan)[data-tema="terang"] #sleep[aria-pressed="true"] { color: #dc2626; }
+html:not(.sematan)[data-tema="terang"] #sleep[aria-pressed="true"] svg.i {
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.9)) drop-shadow(0 0 3px rgba(220,38,38,.35));
+}
+html:not(.sematan)[data-tema="terang"] #sleep[aria-pressed="true"]:hover,
+html:not(.sematan)[data-tema="terang"] #sleep[aria-pressed="true"]:focus-visible { color: #b91c1c; }
+html:not(.sematan)[data-tema="terang"] .tb:active,
+html:not(.sematan)[data-tema="terang"] .cap-btn:active {
+  transform: translateY(1.5px);
+  background: linear-gradient(180deg, #bfd4e8 0%, #d5e4f2 100%);
+  box-shadow: inset 0 .14em .26em rgba(18, 58, 98, .35);
+}
+html:not(.sematan)[data-tema="terang"] #play {
+  border-color: rgba(16, 78, 138, .72); color: #ffffff;
+  background:
+    radial-gradient(62% 42% at 50% 88%, rgba(165, 232, 255, .78), transparent 72%),
+    radial-gradient(80% 70% at 50% 22%, #7ec2f6 0%, #3589de 45%, #165db5 82%, #0e4691 100%);
+  box-shadow:
+    0 0 0 .09em #134a85,
+    0 .32em .62em rgba(12, 58, 110, .42),
+    inset 0 .11em .14em rgba(255,255,255,.82),
+    inset 0 -.16em .24em rgba(8, 42, 88, .55);
+  transition: transform .08s ease, box-shadow .12s ease;
+}
+html:not(.sematan)[data-tema="terang"] #play::before {
+  background: linear-gradient(180deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.14) 65%, transparent 100%);
+}
+html:not(.sematan)[data-tema="terang"] #play::after {
+  border: .13em solid #7ce4ff;
+  box-shadow: 0 0 .35em rgba(56, 200, 255, .85), 0 0 .8em rgba(29, 127, 208, .42), inset 0 0 .25em rgba(160, 235, 255, .75);
+}
+html:not(.sematan)[data-tema="terang"] .wmp.live #play::after {
+  border-color: #a6eeff;
+  box-shadow: 0 0 .48em rgba(56, 206, 255, .95), 0 0 1.05em rgba(29, 127, 208, .62), inset 0 0 .32em rgba(200, 245, 255, .9);
+}
+html:not(.sematan)[data-tema="terang"] #play svg.glyph {
+  filter: drop-shadow(0 .08em .14em rgba(6, 38, 82, .65)) drop-shadow(0 0 .1em rgba(190, 235, 255, .4));
+}
+html:not(.sematan)[data-tema="terang"] #play:active {
+  transform: translateY(.08em) scale(.97);
+  box-shadow:
+    0 0 0 .09em #134a85,
+    0 .08em .22em rgba(12, 58, 110, .48),
+    inset 0 .14em .28em rgba(8, 42, 88, .62);
+}
+
+/* ==========================================================================
+   TEMA GELAP
+   Hitam pekat tanpa bingkai layar, teks diredupkan presisi, bilah hitam
+   ========================================================================== */
+html:not(.sematan)[data-tema="gelap"] { color-scheme: dark; }
+html:not(.sematan)[data-tema="gelap"] body { background: #000; color: #bbb4a6; }
+html:not(.sematan)[data-tema="gelap"] body::before { display: none; }
+html:not(.sematan)[data-tema="gelap"] .ico { color: #6f95b3; }
+html:not(.sematan)[data-tema="gelap"] .ico svg.i { filter: drop-shadow(0 1px 2px rgba(0,0,0,.45)); }
+html:not(.sematan)[data-tema="gelap"] .ico:hover,
+html:not(.sematan)[data-tema="gelap"] .ico:focus-visible { background: rgba(150,205,255,.12); color: #9bc2e0; }
+html:not(.sematan)[data-tema="gelap"] #note { color: #a39b8b; }
+html:not(.sematan)[data-tema="gelap"] #note.bad { color: #c4685a; }
+html:not(.sematan)[data-tema="gelap"] .state {
+  color: #b98884; text-shadow: 0 1px 2px rgba(0,0,0,.45);
+  border-color: rgba(215,150,145,.22);
+  background: linear-gradient(180deg, rgba(215,140,135,.14) 0%, rgba(160,82,78,.09) 49%, rgba(135,64,60,.12) 51%, rgba(185,115,110,.10) 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14), inset 0 -1px 0 rgba(255,255,255,.05), 0 3px 10px rgba(0,0,0,.28);
+}
+html:not(.sematan)[data-tema="gelap"] .state::before { background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.02)); }
+html:not(.sematan)[data-tema="gelap"] .state[data-s="live"] {
+  color: #7cb893; border-color: rgba(120,210,160,.24);
+  background: linear-gradient(180deg, rgba(120,215,165,.15) 0%, rgba(60,155,105,.10) 49%, rgba(45,130,85,.12) 51%, rgba(105,195,145,.11) 100%);
+}
+html:not(.sematan)[data-tema="gelap"] .state[data-s="connecting"],
+html:not(.sematan)[data-tema="gelap"] .state[data-s="buffering"] {
+  color: #baa872; border-color: rgba(225,195,115,.24);
+  background: linear-gradient(180deg, rgba(235,205,125,.15) 0%, rgba(185,140,60,.10) 49%, rgba(160,120,45,.12) 51%, rgba(215,180,100,.11) 100%);
+}
+
+/* Warna kbps & pendengar mengikuti status siaran (Gelap) */
+html:not(.sematan)[data-tema="gelap"] .listeners {
+  color: #b98884; text-shadow: 0 1px 3px rgba(0,0,0,.45);
+}
+html:not(.sematan)[data-tema="gelap"] .listeners b { color: #dda9a5; }
+html:not(.sematan)[data-tema="gelap"] .state[data-s="live"] ~ .listeners,
+html:not(.sematan)[data-tema="gelap"] .listeners[data-s="live"] { color: #7cb893; }
+html:not(.sematan)[data-tema="gelap"] .state[data-s="live"] ~ .listeners b,
+html:not(.sematan)[data-tema="gelap"] .listeners[data-s="live"] b { color: #a5e2be; }
+html:not(.sematan)[data-tema="gelap"] .state[data-s="connecting"] ~ .listeners,
+html:not(.sematan)[data-tema="gelap"] .state[data-s="buffering"] ~ .listeners,
+html:not(.sematan)[data-tema="gelap"] .listeners[data-s="connecting"],
+html:not(.sematan)[data-tema="gelap"] .listeners[data-s="buffering"] { color: #baa872; }
+html:not(.sematan)[data-tema="gelap"] .state[data-s="connecting"] ~ .listeners b,
+html:not(.sematan)[data-tema="gelap"] .state[data-s="buffering"] ~ .listeners b,
+html:not(.sematan)[data-tema="gelap"] .listeners[data-s="connecting"] b,
+html:not(.sematan)[data-tema="gelap"] .listeners[data-s="buffering"] b { color: #e2d299; }
+html:not(.sematan)[data-tema="gelap"] .state:not([data-s="live"]):not([data-s="connecting"]):not([data-s="buffering"]) ~ .listeners,
+html:not(.sematan)[data-tema="gelap"] .listeners[data-s="idle"],
+html:not(.sematan)[data-tema="gelap"] .listeners[data-s="retry"],
+html:not(.sematan)[data-tema="gelap"] .listeners[data-s="error"] { color: #b98884; }
+html:not(.sematan)[data-tema="gelap"] .state:not([data-s="live"]):not([data-s="connecting"]):not([data-s="buffering"]) ~ .listeners b,
+html:not(.sematan)[data-tema="gelap"] .listeners[data-s="idle"] b,
+html:not(.sematan)[data-tema="gelap"] .listeners[data-s="retry"] b,
+html:not(.sematan)[data-tema="gelap"] .listeners[data-s="error"] b { color: #dda9a5; }
+
+html:not(.sematan)[data-tema="gelap"] #say { color: #729eb6; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
+html:not(.sematan)[data-tema="gelap"] #say.big { color: #8bb5cc; }
+html:not(.sematan)[data-tema="gelap"] .wave canvas {
+  --wave-bar: #84c5f4; --wave-mid: rgba(209,240,255,.18); --wave-head: #d1f0ff;
+}
+html:not(.sematan)[data-tema="gelap"] .timer { color: #82adcb; text-shadow: 0 1px 4px rgba(0,0,0,.4); }
+html:not(.sematan)[data-tema="gelap"] .timer .dim { color: rgba(130,173,203,.28); }
+html:not(.sematan)[data-tema="gelap"] .timer.sleep-on { color: #bf5858; text-shadow: 0 1px 4px rgba(0,0,0,.4), 0 0 8px rgba(191,88,88,.24); }
+html:not(.sematan)[data-tema="gelap"] .timer.sleep-on .dim { color: rgba(191,88,88,.26); }
+html:not(.sematan)[data-tema="gelap"] .now { color: #bbb4a6; text-shadow: 0 1px 4px rgba(0,0,0,.4); }
+
+html:not(.sematan)[data-tema="gelap"] .menu {
+  border-color: rgba(255,255,255,.16);
+  background: #000;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 14px 34px rgba(0,0,0,.9);
+}
+html:not(.sematan)[data-tema="gelap"] .menu button,
+html:not(.sematan)[data-tema="gelap"] .menu a { color: #aba496; }
+html:not(.sematan)[data-tema="gelap"] .menu button svg.i,
+html:not(.sematan)[data-tema="gelap"] .menu a svg.i { color: #6f95b3; }
+html:not(.sematan)[data-tema="gelap"] .menu a svg.wa { color: #32a860; }
+html:not(.sematan)[data-tema="gelap"] .menu button:hover,
+html:not(.sematan)[data-tema="gelap"] .menu button:focus-visible,
+html:not(.sematan)[data-tema="gelap"] .menu a:hover,
+html:not(.sematan)[data-tema="gelap"] .menu a:focus-visible { background: rgba(255,255,255,.09); color: #c4beaf; }
+
+/* Bilah kendali hitam pekat (Gelap) */
+html:not(.sematan)[data-tema="gelap"] .frame { filter: drop-shadow(0 10px 24px rgba(0,0,0,.85)); }
+html:not(.sematan)[data-tema="gelap"] #framePath { fill: #000; stroke: rgba(255,255,255,.22); }
+html:not(.sematan)[data-tema="gelap"] #frameShine { stroke: rgba(255,255,255,.16); }
+html:not(.sematan)[data-tema="gelap"] .capsule {
   background: #0d0f13;
   border-color: rgba(255,255,255,.32);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.38), 0 .24em .48em rgba(0,0,0,.95);
 }
-html:not(.sematan) .tb, html:not(.sematan) .cap-btn {
-  color: #7ce4ff;
+html:not(.sematan)[data-tema="gelap"] .cap-ring {
+  border-color: rgba(255, 255, 255, .15);
+  box-shadow: 0 0 .26em rgba(0, 0, 0, .5);
+}
+html:not(.sematan)[data-tema="gelap"] .tb,
+html:not(.sematan)[data-tema="gelap"] .cap-btn {
+  color: #658ea7;
   background: linear-gradient(180deg, #4b5360 0%, #2d333d 47%, #1c2027 52%, #292f39 100%);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.42),
     inset 0 -2px 4px rgba(0,0,0,.86);
   transition: transform .08s ease, box-shadow .12s ease, background .15s ease, color .15s ease;
 }
-html:not(.sematan) .side-l .tb {
+html:not(.sematan)[data-tema="gelap"] .side-l .tb {
   border-right: 1px solid #040507;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.42), inset -1px 0 0 rgba(0,0,0,.45), inset 0 -2px 4px rgba(0,0,0,.86);
 }
-html:not(.sematan) .side-r .tb {
+html:not(.sematan)[data-tema="gelap"] .side-r .tb {
   border-left: 1px solid rgba(255,255,255,.16);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.42), inset 1px 0 0 rgba(255,255,255,.1), inset 0 -2px 4px rgba(0,0,0,.86);
 }
-html:not(.sematan) .cap-l {
+html:not(.sematan)[data-tema="gelap"] .cap-l {
   border-left: 1px solid rgba(255,255,255,.16);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.42), inset 1px 0 0 rgba(255,255,255,.1), inset 0 -2px 4px rgba(0,0,0,.86);
 }
-html:not(.sematan) .cap-r {
+html:not(.sematan)[data-tema="gelap"] .cap-r {
   border-right: 1px solid #040507;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.42), inset -1px 0 0 rgba(0,0,0,.45), inset 0 -2px 4px rgba(0,0,0,.86);
 }
-html:not(.sematan) .tb svg.i, html:not(.sematan) .cap-btn svg.i {
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,.85)) drop-shadow(0 0 4px rgba(56,200,255,.42));
+html:not(.sematan)[data-tema="gelap"] .tb svg.i,
+html:not(.sematan)[data-tema="gelap"] .cap-btn svg.i {
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.85));
 }
-html:not(.sematan) .tb:hover, html:not(.sematan) .tb:focus-visible,
-html:not(.sematan) .cap-btn:hover, html:not(.sematan) .cap-btn:focus-visible {
-  color: #a6eeff;
+html:not(.sematan)[data-tema="gelap"] .tb:hover,
+html:not(.sematan)[data-tema="gelap"] .tb:focus-visible,
+html:not(.sematan)[data-tema="gelap"] .cap-btn:hover,
+html:not(.sematan)[data-tema="gelap"] .cap-btn:focus-visible {
+  color: #8ec0dc;
   background: linear-gradient(180deg, #57606f 0%, #363d49 47%, #222730 52%, #313844 100%);
 }
-html:not(.sematan) .tb:hover svg.i, html:not(.sematan) .tb:focus-visible svg.i,
-html:not(.sematan) .cap-btn:hover svg.i, html:not(.sematan) .cap-btn:focus-visible svg.i {
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,.85)) drop-shadow(0 0 5px rgba(56,206,255,.58));
+html:not(.sematan)[data-tema="gelap"] .tb:hover svg.i,
+html:not(.sematan)[data-tema="gelap"] .tb:focus-visible svg.i,
+html:not(.sematan)[data-tema="gelap"] .cap-btn:hover svg.i,
+html:not(.sematan)[data-tema="gelap"] .cap-btn:focus-visible svg.i {
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.85)) drop-shadow(0 0 3px rgba(110,170,205,.35));
 }
-html:not(.sematan) #sleep[aria-pressed="true"] { color: #cc6868; }
-html:not(.sematan) #sleep[aria-pressed="true"] svg.i {
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,.85)) drop-shadow(0 0 6px rgba(204,104,104,.58));
+html:not(.sematan)[data-tema="gelap"] #sleep[aria-pressed="true"] { color: #b65858; }
+html:not(.sematan)[data-tema="gelap"] #sleep[aria-pressed="true"] svg.i {
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.85));
 }
-html:not(.sematan) #sleep[aria-pressed="true"]:hover,
-html:not(.sematan) #sleep[aria-pressed="true"]:focus-visible { color: #d67a7a; }
-html:not(.sematan) #sleep[aria-pressed="true"]:hover svg.i,
-html:not(.sematan) #sleep[aria-pressed="true"]:focus-visible svg.i {
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,.85)) drop-shadow(0 0 7px rgba(214,122,122,.68));
+html:not(.sematan)[data-tema="gelap"] #sleep[aria-pressed="true"]:hover,
+html:not(.sematan)[data-tema="gelap"] #sleep[aria-pressed="true"]:focus-visible { color: #d66c6c; }
+html:not(.sematan)[data-tema="gelap"] #sleep[aria-pressed="true"]:hover svg.i,
+html:not(.sematan)[data-tema="gelap"] #sleep[aria-pressed="true"]:focus-visible svg.i {
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.85)) drop-shadow(0 0 4px rgba(214,108,108,.4));
 }
-html:not(.sematan) .tb:active,
-html:not(.sematan) .cap-btn:active {
+html:not(.sematan)[data-tema="gelap"] .tb:active,
+html:not(.sematan)[data-tema="gelap"] .cap-btn:active {
   transform: translateY(1.5px);
   background: linear-gradient(180deg, #1f242c 0%, #2b313c 100%);
   box-shadow: inset 0 .14em .26em rgba(0,0,0,.95);
 }
-html:not(.sematan) #play {
-  border-color: rgba(255,255,255,.32); color: #7ce4ff;
+html:not(.sematan)[data-tema="gelap"] #play {
+  border-color: rgba(255,255,255,.32); color: #71a7c6;
   background:
-    radial-gradient(62% 42% at 50% 88%, rgba(105,200,255,.32), transparent 72%),
+    radial-gradient(62% 42% at 50% 88%, rgba(100,165,200,.26), transparent 72%),
     radial-gradient(80% 70% at 50% 22%, #596373 0%, #323945 45%, #171b22 82%, #0e1116 100%);
   box-shadow:
     0 0 0 .09em #07080b,
@@ -738,30 +1024,25 @@ html:not(.sematan) #play {
     inset 0 -.16em .24em rgba(0,0,0,.9);
   transition: transform .08s ease, box-shadow .12s ease;
 }
-html:not(.sematan) #play::before { background: linear-gradient(180deg, rgba(255,255,255,.34) 0%, rgba(255,255,255,.06) 65%, transparent 100%); }
-html:not(.sematan) #play svg.glyph {
-  filter: drop-shadow(0 .08em .14em rgba(0,0,0,.88)) drop-shadow(0 0 .16em rgba(56,200,255,.48));
+html:not(.sematan)[data-tema="gelap"] #play::before { background: linear-gradient(180deg, rgba(255,255,255,.34) 0%, rgba(255,255,255,.06) 65%, transparent 100%); }
+html:not(.sematan)[data-tema="gelap"] #play::after {
+  border-color: #389de8;
+  box-shadow: 0 0 .35em rgba(56, 157, 232, .5), inset 0 0 .2em rgba(56, 157, 232, .4);
 }
-html:not(.sematan) #play:active {
+html:not(.sematan)[data-tema="gelap"] .wmp.live #play::after {
+  border-color: #5bc0ff;
+  box-shadow: 0 0 .5em rgba(91, 192, 255, .75), inset 0 0 .25em rgba(91, 192, 255, .6);
+}
+html:not(.sematan)[data-tema="gelap"] #play svg.glyph {
+  filter: drop-shadow(0 .08em .14em rgba(0,0,0,.88)) drop-shadow(0 0 .1em rgba(80,165,210,.3));
+}
+html:not(.sematan)[data-tema="gelap"] #play:active {
   transform: translateY(.08em) scale(.97);
   box-shadow:
     0 0 0 .09em #07080b,
     0 .08em .22em rgba(0,0,0,.95),
     inset 0 .14em .28em rgba(0,0,0,.95);
 }
-html:not(.sematan) dialog {
-  color: #cedfe9; border-color: rgba(255,255,255,.2);
-  background: #000;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 22px 54px rgba(0,0,0,.92);
-}
-html:not(.sematan) dialog h2 { color: #dfebf5; }
-html:not(.sematan) dialog h3 { color: #78bff2; }
-html:not(.sematan) dialog form button {
-  border-color: rgba(175,220,255,.28); color: #eef6fc;
-  background: linear-gradient(180deg, #3c94d8, #1d6eb5 52%, #175894);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.24), 0 4px 12px rgba(0,0,0,.55);
-}
-html:not(.sematan) dialog::backdrop { background: rgba(0,0,0,.78); }
 
 @media (orientation: landscape) and (min-width: 640px) {
   html:not(.sematan) .app {
@@ -774,20 +1055,20 @@ html:not(.sematan) dialog::backdrop { background: rgba(0,0,0,.78); }
     column-gap: clamp(16px, 3vw, 40px);
   }
   html:not(.sematan) .panel { max-width: 560px; max-height: 100%; align-self: center; }
-  html:not(.sematan) .marquee { height: clamp(56px, 4.4rem, 84px); }
-  html:not(.sematan) #say { font-size: clamp(1rem, 2.2vw, 1.42rem); }
-  html:not(.sematan) #say.big { font-size: clamp(2rem, 4.2vw, 2.7rem); }
-  html:not(.sematan) .wave { height: clamp(48px, 13vh, 96px); }
+  html:not(.sematan) .marquee { height: clamp(66px, 5.2rem, 98px); margin-top: 0; }
+  html:not(.sematan) #say { font-size: clamp(1.2rem, 2.8vw, 1.75rem); }
+  html:not(.sematan) #say.big { font-size: clamp(2.4rem, 5.5vw, 3.5rem); }
+  html:not(.sematan) .wave { height: clamp(64px, 16vh, 120px); }
   html:not(.sematan) .timer { font-size: clamp(1.85rem, 4vw, 2.8rem); }
   html:not(.sematan) .now { font-size: clamp(1rem, 1.9vw, 1.35rem); }
 }
 @media (max-height: 640px) {
   html:not(.sematan) .panel { padding: 10px 14px 12px; }
   html:not(.sematan) .art .screen { gap: 6px; }
-  html:not(.sematan) .marquee { height: 3.7rem; }
-  html:not(.sematan) #say { font-size: clamp(.95rem, 3vw, 1.22rem); }
-  html:not(.sematan) #say.big { font-size: 2.05rem; }
-  html:not(.sematan) .wave { height: 52px; }
+  html:not(.sematan) .marquee { height: 4.2rem; margin-top: -6px; }
+  html:not(.sematan) #say { font-size: clamp(1.1rem, 3.4vw, 1.45rem); }
+  html:not(.sematan) #say.big { font-size: 2.45rem; }
+  html:not(.sematan) .wave { height: 64px; }
   html:not(.sematan) .timer { font-size: 1.9rem; }
   html:not(.sematan) .now { --lh: 1.28; }
 }
@@ -795,10 +1076,10 @@ html:not(.sematan) dialog::backdrop { background: rgba(0,0,0,.78); }
   html:not(.sematan) .panel { padding: 8px 14px 10px; }
   html:not(.sematan) .head .inner { padding-block: 0 .2rem; }
   html:not(.sematan) .art .screen { gap: 4px; }
-  html:not(.sematan) .marquee { height: 3.3rem; }
-  html:not(.sematan) #say { font-size: clamp(.92rem, 2.5vw, 1.1rem); }
-  html:not(.sematan) #say.big { font-size: 1.85rem; }
-  html:not(.sematan) .wave { height: 44px; min-height: 36px; }
+  html:not(.sematan) .marquee { height: 3.6rem; margin-top: -4px; }
+  html:not(.sematan) #say { font-size: clamp(1.02rem, 3vw, 1.28rem); }
+  html:not(.sematan) #say.big { font-size: 2.15rem; }
+  html:not(.sematan) .wave { height: 52px; min-height: 42px; }
   html:not(.sematan) .timer { font-size: 1.65rem; }
   html:not(.sematan) .now { --lh: 1.2; font-size: .95rem; }
 }
@@ -840,7 +1121,7 @@ html:not(.sematan) dialog::backdrop { background: rgba(0,0,0,.78); }
       </div>
       <div class="status">
         <span class="state" id="state" data-s="idle">OFF AIR</span>
-        <span class="listeners" id="listeners" hidden></span>
+        <span class="listeners" id="listeners" data-s="idle" hidden></span>
       </div>
     </div>
   </header>
@@ -898,25 +1179,13 @@ html:not(.sematan) dialog::backdrop { background: rgba(0,0,0,.78); }
         </button>
       </div>
       <div class="side side-r">
-        <button class="tb" id="info" type="button" aria-label="Info aplikasi">
-          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg>
+        <button class="tb" id="themeToggle" type="button" aria-label="Beralih ke mode gelap" title="Beralih tema">
+          <svg class="i" id="themeIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
       </div>
     </div>
   </footer>
 </main>
-
-<dialog id="about" aria-labelledby="aboutTitle">
-  <h2 id="aboutTitle">Selamat Datang di Aplikasi Radio Islam Sragen</h2>
-  <p>Media dakwah Islam penyejuk hati di Bumi Sukowati. Menghadirkan lantunan murattal dan kajian sunnah 24 jam nonstop untuk menemani aktivitas Anda.</p>
-  <h3>PASANG DI HP</h3>
-  <p>Android: buka menu Chrome, lalu pilih Instal aplikasi. iPhone: buka di Safari, ketuk Bagikan, lalu pilih Tambah ke Layar Utama.</p>
-  <h3>TIMER TIDUR</h3>
-  <p>Ketuk tombol bulan di kiri bawah untuk memilih 15, 30, 60, atau 90 menit. Siaran berhenti sendiri setelah waktunya habis.</p>
-  <h3>SIARAN TERPUTUS?</h3>
-  <p>Aplikasi akan menyambungkan ulang otomatis, atau ketuk tombol putar untuk memulai ulang siaran.</p>
-  <form method="dialog"><button id="aboutClose">Tutup</button></form>
-</dialog>
 
 <audio id="radio" preload="none"></audio>
 
@@ -960,7 +1229,7 @@ const SEMATAN = document.documentElement.classList.contains('sematan');
 const ALAMAT_RADIO = location.protocol === 'file:' ? location.href.split(/[?#]/)[0] : location.origin + '/';
 let lapor = () => {};
 let audio = $('radio');
-const playBtn = $('play'), noteEl = $('note'), stateEl = $('state');
+const playBtn = $('play'), noteEl = $('note'), stateEl = $('state'), infoEl = $('listeners');
 const PLAY = 'M7 4.5v15l13-7.5z', STOP = 'M5 5h14v14H5z';
 const store = {
   get(k) { try { return localStorage.getItem('rais.' + k); } catch { return null; } },
@@ -988,6 +1257,7 @@ function setState(s) {
   state = s;
   stateEl.textContent = LABEL[s];
   stateEl.dataset.s = s;
+  if (infoEl) infoEl.dataset.s = s;
   const on = s !== 'idle' && s !== 'error';
   $('glyph').setAttribute('d', on ? STOP : PLAY);
   playBtn.setAttribute('aria-label', on ? 'Hentikan siaran' : 'Putar siaran');
@@ -1208,7 +1478,55 @@ $('menuShare').addEventListener('click', async () => {
   try { await navigator.share({ title: CONFIG.name, text: `${CONFIG.name} - ${CONFIG.tagline}`, url: appUrl() }); }
   catch (e) { if (e && e.name !== 'AbortError') copyLink(); }
 });
-$('info').addEventListener('click', () => $('about').showModal());
+/* ---------- Tema (Terang / Gelap) & Tombol Pengganti Info ---------- */
+const THEME_ICONS = {
+  moon: '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+  sun: '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
+};
+
+function applyTheme(tema, save = true) {
+  const t = (tema === 'gelap') ? 'gelap' : 'terang';
+  document.documentElement.dataset.tema = t;
+  if (!SEMATAN && save) store.set('tema', t);
+
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
+  if (metaTheme) metaTheme.setAttribute('content', t === 'gelap' ? '#000000' : '#ffffff');
+
+  const btn = $('themeToggle');
+  const icon = $('themeIcon');
+  if (btn && icon) {
+    if (t === 'gelap') {
+      btn.setAttribute('aria-label', 'Beralih ke mode terang');
+      btn.title = 'Beralih ke mode terang';
+      icon.innerHTML = THEME_ICONS.sun;
+    } else {
+      btn.setAttribute('aria-label', 'Beralih ke mode gelap');
+      btn.title = 'Beralih ke mode gelap';
+      icon.innerHTML = THEME_ICONS.moon;
+    }
+  }
+
+  const framePath = $('framePath');
+  if (framePath) {
+    framePath.setAttribute('fill', t === 'gelap' ? '#000' : 'rgba(247, 250, 253, .52)');
+    framePath.setAttribute('stroke', t === 'gelap' ? 'rgba(255,255,255,.22)' : 'rgba(135, 168, 198, .22)');
+  }
+
+  requestAnimationFrame(() => {
+    if (typeof drawWave === 'function') drawWave();
+  });
+}
+
+const savedTema = store.get('tema');
+applyTheme(savedTema === 'gelap' ? 'gelap' : 'terang', false);
+
+const themeToggleBtn = $('themeToggle');
+if (themeToggleBtn) {
+  themeToggleBtn.addEventListener('click', () => {
+    const cur = document.documentElement.dataset.tema === 'gelap' ? 'gelap' : 'terang';
+    applyTheme(cur === 'gelap' ? 'terang' : 'gelap', true);
+  });
+}
 
 let installEvent = null;
 /* Pasang aplikasi: pakai jendela pasang dari browser bila ada, selain itu tampilkan caranya */
@@ -1217,7 +1535,10 @@ $('install').hidden = !!installed || SEMATAN;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvent = e; });
 $('install').addEventListener('click', async () => {
   toggleMenu(false);
-  if (!installEvent) { $('about').showModal(); return; }
+  if (!installEvent) {
+    note('Buka menu browser lalu pilih Tambah ke Layar Utama.');
+    return;
+  }
   installEvent.prompt();
   await installEvent.userChoice;
   installEvent = null;
@@ -1352,8 +1673,8 @@ function showNowPlaying(np) {
   const title = np && np.title ? np.title : '';
   const hasCount = np && np.count !== null;
   const hasKbps = np && np.kbps !== null;
-  const infoEl = $('listeners');
   infoEl.hidden = !(hasCount || hasKbps);
+  infoEl.dataset.s = state;
   if (hasCount || hasKbps) {
     const parts = [];
     if (hasKbps) parts.push(`${np.kbps} Kbps`);
@@ -1571,6 +1892,35 @@ waveBox.addEventListener('keydown', e => {
 });
 updateWaveLabel();
 
+/* Lebar spektrum dibatasi agar tidak melebihi teks animasi yang paling lebar */
+function syncSpectrumWidth() {
+  if (!waveBox || !CONFIG.texts) return;
+  const marquee = document.querySelector('.marquee') || document.body;
+  const containerW = marquee.clientWidth || window.innerWidth;
+
+  const testEl = document.createElement('span');
+  testEl.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;left:-9999px;top:-9999px;pointer-events:none;max-width:none!important;';
+  marquee.appendChild(testEl);
+
+  let maxW = 0;
+  for (const item of CONFIG.texts) {
+    testEl.id = 'say';
+    testEl.className = item.text.length <= 6 ? 'big' : '';
+    for (const line of item.text.split('\n')) {
+      testEl.textContent = line.trim();
+      const w = testEl.offsetWidth;
+      if (w > maxW) maxW = w;
+    }
+  }
+  marquee.removeChild(testEl);
+
+  if (maxW > 0) {
+    const finalW = Math.min(Math.round(maxW), containerW);
+    waveBox.style.maxWidth = `${finalW}px`;
+    drawWave();
+  }
+}
+
 setInterval(() => {
   const on = waveActive();
   if (on || history.length) history.push(reduced ? (on ? .4 : 0) : waveLevel());
@@ -1578,8 +1928,9 @@ setInterval(() => {
   stepBands();
   drawWave();
 }, 60);
-addEventListener('resize', drawWave);
-drawWave();
+addEventListener('resize', () => { syncSpectrumWidth(); drawWave(); });
+syncSpectrumWidth();
+if (document.fonts) document.fonts.ready.then(syncSpectrumWidth);
 
 
 
@@ -1663,7 +2014,6 @@ if (SEMATAN) {
     if (d.tema === 'terang' || d.tema === 'gelap') root.dataset.tema = d.tema;
     if (root.dataset.ukuran === 'mini') {
       if (!shareMenu.hidden) toggleMenu(false);
-      if ($('about').open) $('about').close();
     }
     requestAnimationFrame(() => { layoutBar(); shapeTitle(); drawWave(); judulMini(); });
   });
