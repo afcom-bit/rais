@@ -181,6 +181,12 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
 #say.fold { animation: fold .75s ease-in both; }
 #say.fade { animation: fade .8s ease-in both; }
 #say.typing::after { content: "▌"; }
+#say .word-wrap { display: inline-block; white-space: nowrap; }
+#say .ch {
+  display: inline-block; opacity: 0; transform: translateY(.22em) scale(.85);
+  transition: opacity .32s cubic-bezier(.2,.8,.2,1), transform .32s cubic-bezier(.2,.8,.2,1);
+}
+#say .ch.on { opacity: 1; transform: none; }
 @keyframes zoom { from { transform: scale(.02); opacity: 0; } 15% { opacity: 1; } to { transform: scale(1); opacity: 1; } }
 @keyframes fold { 55% { transform: scale(1, .05); opacity: 1; } to { transform: scale(0, .05); opacity: 0; } }
 @keyframes fade { to { opacity: 0; } }
@@ -351,6 +357,7 @@ body::after {
 }
 @media (prefers-reduced-motion: reduce) {
   #say.zoom, #say.fold, #say.fade, #play .spin { animation: none; }
+  #say .ch { opacity: 1; transform: none; transition: none; }
   #say.typing::after { content: none; }
 }
 
@@ -644,14 +651,15 @@ const CONFIG = {
   tryTimeoutMs: 10000,
   sleepOptions: [0, 15, 30, 60, 90],
   typeSpeedMs: 85,
+  charSpeedMs: 65,
   nowPlaying: {
     sources: ['/info/stats', '/info/icecast', '/info/song', '/info/7'],
     everyMs: 15000
   },
   texts: [
     { text: 'RAIS', effect: 'zoom', holdMs: 2800 },
-    { text: 'Radio Islam Sragen', effect: 'type', holdMs: 3000 },
-    { text: 'Lantunan Muratal\n& Kajian Islam Ilmiah', effect: 'type', holdMs: 3400 }
+    { text: 'Radio Islam Sragen', effect: 'chars', holdMs: 3000 },
+    { text: 'Lantunan Muratal\n& Kajian Islam Ilmiah', effect: 'chars', holdMs: 3400 }
   ]
 };
 
@@ -1154,6 +1162,33 @@ async function scene({ text, effect, holdMs }) {
     say.classList.add('zoom');
     await wait(1800 + holdMs);
     say.classList.replace('zoom', 'fade');
+    await wait(800);
+  } else if (effect === 'chars') {
+    say.replaceChildren();
+    const charEls = [];
+    text.split('\n').forEach((line, li) => {
+      if (li > 0) say.append(document.createElement('br'));
+      line.trim().split(/\s+/).filter(Boolean).forEach((w, wi) => {
+        if (wi > 0) say.append(document.createTextNode(' '));
+        const wordSpan = document.createElement('span');
+        wordSpan.className = 'word-wrap';
+        for (const ch of w) {
+          const span = document.createElement('span');
+          span.className = 'ch';
+          span.textContent = ch;
+          wordSpan.append(span);
+          charEls.push(span);
+        }
+        say.append(wordSpan);
+      });
+    });
+    void say.offsetWidth;
+    for (const el of charEls) {
+      el.classList.add('on');
+      await wait(CONFIG.charSpeedMs);
+    }
+    await wait(holdMs);
+    say.classList.add('fade');
     await wait(800);
   } else {
     say.textContent = '';
