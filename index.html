@@ -497,6 +497,44 @@ html.sematan .mini-judul.gulir span { animation: gulir-judul var(--lama, 14s) li
 @media (prefers-reduced-motion: reduce) {
   html.sematan .mini-judul.gulir span { animation: none; }
 }
+
+/* Tampilan premium: latar biru langit lembut, frame kaca di sekeliling layar, logo RAIS (tidak berlaku di mode sematan) */
+html:not(.sematan) body {
+  background:
+    radial-gradient(90% 50% at 15% 20%, #cfe7f7 0%, transparent 65%),
+    radial-gradient(80% 45% at 90% 75%, #d8ecf8 0%, transparent 65%),
+    linear-gradient(176deg, #e4f1fa 0%, #f3f9fd 55%, #eaf3fa 100%);
+  background-attachment: fixed;
+}
+html:not(.sematan) .art.inner { padding-left: 18px; padding-right: 18px; }
+html:not(.sematan) .art .screen {
+  position: relative; overflow: hidden; border-radius: 26px; padding: 18px 16px 20px; gap: 10px; min-height: 0;
+  background: linear-gradient(160deg, rgba(255,255,255,.62), rgba(255,255,255,.22));
+  border: 1px solid rgba(255,255,255,.95);
+  -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -1px 0 rgba(29,127,208,.08), 0 14px 34px rgba(24,78,120,.16), 0 2px 6px rgba(24,78,120,.08);
+}
+html:not(.sematan) .art .screen::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: repeating-linear-gradient(45deg, rgba(29,127,208,.035) 0 10px, transparent 10px 20px);
+}
+html:not(.sematan) .art .screen::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 45%; pointer-events: none; border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255,255,255,.55), transparent);
+}
+html:not(.sematan) .art .screen > * { position: relative; z-index: 1; }
+html:not(.sematan) .logo-tile {
+  align-self: center; flex: none; width: 96px; height: 96px; border-radius: 22px; background: #fff; padding: 6px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.95), 0 8px 20px rgba(24,78,120,.18);
+}
+html:not(.sematan) .logo-tile img { width: 100%; height: 100%; object-fit: contain; display: block; }
+html:not(.sematan) .marquee { min-height: 56px; margin-bottom: 0; }
+html:not(.sematan) #say.big { font-size: 3.2rem; }
+html:not(.sematan) .wave { height: 110px; }
+html:not(.sematan) .timer { font-size: 2.6rem; }
+.logo-tile { display: none; }
+html:not(.sematan) .logo-tile { display: block; }
+@media (max-height: 640px) { html:not(.sematan) .logo-tile { display: none; } }
 </style>
 </head>
 <body>
@@ -541,6 +579,7 @@ html.sematan .mini-judul.gulir span { animation: gulir-judul var(--lama, 14s) li
 
   <section class="art inner" aria-label="Layar radio">
     <div class="screen">
+      <div class="logo-tile"><img src="icons/icon-512.png" alt="Logo RAIS" width="96" height="96"></div>
       <div class="marquee" aria-hidden="true"><span id="say">Radio Islam Sragen</span></div>
       <div class="wave" aria-hidden="true"><canvas id="wave"></canvas></div>
       <div class="timer" id="clock" role="timer" aria-label="Lama mendengarkan"><span class="dim">00:00:00</span></div>
