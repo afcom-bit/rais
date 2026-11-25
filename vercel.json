@@ -1,12 +1,39 @@
 {
+  "framework": null,
+  "installCommand": "",
+  "buildCommand": "",
+  "outputDirectory": ".",
   "rewrites": [
-    { "source": "/stream", "destination": "http://streamy1.radioislam.my.id:9210/;" },
-    { "source": "/info/stats", "destination": "http://streamy1.radioislam.my.id:9210/stats?sid=1&json=1" },
-    { "source": "/info/icecast", "destination": "http://streamy1.radioislam.my.id:9210/status-json.xsl" },
-    { "source": "/info/song", "destination": "http://streamy1.radioislam.my.id:9210/currentsong?sid=1" },
-    { "source": "/info/7", "destination": "http://streamy1.radioislam.my.id:9210/7.html" }
+    {
+      "source": "/stream",
+      "destination": "http://streamy1.radioislam.my.id:9210/;"
+    },
+    {
+      "source": "/info/stats",
+      "destination": "http://streamy1.radioislam.my.id:9210/stats?sid=1&json=1"
+    },
+    {
+      "source": "/info/icecast",
+      "destination": "http://streamy1.radioislam.my.id:9210/status-json.xsl"
+    },
+    {
+      "source": "/info/song",
+      "destination": "http://streamy1.radioislam.my.id:9210/currentsong?sid=1"
+    },
+    {
+      "source": "/info/7",
+      "destination": "http://streamy1.radioislam.my.id:9210/7.html"
+    }
   ],
   "headers": [
-    { "source": "/info/(.*)", "headers": [{ "key": "Cache-Control", "value": "no-store" }] }
+    {
+      "source": "/info/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    }
   ]
 }
