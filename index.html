@@ -1083,6 +1083,42 @@ html:not(.sematan)[data-tema="gelap"] #play:active {
   html:not(.sematan) .timer { font-size: 1.65rem; }
   html:not(.sematan) .now { --lh: 1.2; font-size: .95rem; }
 }
+
+/* ===== Pembaruan: tombol putar merah saat mati, spektrum persegi + logo, pendengar besar, muat 1 layar HP ===== */
+html:not(.sematan) { --sq: clamp(96px, min(40vw, 17dvh), 190px); }
+html:not(.sematan) .app { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; }
+html:not(.sematan) .listeners { font-size: clamp(1.12rem, 4.9vw, 1.5rem); min-height: 1.3em; line-height: 1.3; }
+html:not(.sematan) .listeners b { font-size: 1.28em; }
+html:not(.sematan) .wave {
+  width: var(--sq); height: var(--sq); max-width: none !important; border-radius: 14px; overflow: hidden;
+  transition: transform .12s ease, background-color .9s ease, box-shadow .9s ease;
+}
+html:not(.sematan) .wave canvas { transition: opacity .9s ease; }
+html:not(.sematan) .wave-logo {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; border-radius: inherit;
+  opacity: 0; transition: opacity .9s ease; pointer-events: none; user-select: none; -webkit-user-drag: none;
+}
+html:not(.sematan) .wave.show-logo { background-color: #fff; box-shadow: 0 2px 12px rgba(18,50,74,.16), inset 0 0 0 1px rgba(18,50,74,.06); }
+html:not(.sematan) .wave.show-logo canvas { opacity: 0; }
+html:not(.sematan) .wave.show-logo .wave-logo { opacity: 1; }
+/* Tombol putar merah saat siaran mati */
+html:not(.sematan) .wmp.off #play {
+  border-color: rgba(120, 18, 14, .75); color: #fff;
+  background:
+    radial-gradient(62% 42% at 50% 88%, rgba(255, 190, 180, .72), transparent 72%),
+    radial-gradient(80% 70% at 50% 22%, #ff8e82 0%, #e63a2c 45%, #b8221a 82%, #8f1612 100%);
+  box-shadow: 0 0 0 .09em #7c1511, 0 .32em .62em rgba(110, 20, 14, .45), inset 0 .11em .14em rgba(255,255,255,.8), inset 0 -.16em .24em rgba(90, 10, 8, .55);
+}
+html:not(.sematan) .wmp.off #play::before { background: linear-gradient(180deg, rgba(255,255,255,.72) 0%, rgba(255,255,255,.12) 65%, transparent 100%); }
+html:not(.sematan) .wmp.off #play::after {
+  border: .13em solid #ff8a7d;
+  box-shadow: 0 0 .35em rgba(255, 90, 70, .85), 0 0 .8em rgba(214, 40, 28, .45), inset 0 0 .25em rgba(255, 190, 180, .7);
+}
+html:not(.sematan) .wmp.off #play svg.glyph { filter: drop-shadow(0 .08em .14em rgba(90, 8, 6, .65)); }
+html:not(.sematan)[data-tema="gelap"] .wmp.off #play { color: #ffe7e3; background:
+    radial-gradient(62% 42% at 50% 88%, rgba(255, 140, 125, .35), transparent 72%),
+    radial-gradient(80% 70% at 50% 22%, #e5544a 0%, #b92a21 45%, #7e1914 82%, #55100c 100%); }
+@media (max-height: 480px) { html:not(.sematan) .listeners { font-size: clamp(.95rem, 4vh, 1.15rem); } }
 </style>
 </head>
 <body>
@@ -1129,7 +1165,7 @@ html:not(.sematan)[data-tema="gelap"] #play:active {
   <section class="art inner" aria-label="Layar radio">
     <div class="screen">
       <div class="marquee" aria-hidden="true"><span id="say">Radio Islam Sragen</span></div>
-      <div class="wave" id="waveBox" role="button" tabindex="0" aria-label="Tampilan spektrum: Pita gulir. Ketuk untuk ganti."><canvas id="wave" aria-hidden="true"></canvas></div>
+      <div class="wave" id="waveBox" role="button" tabindex="0" aria-label="Tampilan spektrum: Pita gulir. Ketuk untuk ganti."><canvas id="wave" aria-hidden="true"></canvas><img class="wave-logo" src="icons/icon-512.png" alt="Logo Rais Streaming" width="512" height="512" draggable="false"></div>
       <div class="timer" id="clock" role="timer" aria-label="Lama mendengarkan"><span class="dim">00:00:00</span></div>
     </div>
   </section>
@@ -1144,7 +1180,7 @@ html:not(.sematan)[data-tema="gelap"] #play:active {
   <div class="mini-judul" id="miniJudul" aria-hidden="true"><span>Radio Islam Sragen</span></div>
 
   <footer class="foot" id="foot">
-    <div class="wmp" id="wmp" role="group" aria-label="Kendali pemutar">
+    <div class="wmp off" id="wmp" role="group" aria-label="Kendali pemutar">
       <svg class="frame" id="frame" aria-hidden="true">
         <defs>
           <linearGradient id="silver" x1="0" y1="0" x2="0" y2="1">
@@ -1248,6 +1284,8 @@ function buildCandidates() {
 /* ---------- Pemutar ---------- */
 const LABEL = { idle: 'OFF AIR', connecting: 'MENYAMBUNG', live: 'ON AIR', buffering: 'MEMUAT', retry: 'OFF AIR', error: 'OFF AIR' };
 let state = 'idle', wanted = false, everLive = false;
+let liveSince = 0; /* saat siaran mulai berbunyi; logo di kotak spektrum tampil 1 menit pertama */
+const LOGO_MS = 60000;
 let candidates = [], idx = 0, rounds = 0;
 let tryTimer = 0, retryTimer = 0, startedAt = 0, lastTime = -1, stuck = 0;
 
@@ -1263,6 +1301,9 @@ function setState(s) {
   playBtn.setAttribute('aria-label', on ? 'Hentikan siaran' : 'Putar siaran');
   playBtn.classList.toggle('busy', s === 'connecting' || s === 'buffering' || s === 'retry');
   $('wmp').classList.toggle('live', s === 'live');
+  $('wmp').classList.toggle('off', !on);
+  if (s === 'live' && !liveSince) liveSince = Date.now();
+  if (s === 'idle' || s === 'error') liveSince = 0;
   if ('mediaSession' in navigator) navigator.mediaSession.playbackState = on ? 'playing' : 'paused';
   lapor(s);
 }
@@ -1731,6 +1772,11 @@ const BAR = 2, GAP = 2, BANDS = 24;
 let history = [], phase = 0, previewUntil = 0;
 let bands = Array(BANDS).fill(0), peaks = Array(BANDS).fill(0);
 
+function logoVisible() {
+  if (Date.now() < previewUntil) return false;
+  return !liveSince || Date.now() - liveSince < LOGO_MS;
+}
+function syncLogo() { waveBox.classList.toggle('show-logo', logoVisible()); }
 function waveActive() { return state === 'live' || Date.now() < previewUntil; }
 
 function waveLevel() {
@@ -1880,6 +1926,7 @@ function updateWaveLabel() {
   waveBox.setAttribute('aria-label', `Tampilan spektrum: ${WAVE_MODES[waveMode]}. Ketuk untuk ganti.`);
 }
 function nextWaveMode() {
+  if (state === 'live' && logoVisible()) { liveSince = Date.now() - LOGO_MS; syncLogo(); return; } /* ketuk saat logo tampil: langsung ke spektrum */
   waveMode = (waveMode + 1) % WAVE_MODES.length;
   store.set('wave', waveMode);
   if (state !== 'live') previewUntil = Date.now() + 1400;
@@ -1926,6 +1973,7 @@ setInterval(() => {
   if (on || history.length) history.push(reduced ? (on ? .4 : 0) : waveLevel());
   if (!on && history.every(v => v === 0)) history = [];
   stepBands();
+  syncLogo();
   drawWave();
 }, 60);
 addEventListener('resize', () => { syncSpectrumWidth(); drawWave(); });
