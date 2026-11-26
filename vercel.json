@@ -21,6 +21,10 @@
       "destination": "http://streamy1.radioislam.my.id:9210/currentsong?sid=1"
     },
     {
+      "source": "/info/next",
+      "destination": "http://streamy1.radioislam.my.id:9210/nextsong?sid=1"
+    },
+    {
       "source": "/info/7",
       "destination": "http://streamy1.radioislam.my.id:9210/7.html"
     }

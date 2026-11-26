@@ -17,6 +17,7 @@ const PROXY_ROUTES = {
   '/info/stats': { targetPath: '/stats?sid=1&json=1', isStream: false },
   '/info/icecast': { targetPath: '/status-json.xsl', isStream: false },
   '/info/song': { targetPath: '/currentsong?sid=1', isStream: false },
+  '/info/next': { targetPath: '/nextsong?sid=1', isStream: false },
   '/info/7': { targetPath: '/7.html', isStream: false },
 };
 

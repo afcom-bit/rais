@@ -754,109 +754,113 @@ html:not(.sematan)[data-tema="terang"] .menu a:focus-visible {
   background: linear-gradient(180deg, #f4f9fd, #dfecf7); color: var(--ink);
 }
 
-/* Bilah kendali perak 3D (Terang): bingkai pembungkus dibuat samar, tombol menonjol 3D ala mode gelap */
-html:not(.sematan)[data-tema="terang"] .frame { filter: drop-shadow(0 4px 12px rgba(24, 72, 116, .06)); }
-html:not(.sematan)[data-tema="terang"] #framePath { fill: rgba(247, 250, 253, .52); stroke: rgba(135, 168, 198, .22); }
-html:not(.sematan)[data-tema="terang"] #frameShine { stroke: rgba(255, 255, 255, .65); opacity: .5; }
+/* Bilah kendali biru-langit 3D (Terang): semua tombol diberi warna lembut serasi tema dengan relief 3D tegas */
+html:not(.sematan)[data-tema="terang"] .frame { filter: drop-shadow(0 6px 14px rgba(24, 82, 138, .08)); }
+html:not(.sematan)[data-tema="terang"] #framePath { fill: rgba(242, 248, 254, .64); stroke: rgba(130, 174, 214, .26); }
+html:not(.sematan)[data-tema="terang"] #frameShine { stroke: rgba(255, 255, 255, .82); opacity: .6; }
 html:not(.sematan)[data-tema="terang"] .capsule {
-  background: #c5d6e8;
-  border-color: rgba(78, 116, 154, .46);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 .24em .48em rgba(18, 58, 98, .26);
+  background: linear-gradient(180deg, #98c6ec 0%, #6ea8dc 100%);
+  border-color: rgba(34, 102, 166, .56);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.85),
+    0 .28em .56em rgba(24, 82, 140, .28),
+    0 .08em .18em rgba(24, 82, 140, .18);
 }
 html:not(.sematan)[data-tema="terang"] .cap-ring {
-  border-color: rgba(135, 172, 208, .38);
-  box-shadow: 0 0 .24em rgba(24, 72, 120, .14), inset 0 0 .16em rgba(255,255,255,.65);
+  border-color: rgba(130, 186, 236, .48);
+  box-shadow: 0 0 .26em rgba(56, 136, 212, .16), inset 0 0 .18em rgba(255,255,255,.78);
 }
 html:not(.sematan)[data-tema="terang"] .wmp.live .cap-ring {
-  border-color: rgba(56, 168, 232, .55);
-  box-shadow: 0 0 .34em rgba(56, 168, 232, .28), inset 0 0 .2em rgba(255,255,255,.8);
+  border-color: rgba(86, 174, 242, .62);
+  box-shadow: 0 0 .38em rgba(72, 164, 238, .32), inset 0 0 .22em rgba(255,255,255,.9);
 }
 html:not(.sematan)[data-tema="terang"] .tb,
 html:not(.sematan)[data-tema="terang"] .cap-btn {
-  color: #154a78;
-  background: linear-gradient(180deg, #ffffff 0%, #e4eff8 47%, #c7daec 52%, #dce9f5 100%);
+  color: #145086;
+  background: linear-gradient(180deg, #f3f9ff 0%, #cde7fc 46%, #99ccf6 51%, #bfe0fc 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.98),
-    inset 0 -2px 4px rgba(32, 78, 124, .26);
+    inset 0 1.5px 1px rgba(255,255,255,.96),
+    inset 0 -3px 5px rgba(24, 88, 152, .34);
   transition: transform .08s ease, box-shadow .12s ease, background .15s ease, color .15s ease;
 }
 html:not(.sematan)[data-tema="terang"] .side-l .tb {
-  border-right: 1px solid rgba(72, 112, 152, .38);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.98), inset -1px 0 0 rgba(32,78,124,.14), inset 0 -2px 4px rgba(32,78,124,.26);
+  border-right: 1px solid rgba(42, 110, 174, .44);
+  box-shadow: inset 0 1.5px 1px rgba(255,255,255,.96), inset -1.5px 0 1px rgba(24,88,152,.18), inset 0 -3px 5px rgba(24,88,152,.34);
 }
 html:not(.sematan)[data-tema="terang"] .side-r .tb {
-  border-left: 1px solid rgba(255,255,255,.78);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.98), inset 1px 0 0 rgba(255,255,255,.6), inset 0 -2px 4px rgba(32,78,124,.26);
+  border-left: 1px solid rgba(255,255,255,.86);
+  box-shadow: inset 0 1.5px 1px rgba(255,255,255,.96), inset 1.5px 0 1px rgba(255,255,255,.72), inset 0 -3px 5px rgba(24,88,152,.34);
 }
 html:not(.sematan)[data-tema="terang"] .cap-l {
-  border-left: 1px solid rgba(255,255,255,.78);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.98), inset 1px 0 0 rgba(255,255,255,.6), inset 0 -2px 4px rgba(32,78,124,.26);
+  border-left: 1px solid rgba(255,255,255,.86);
+  box-shadow: inset 0 1.5px 1px rgba(255,255,255,.96), inset 1.5px 0 1px rgba(255,255,255,.72), inset 0 -3px 5px rgba(24,88,152,.34);
 }
 html:not(.sematan)[data-tema="terang"] .cap-r {
-  border-right: 1px solid rgba(72, 112, 152, .38);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.98), inset -1px 0 0 rgba(32,78,124,.14), inset 0 -2px 4px rgba(32,78,124,.26);
+  border-right: 1px solid rgba(42, 110, 174, .44);
+  box-shadow: inset 0 1.5px 1px rgba(255,255,255,.96), inset -1.5px 0 1px rgba(24,88,152,.18), inset 0 -3px 5px rgba(24,88,152,.34);
 }
 html:not(.sematan)[data-tema="terang"] .tb svg.i,
 html:not(.sematan)[data-tema="terang"] .cap-btn svg.i {
-  filter: drop-shadow(0 1px 0 rgba(255,255,255,.9));
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.88));
 }
 html:not(.sematan)[data-tema="terang"] .tb:hover,
 html:not(.sematan)[data-tema="terang"] .tb:focus-visible,
 html:not(.sematan)[data-tema="terang"] .cap-btn:hover,
 html:not(.sematan)[data-tema="terang"] .cap-btn:focus-visible {
-  color: #0e63ad;
-  background: linear-gradient(180deg, #ffffff 0%, #eff6fd 47%, #d5e6f6 52%, #e9f2fb 100%);
+  color: #0e4a82;
+  background: linear-gradient(180deg, #ffffff 0%, #dceeff 46%, #aad5fa 51%, #cde7fd 100%);
 }
 html:not(.sematan)[data-tema="terang"] .tb:hover svg.i,
 html:not(.sematan)[data-tema="terang"] .tb:focus-visible svg.i,
 html:not(.sematan)[data-tema="terang"] .cap-btn:hover svg.i,
 html:not(.sematan)[data-tema="terang"] .cap-btn:focus-visible svg.i {
-  filter: drop-shadow(0 1px 0 rgba(255,255,255,.95)) drop-shadow(0 0 3px rgba(30,127,208,.25));
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.95)) drop-shadow(0 0 3px rgba(40,136,216,.24));
 }
 html:not(.sematan)[data-tema="terang"] #sleep[aria-pressed="true"] { color: #dc2626; }
 html:not(.sematan)[data-tema="terang"] #sleep[aria-pressed="true"] svg.i {
-  filter: drop-shadow(0 1px 0 rgba(255,255,255,.9)) drop-shadow(0 0 3px rgba(220,38,38,.35));
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.9)) drop-shadow(0 0 3px rgba(220,38,38,.28));
 }
 html:not(.sematan)[data-tema="terang"] #sleep[aria-pressed="true"]:hover,
 html:not(.sematan)[data-tema="terang"] #sleep[aria-pressed="true"]:focus-visible { color: #b91c1c; }
 html:not(.sematan)[data-tema="terang"] .tb:active,
 html:not(.sematan)[data-tema="terang"] .cap-btn:active {
-  transform: translateY(1.5px);
-  background: linear-gradient(180deg, #bfd4e8 0%, #d5e4f2 100%);
-  box-shadow: inset 0 .14em .26em rgba(18, 58, 98, .35);
+  transform: translateY(2px);
+  background: linear-gradient(180deg, #8ec2ef 0%, #b6dcf9 100%);
+  box-shadow: inset 0 .18em .3em rgba(18, 70, 126, .42);
 }
 html:not(.sematan)[data-tema="terang"] #play {
-  border-color: rgba(16, 78, 138, .72); color: #ffffff;
+  border-color: rgba(38, 114, 182, .62); color: #ffffff;
   background:
-    radial-gradient(62% 42% at 50% 88%, rgba(165, 232, 255, .78), transparent 72%),
-    radial-gradient(80% 70% at 50% 22%, #7ec2f6 0%, #3589de 45%, #165db5 82%, #0e4691 100%);
+    radial-gradient(64% 44% at 50% 88%, rgba(212, 240, 255, .9), transparent 72%),
+    radial-gradient(80% 70% at 50% 22%, #e4f3ff 0%, #a2d5fa 46%, #5daae8 84%, #3c8bd0 100%);
   box-shadow:
-    0 0 0 .09em #134a85,
-    0 .32em .62em rgba(12, 58, 110, .42),
-    inset 0 .11em .14em rgba(255,255,255,.82),
-    inset 0 -.16em .24em rgba(8, 42, 88, .55);
-  transition: transform .08s ease, box-shadow .12s ease;
+    0 0 0 .1em rgba(42, 114, 180, .56),
+    0 .34em .68em rgba(22, 82, 144, .34),
+    inset 0 .13em .15em rgba(255,255,255,.94),
+    inset 0 -.2em .28em rgba(18, 76, 138, .48);
+  transition: transform .08s ease, box-shadow .12s ease, color .2s ease;
 }
 html:not(.sematan)[data-tema="terang"] #play::before {
-  background: linear-gradient(180deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.14) 65%, transparent 100%);
+  background: linear-gradient(180deg, rgba(255,255,255,.88) 0%, rgba(255,255,255,.18) 65%, transparent 100%);
 }
 html:not(.sematan)[data-tema="terang"] #play::after {
-  border: .13em solid #7ce4ff;
-  box-shadow: 0 0 .35em rgba(56, 200, 255, .85), 0 0 .8em rgba(29, 127, 208, .42), inset 0 0 .25em rgba(160, 235, 255, .75);
+  border: .13em solid #8ccbfa;
+  box-shadow: 0 0 .32em rgba(96, 178, 242, .62), 0 0 .72em rgba(68, 156, 228, .28), inset 0 0 .22em rgba(224, 246, 255, .86);
 }
 html:not(.sematan)[data-tema="terang"] .wmp.live #play::after {
-  border-color: #a6eeff;
-  box-shadow: 0 0 .48em rgba(56, 206, 255, .95), 0 0 1.05em rgba(29, 127, 208, .62), inset 0 0 .32em rgba(200, 245, 255, .9);
+  border-color: #a6dbfe;
+  box-shadow: 0 0 .44em rgba(96, 178, 242, .78), 0 0 .94em rgba(68, 156, 228, .38), inset 0 0 .28em rgba(235, 249, 255, .94);
 }
+html:not(.sematan)[data-tema="terang"] #play .spin circle { stroke: #64b5f0; }
 html:not(.sematan)[data-tema="terang"] #play svg.glyph {
-  filter: drop-shadow(0 .08em .14em rgba(6, 38, 82, .65)) drop-shadow(0 0 .1em rgba(190, 235, 255, .4));
+  filter: drop-shadow(0 .09em .14em rgba(16, 68, 122, .52)) drop-shadow(0 0 .08em rgba(255,255,255,.35));
 }
 html:not(.sematan)[data-tema="terang"] #play:active {
-  transform: translateY(.08em) scale(.97);
+  transform: translateY(.1em) scale(.965);
   box-shadow:
-    0 0 0 .09em #134a85,
-    0 .08em .22em rgba(12, 58, 110, .48),
-    inset 0 .14em .28em rgba(8, 42, 88, .62);
+    0 0 0 .1em rgba(42, 114, 180, .58),
+    0 .08em .22em rgba(22, 82, 144, .38),
+    inset 0 .16em .28em rgba(18, 76, 138, .54);
 }
 
 /* ==========================================================================
@@ -1055,42 +1059,65 @@ html:not(.sematan)[data-tema="gelap"] #play:active {
     column-gap: clamp(16px, 3vw, 40px);
   }
   html:not(.sematan) .panel { max-width: 560px; max-height: 100%; align-self: center; }
-  html:not(.sematan) .marquee { height: clamp(66px, 5.2rem, 98px); margin-top: 0; }
-  html:not(.sematan) #say { font-size: clamp(1.2rem, 2.8vw, 1.75rem); }
-  html:not(.sematan) #say.big { font-size: clamp(2.4rem, 5.5vw, 3.5rem); }
-  html:not(.sematan) .wave { height: clamp(64px, 16vh, 120px); }
-  html:not(.sematan) .timer { font-size: clamp(1.85rem, 4vw, 2.8rem); }
-  html:not(.sematan) .now { font-size: clamp(1rem, 1.9vw, 1.35rem); }
-}
-@media (max-height: 640px) {
-  html:not(.sematan) .panel { padding: 10px 14px 12px; }
-  html:not(.sematan) .art .screen { gap: 6px; }
-  html:not(.sematan) .marquee { height: 4.2rem; margin-top: -6px; }
-  html:not(.sematan) #say { font-size: clamp(1.1rem, 3.4vw, 1.45rem); }
-  html:not(.sematan) #say.big { font-size: 2.45rem; }
-  html:not(.sematan) .wave { height: 64px; }
-  html:not(.sematan) .timer { font-size: 1.9rem; }
-  html:not(.sematan) .now { --lh: 1.28; }
-}
-@media (max-height: 480px) {
-  html:not(.sematan) .panel { padding: 8px 14px 10px; }
-  html:not(.sematan) .head .inner { padding-block: 0 .2rem; }
-  html:not(.sematan) .art .screen { gap: 4px; }
-  html:not(.sematan) .marquee { height: 3.6rem; margin-top: -4px; }
-  html:not(.sematan) #say { font-size: clamp(1.02rem, 3vw, 1.28rem); }
-  html:not(.sematan) #say.big { font-size: 2.15rem; }
-  html:not(.sematan) .wave { height: 52px; min-height: 42px; }
-  html:not(.sematan) .timer { font-size: 1.65rem; }
-  html:not(.sematan) .now { --lh: 1.2; font-size: .95rem; }
 }
 
-/* ===== Pembaruan: tombol putar merah saat mati, spektrum persegi + logo, pendengar besar, muat 1 layar HP ===== */
-html:not(.sematan) { --sq: clamp(96px, min(40vw, 17dvh), 190px); }
-html:not(.sematan) .app { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; }
-html:not(.sematan) .listeners { font-size: clamp(1.12rem, 4.9vw, 1.5rem); min-height: 1.3em; line-height: 1.3; }
-html:not(.sematan) .listeners b { font-size: 1.28em; }
+/* ===== Pembaruan: warna tombol lembut serasi tema terang, spektrum lebih besar tanpa ubah tinggi halaman, timer dikecilkan sedikit ===== */
+html:not(.sematan) { --sq: clamp(160px, min(62vw, 28.5dvh), 290px); }
+html:not(.sematan)[data-tema="terang"] { background: #f4f8fc; }
+html:not(.sematan)[data-tema="gelap"] { background: #000; }
+html:not(.sematan) .app {
+  height: 100vh; height: 100dvh; min-height: 0; overflow: hidden;
+  zoom: var(--fit, 1);
+  padding-bottom: max(12px, calc(env(safe-area-inset-bottom, 0px) + 10px));
+  gap: clamp(4px, 1dvh, 12px);
+}
+html:not(.sematan) .app.mengukur { height: auto !important; zoom: 1 !important; min-height: 0; }
+html:not(.sematan) .panel { padding-top: 0; padding-bottom: clamp(4px, 1dvh, 10px); }
+
+/* Pita atas: ON/OFF AIR di kiri atas, Kbps & pendengar di tengah atas, share di kanan atas, teks status (#note) di bawah Kbps & pendengar */
+html:not(.sematan) .head .inner {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "state listeners share"
+    "note note note";
+  align-items: center;
+  column-gap: .45rem;
+  row-gap: .22rem;
+  padding-block: .05rem .15rem;
+}
+html:not(.sematan) .head-spacer { display: none; }
+html:not(.sematan) .status { display: contents; }
+html:not(.sematan) .state {
+  grid-area: state; justify-self: start;
+  font-size: clamp(.86rem, 2.8vw, 1.05rem);
+  padding: .28em .92em;
+}
+html:not(.sematan) .listeners {
+  grid-area: listeners; justify-self: center; text-align: center;
+  min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-size: clamp(.94rem, 3.6vw, 1.32rem);
+  min-height: 1.3em; line-height: 1.3;
+}
+html:not(.sematan) .listeners b { font-size: 1.24em; }
+html:not(.sematan) .menu-wrap { grid-area: share; justify-self: end; }
+html:not(.sematan) #share { width: 3.1rem; height: 3.1rem; }
+html:not(.sematan) #share svg.i { width: 2.05rem; height: 2.05rem; stroke-width: 1.2; }
+html:not(.sematan) #note {
+  grid-area: note; justify-self: center; width: 100%;
+  height: auto; min-height: 1.35em; max-height: 2.6em;
+  font-size: clamp(.78rem, 2.7vw, .88rem); line-height: 1.3;
+}
+
+html:not(.sematan) .art { flex: 1 1 auto; align-items: center; justify-content: center; min-height: 0; }
+html:not(.sematan) .art .screen {
+  justify-content: center; align-items: center;
+  gap: clamp(8px, 1.6dvh, 18px); padding-top: 0;
+}
+html:not(.sematan) .marquee { height: clamp(66px, 9.2dvh, 114px); margin-top: 0; }
+html:not(.sematan) #say { font-size: clamp(1.6rem, min(5.6vw, 3dvh), 2.7rem); line-height: 1.22; }
+html:not(.sematan) #say.big { font-size: clamp(3rem, min(10.8vw, 6dvh), 4.8rem); line-height: 1.15; }
 html:not(.sematan) .wave {
-  width: var(--sq); height: var(--sq); max-width: none !important; border-radius: 14px; overflow: hidden;
+  width: var(--sq); height: var(--sq); max-width: none !important; border-radius: 16px; overflow: hidden;
   transition: transform .12s ease, background-color .9s ease, box-shadow .9s ease;
 }
 html:not(.sematan) .wave canvas { transition: opacity .9s ease; }
@@ -1101,40 +1128,75 @@ html:not(.sematan) .wave-logo {
 html:not(.sematan) .wave.show-logo { background-color: #fff; box-shadow: 0 2px 12px rgba(18,50,74,.16), inset 0 0 0 1px rgba(18,50,74,.06); }
 html:not(.sematan) .wave.show-logo canvas { opacity: 0; }
 html:not(.sematan) .wave.show-logo .wave-logo { opacity: 1; }
-/* Tombol putar merah saat siaran mati */
-html:not(.sematan) .wmp.off #play {
-  border-color: rgba(120, 18, 14, .75); color: #fff;
-  background:
-    radial-gradient(62% 42% at 50% 88%, rgba(255, 190, 180, .72), transparent 72%),
-    radial-gradient(80% 70% at 50% 22%, #ff8e82 0%, #e63a2c 45%, #b8221a 82%, #8f1612 100%);
-  box-shadow: 0 0 0 .09em #7c1511, 0 .32em .62em rgba(110, 20, 14, .45), inset 0 .11em .14em rgba(255,255,255,.8), inset 0 -.16em .24em rgba(90, 10, 8, .55);
+html:not(.sematan) .timer { font-size: clamp(2.45rem, min(11vw, 6.2dvh), 3.9rem); line-height: 1; }
+html:not(.sematan) .song {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .2rem;
 }
-html:not(.sematan) .wmp.off #play::before { background: linear-gradient(180deg, rgba(255,255,255,.72) 0%, rgba(255,255,255,.12) 65%, transparent 100%); }
-html:not(.sematan) .wmp.off #play::after {
-  border: .13em solid #ff8a7d;
-  box-shadow: 0 0 .35em rgba(255, 90, 70, .85), 0 0 .8em rgba(214, 40, 28, .45), inset 0 0 .25em rgba(255, 190, 180, .7);
+html:not(.sematan) .now {
+  --lh: 1.18; font-size: clamp(1.18rem, min(4.5vw, 2.35dvh), 1.62rem); font-weight: 600;
+  height: calc(4 * var(--lh) * 1em); min-height: 0; max-height: none;
 }
-html:not(.sematan) .wmp.off #play svg.glyph { filter: drop-shadow(0 .08em .14em rgba(90, 8, 6, .65)); }
-html:not(.sematan)[data-tema="gelap"] .wmp.off #play { color: #ffe7e3; background:
-    radial-gradient(62% 42% at 50% 88%, rgba(255, 140, 125, .35), transparent 72%),
-    radial-gradient(80% 70% at 50% 22%, #e5544a 0%, #b92a21 45%, #7e1914 82%, #55100c 100%); }
-@media (max-height: 480px) { html:not(.sematan) .listeners { font-size: clamp(.95rem, 4vh, 1.15rem); } }
+html:not(.sematan) .next-track {
+  width: 100%; max-width: 28em; height: 1.35em; line-height: 1.35;
+  font-family: var(--font-ui); font-size: clamp(.82rem, 2.9vw, .98rem); font-weight: 400;
+  text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+html:not(.sematan) .next-track[hidden] { display: block !important; visibility: hidden; }
+html:not(.sematan) .next-track .next-label { font-weight: 600; opacity: .78; }
+html:not(.sematan)[data-tema="terang"] .next-track { color: #355d80; text-shadow: 0 1px 0 rgba(255,255,255,.85); }
+html:not(.sematan)[data-tema="gelap"] .next-track { color: #7e98ad; text-shadow: 0 1px 3px rgba(0,0,0,.45); }
 
-/* ===== Muat satu layar HP: jarak dirapatkan, tinggi dikurangi, dan pengaman skala otomatis ===== */
-html:not(.sematan) { --sq: clamp(84px, min(36vw, 14dvh), 170px); background: #000; }
-html:not(.sematan) .app { zoom: var(--fit, 1); }
-html:not(.sematan) .app.mengukur { height: auto !important; zoom: 1 !important; min-height: 0; }
-html:not(.sematan) .head .inner { row-gap: .2rem; padding-block: 0 .1rem; }
-html:not(.sematan) .status { gap: .3rem; margin-top: -.2rem; }
-html:not(.sematan) .art { align-items: flex-start; }
-html:not(.sematan) .art .screen { justify-content: flex-start; gap: clamp(4px, 1.2dvh, 12px); padding-top: clamp(0px, .6dvh, 6px); }
-html:not(.sematan) .marquee { height: clamp(68px, 9.5dvh, 100px); margin-top: 0; }
-html:not(.sematan) #say { font-size: clamp(1.35rem, 5vw, 2.2rem); }
-html:not(.sematan) #say.big { font-size: clamp(2.6rem, 10vw, 4.2rem); }
-html:not(.sematan) .timer { font-size: clamp(2.5rem, min(12vw, 7.5dvh), 4.4rem); }
-html:not(.sematan) .now { --lh: 1.25; font-size: clamp(1rem, 3.6vw, 1.3rem); }
-html:not(.sematan) .panel { padding-top: 0; padding-bottom: clamp(4px, 1dvh, 10px); }
-html:not(.sematan) .app { padding-bottom: max(10px, calc(env(safe-area-inset-bottom, 0px) + 8px)); gap: clamp(4px, 1dvh, 12px); }
+/* Saat siaran mati: ring, ikon tombol play, dan ikon tombol volume berwarna merah */
+html:not(.sematan)[data-tema="terang"] .wmp.off #play { color: #d62828; }
+html:not(.sematan)[data-tema="terang"] .wmp.off #play svg.glyph {
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.85)) drop-shadow(0 0 3px rgba(255,255,255,.55));
+}
+html:not(.sematan)[data-tema="terang"] .wmp.off .cap-btn,
+html:not(.sematan)[data-tema="terang"] .wmp.off .cap-btn:hover,
+html:not(.sematan)[data-tema="terang"] .wmp.off .cap-btn:focus-visible { color: #d62828; }
+html:not(.sematan)[data-tema="terang"] .wmp.off .cap-btn svg.i {
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.88));
+}
+html:not(.sematan)[data-tema="terang"] .wmp.off #play::after {
+  border-color: #ee746c;
+  box-shadow: 0 0 .34em rgba(235, 92, 84, .68), 0 0 .74em rgba(220, 62, 54, .3), inset 0 0 .22em rgba(255, 205, 200, .78);
+}
+html:not(.sematan)[data-tema="gelap"] .wmp.off #play { color: #e0534d; }
+html:not(.sematan)[data-tema="gelap"] .wmp.off #play svg.glyph {
+  filter: drop-shadow(0 .08em .14em rgba(0,0,0,.9)) drop-shadow(0 0 .14em rgba(224,83,77,.35));
+}
+html:not(.sematan)[data-tema="gelap"] .wmp.off .cap-btn,
+html:not(.sematan)[data-tema="gelap"] .wmp.off .cap-btn:hover,
+html:not(.sematan)[data-tema="gelap"] .wmp.off .cap-btn:focus-visible { color: #e0534d; }
+html:not(.sematan)[data-tema="gelap"] .wmp.off .cap-btn svg.i {
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.88)) drop-shadow(0 0 3px rgba(224,83,77,.28));
+}
+html:not(.sematan)[data-tema="gelap"] .wmp.off #play::after {
+  border-color: #e04f47;
+  box-shadow: 0 0 .38em rgba(224, 79, 71, .65), inset 0 0 .22em rgba(224, 79, 71, .45);
+}
+
+@media (orientation: landscape) and (min-width: 640px) {
+  html:not(.sematan) { --sq: clamp(160px, min(33vw, 43dvh), 290px); }
+  html:not(.sematan) .art .screen { gap: clamp(6px, 1.5dvh, 16px); }
+  html:not(.sematan) .marquee { height: clamp(60px, 11.5dvh, 100px); }
+  html:not(.sematan) #say { font-size: clamp(1.35rem, min(3.2vw, 4.2dvh), 2.1rem); }
+  html:not(.sematan) #say.big { font-size: clamp(2.6rem, min(6.2vw, 8.5dvh), 4.1rem); }
+  html:not(.sematan) .timer { font-size: clamp(1.85rem, min(4.4vw, 8dvh), 2.95rem); }
+  html:not(.sematan) .now { font-size: clamp(1.12rem, 2.2vw, 1.5rem); }
+  html:not(.sematan) .next-track { font-size: clamp(.78rem, 1.45vw, .94rem); }
+}
+@media (max-height: 480px) {
+  html:not(.sematan) { --sq: clamp(104px, 31dvh, 152px); }
+  html:not(.sematan) .listeners { font-size: clamp(.88rem, 3.6vh, 1.1rem); }
+  html:not(.sematan) .art .screen { gap: 4px; }
+  html:not(.sematan) .marquee { height: clamp(42px, 10.5dvh, 60px); }
+  html:not(.sematan) #say { font-size: clamp(1.08rem, 3.2vw, 1.38rem); }
+  html:not(.sematan) #say.big { font-size: clamp(1.9rem, 6vw, 2.5rem); }
+  html:not(.sematan) .timer { font-size: clamp(1.45rem, 6.2dvh, 1.95rem); }
+  html:not(.sematan) .now { --lh: 1.15; font-size: 1rem; height: calc(4 * var(--lh) * 1em); }
+  html:not(.sematan) .next-track { font-size: .78rem; }
+}
 </style>
 </head>
 <body>
@@ -1189,6 +1251,9 @@ html:not(.sematan) .app { padding-bottom: max(10px, calc(env(safe-area-inset-bot
   <div class="song inner">
     <div class="now" id="now" hidden aria-label="Sedang diputar">
       <div class="track" id="track"><span id="song"></span></div>
+    </div>
+    <div class="next-track" id="nextWrap" hidden aria-label="Diputar setelahnya">
+      <span class="next-label">Berikutnya:</span> <span id="nextSong"></span>
     </div>
   </div>
   </div>
@@ -1300,7 +1365,7 @@ function buildCandidates() {
 /* ---------- Pemutar ---------- */
 const LABEL = { idle: 'OFF AIR', connecting: 'MENYAMBUNG', live: 'ON AIR', buffering: 'MEMUAT', retry: 'OFF AIR', error: 'OFF AIR' };
 let state = 'idle', wanted = false, everLive = false;
-let liveSince = 0; /* saat siaran mulai berbunyi; logo di kotak spektrum tampil 1 menit pertama */
+let liveSince = 0, introDismissed = false; /* saat siaran mulai berbunyi; logo di kotak spektrum tampil 1 menit pertama */
 const LOGO_MS = 60000;
 let candidates = [], idx = 0, rounds = 0;
 let tryTimer = 0, retryTimer = 0, startedAt = 0, lastTime = -1, stuck = 0;
@@ -1318,8 +1383,8 @@ function setState(s) {
   playBtn.classList.toggle('busy', s === 'connecting' || s === 'buffering' || s === 'retry');
   $('wmp').classList.toggle('live', s === 'live');
   $('wmp').classList.toggle('off', !on);
-  if (s === 'live' && !liveSince) liveSince = Date.now();
-  if (s === 'idle' || s === 'error') liveSince = 0;
+  if (s === 'live' && !liveSince) { liveSince = Date.now(); introDismissed = false; }
+  if (s === 'idle' || s === 'error') { liveSince = 0; introDismissed = false; }
   if ('mediaSession' in navigator) navigator.mediaSession.playbackState = on ? 'playing' : 'paused';
   lapor(s);
 }
@@ -1606,20 +1671,24 @@ if (!SEMATAN && 'serviceWorker' in navigator && location.protocol !== 'file:') {
 }
 
 /* ---------- Judul yang sedang diputar ---------- */
-let songTitle = '', npSource = -1, npTimer = 0;
+let songTitle = '', nextSongTitle = '', npSource = -1, npTimer = 0;
 
 function decodeHtml(t) { const el = document.createElement('textarea'); el.innerHTML = t; return el.value; }
 
 function parseNowPlaying(path, text) {
-  let title = '', count = null, bitrate = null;
+  let title = '', nextTitle = '', count = null, bitrate = null;
   if (path.endsWith('/stats')) {
     const j = JSON.parse(text);
-    title = j.songtitle || ''; count = j.currentlisteners; bitrate = j.bitrate;
+    title = j.songtitle || '';
+    nextTitle = j.nexttitle || j.nextsong || '';
+    count = j.currentlisteners;
+    bitrate = j.bitrate;
   } else if (path.endsWith('/icecast')) {
     let src = JSON.parse(text).icestats.source;
     if (Array.isArray(src)) src = src.find(x => x.listenurl && x.listenurl.includes(':' + CONFIG.port)) || src[0];
     if (src) {
       title = src.title ? (src.artist ? src.artist + ' - ' + src.title : src.title) : (src.yp_currently_playing || '');
+      nextTitle = src.nexttitle || src.next_song || '';
       count = src.listeners;
       bitrate = src.bitrate ?? src['ice-bitrate'];
     }
@@ -1631,7 +1700,12 @@ function parseNowPlaying(path, text) {
   }
   const numCount = count != null && count !== '' && Number.isFinite(Number(count)) ? Number(count) : null;
   const numKbps = bitrate != null && bitrate !== '' && Number.isFinite(Number(bitrate)) && Number(bitrate) > 0 ? Math.round(Number(bitrate)) : null;
-  return { title: decodeHtml(String(title)).trim(), count: numCount, kbps: numKbps };
+  return {
+    title: decodeHtml(String(title)).trim(),
+    nextTitle: decodeHtml(String(nextTitle)).trim(),
+    count: numCount,
+    kbps: numKbps
+  };
 }
 
 async function fetchNowPlaying() {
@@ -1644,6 +1718,15 @@ async function fetchNowPlaying() {
       const np = parseNowPlaying(list[i], await res.text());
       if (!np.title && np.count === null && np.kbps === null) continue;
       npSource = i;
+      if (!np.nextTitle && np.title && !SEMATAN) {
+        try {
+          const nres = await fetch('/info/next?t=' + Date.now(), { cache: 'no-store' });
+          if (nres.ok) {
+            const nt = await nres.text();
+            if (!/<html|<!doctype/i.test(nt)) np.nextTitle = decodeHtml(nt).trim();
+          }
+        } catch {}
+      }
       return np;
     } catch {}
   }
@@ -1675,7 +1758,7 @@ function shapeTitle() {
   measureCtx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
   const measure = t => measureCtx.measureText(t).width;
   const words = songTitle.split(/\s+/).filter(Boolean), W = box.clientWidth;
-  const M = SEMATAN ? 2 : 5;
+  const M = SEMATAN ? 2 : 4;
   let lines = null;
   for (let n = 1; n <= M && !lines; n++) {
     if (!fitLines(words, n, W, 1, measure)) continue;
@@ -1728,6 +1811,7 @@ if (document.fonts) document.fonts.ready.then(layoutBar);
 
 function showNowPlaying(np) {
   const title = np && np.title ? np.title : '';
+  const nextTitle = np && np.nextTitle ? np.nextTitle : '';
   const hasCount = np && np.count !== null;
   const hasKbps = np && np.kbps !== null;
   infoEl.hidden = !(hasCount || hasKbps);
@@ -1742,6 +1826,19 @@ function showNowPlaying(np) {
       parts.push(b, ' pendengar');
     }
     infoEl.replaceChildren(...parts);
+  }
+  const nextWrap = $('nextWrap'), nextEl = $('nextSong');
+  if (nextWrap && nextEl) {
+    nextWrap.hidden = !nextTitle;
+    if (nextTitle && nextTitle !== nextSongTitle) {
+      nextSongTitle = nextTitle;
+      nextEl.textContent = nextTitle;
+      nextWrap.title = 'Berikutnya: ' + nextTitle;
+    } else if (!nextTitle) {
+      nextSongTitle = '';
+      nextEl.textContent = '';
+      nextWrap.removeAttribute('title');
+    }
   }
   $('now').hidden = !title;
   if (title === songTitle) return;
@@ -1779,9 +1876,10 @@ if ('mediaSession' in navigator) {
 
 
 
-/* ---------- Spektrum suara: 4 model, ketuk layar spektrum untuk berganti ---------- */
+/* ---------- Spektrum suara: 4 model + Logo, ketuk layar spektrum untuk berganti ---------- */
 const waveBox = $('waveBox'), wave = $('wave'), wctx = wave.getContext('2d');
-const WAVE_MODES = ['Pita gulir', 'Spektrum batang', 'Osiloskop', 'LED cermin'];
+const WAVE_MODES = ['Pita gulir', 'Spektrum batang', 'Osiloskop', 'LED cermin', 'Logo'];
+const LOGO_MODE = WAVE_MODES.length - 1;
 const savedWave = Number(store.get('wave'));
 let waveMode = Number.isInteger(savedWave) && savedWave >= 0 && savedWave < WAVE_MODES.length ? savedWave : 0;
 const BAR = 2, GAP = 2, BANDS = 24;
@@ -1790,9 +1888,17 @@ let bands = Array(BANDS).fill(0), peaks = Array(BANDS).fill(0);
 
 function logoVisible() {
   if (Date.now() < previewUntil) return false;
-  return !liveSince || Date.now() - liveSince < LOGO_MS;
+  if (waveMode === LOGO_MODE) return true;
+  if (state !== 'live' || !liveSince) return true;
+  return !introDismissed && (Date.now() - liveSince < LOGO_MS);
 }
-function syncLogo() { waveBox.classList.toggle('show-logo', logoVisible()); }
+function syncLogo() {
+  const show = logoVisible();
+  if (waveBox.classList.contains('show-logo') !== show) {
+    waveBox.classList.toggle('show-logo', show);
+    updateWaveLabel();
+  }
+}
 function waveActive() { return state === 'live' || Date.now() < previewUntil; }
 
 function waveLevel() {
@@ -1823,6 +1929,7 @@ function drawWave() {
   if (wave.width !== Math.round(w * dpr) || wave.height !== Math.round(h * dpr)) { wave.width = Math.round(w * dpr); wave.height = Math.round(h * dpr); }
   wctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   wctx.clearRect(0, 0, w, h);
+  if (waveMode === LOGO_MODE) return;
 
   const css = getComputedStyle(wave);
   const cBar = css.getPropertyValue('--wave-bar').trim() || '#84c5f4';
@@ -1939,20 +2046,30 @@ function drawWave() {
 }
 
 function updateWaveLabel() {
-  waveBox.setAttribute('aria-label', `Tampilan spektrum: ${WAVE_MODES[waveMode]}. Ketuk untuk ganti.`);
+  const activeMode = logoVisible() ? WAVE_MODES[LOGO_MODE] : WAVE_MODES[waveMode];
+  waveBox.setAttribute('aria-label', `Tampilan spektrum: ${activeMode}. Ketuk untuk ganti.`);
 }
 function nextWaveMode() {
-  if (state === 'live' && logoVisible()) { liveSince = Date.now() - LOGO_MS; syncLogo(); return; } /* ketuk saat logo tampil: langsung ke spektrum */
+  if (state === 'live' && logoVisible() && waveMode !== LOGO_MODE) {
+    introDismissed = true;
+    syncLogo();
+    updateWaveLabel();
+    drawWave();
+    return;
+  }
+  introDismissed = true;
   waveMode = (waveMode + 1) % WAVE_MODES.length;
   store.set('wave', waveMode);
-  if (state !== 'live') previewUntil = Date.now() + 1400;
+  previewUntil = (state !== 'live' && waveMode !== LOGO_MODE) ? Date.now() + 1400 : 0;
   updateWaveLabel();
+  syncLogo();
   drawWave();
 }
 waveBox.addEventListener('click', nextWaveMode);
 waveBox.addEventListener('keydown', e => {
   if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); nextWaveMode(); }
 });
+syncLogo();
 updateWaveLabel();
 
 /* Lebar spektrum dibatasi agar tidak melebihi teks animasi yang paling lebar */
