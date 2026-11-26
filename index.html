@@ -1119,6 +1119,22 @@ html:not(.sematan)[data-tema="gelap"] .wmp.off #play { color: #ffe7e3; backgroun
     radial-gradient(62% 42% at 50% 88%, rgba(255, 140, 125, .35), transparent 72%),
     radial-gradient(80% 70% at 50% 22%, #e5544a 0%, #b92a21 45%, #7e1914 82%, #55100c 100%); }
 @media (max-height: 480px) { html:not(.sematan) .listeners { font-size: clamp(.95rem, 4vh, 1.15rem); } }
+
+/* ===== Muat satu layar HP: jarak dirapatkan, tinggi dikurangi, dan pengaman skala otomatis ===== */
+html:not(.sematan) { --sq: clamp(84px, min(36vw, 14dvh), 170px); background: #000; }
+html:not(.sematan) .app { zoom: var(--fit, 1); }
+html:not(.sematan) .app.mengukur { height: auto !important; zoom: 1 !important; min-height: 0; }
+html:not(.sematan) .head .inner { row-gap: .2rem; padding-block: 0 .1rem; }
+html:not(.sematan) .status { gap: .3rem; margin-top: -.2rem; }
+html:not(.sematan) .art { align-items: flex-start; }
+html:not(.sematan) .art .screen { justify-content: flex-start; gap: clamp(4px, 1.2dvh, 12px); padding-top: clamp(0px, .6dvh, 6px); }
+html:not(.sematan) .marquee { height: clamp(68px, 9.5dvh, 100px); margin-top: 0; }
+html:not(.sematan) #say { font-size: clamp(1.35rem, 5vw, 2.2rem); }
+html:not(.sematan) #say.big { font-size: clamp(2.6rem, 10vw, 4.2rem); }
+html:not(.sematan) .timer { font-size: clamp(2.5rem, min(12vw, 7.5dvh), 4.4rem); }
+html:not(.sematan) .now { --lh: 1.25; font-size: clamp(1rem, 3.6vw, 1.3rem); }
+html:not(.sematan) .panel { padding-top: 0; padding-bottom: clamp(4px, 1dvh, 10px); }
+html:not(.sematan) .app { padding-bottom: max(10px, calc(env(safe-area-inset-bottom, 0px) + 8px)); gap: clamp(4px, 1dvh, 12px); }
 </style>
 </head>
 <body>
@@ -1968,6 +1984,26 @@ function syncSpectrumWidth() {
   }
 }
 
+
+/* Pengaman: bila isi lebih tinggi dari layar (mis. ukuran huruf HP dibesarkan), seluruh tampilan diperkecil agar muat tanpa scroll */
+function fitApp() {
+  if (SEMATAN) return;
+  const app = document.querySelector('.app'), root = document.documentElement;
+  root.style.setProperty('--fit', '1');
+  app.style.height = '';
+  app.classList.add('mengukur');
+  const natural = app.getBoundingClientRect().height;
+  app.classList.remove('mengukur');
+  const avail = window.innerHeight;
+  const f = natural > avail ? Math.max(.5, avail / natural) : 1;
+  root.style.setProperty('--fit', f.toFixed(3));
+  app.style.height = (avail / f) + 'px';
+}
+addEventListener('resize', fitApp);
+addEventListener('orientationchange', () => setTimeout(fitApp, 250));
+if (document.fonts) document.fonts.ready.then(fitApp);
+setInterval(fitApp, 1500);
+fitApp();
 setInterval(() => {
   const on = waveActive();
   if (on || history.length) history.push(reduced ? (on ? .4 : 0) : waveLevel());
