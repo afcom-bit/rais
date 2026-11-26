@@ -1,5 +1,5 @@
 /* Service worker RAIS. Ubah VERSI setiap kali file aplikasi diperbarui agar cache lama diganti. */
-var VERSI = 'rais-v95';
+var VERSI = 'rais-v96';
 var INTI = [
   './',
   './index.html',
@@ -7,7 +7,9 @@ var INTI = [
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-maskable-512.png',
-  './icons/apple-touch-icon.png'
+  './icons/apple-touch-icon.png',
+  './icons/logo-terang.png',
+  './icons/logo-gelap.png'
 ];
 
 self.addEventListener('install', function (e) {

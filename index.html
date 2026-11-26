@@ -1261,6 +1261,9 @@ html:not(.sematan) .wave-logo {
 html:not(.sematan) .wave.show-logo { background-color: transparent; box-shadow: none; }
 html:not(.sematan) .wave.show-logo canvas { opacity: 0; }
 html:not(.sematan) .wave.show-logo .wave-logo { opacity: 1; }
+/* Logo mengikuti tema: mode gelap memakai versi dengan tulisan "Rais" dan garis bawah lebih cerah */
+html:not(.sematan)[data-tema="gelap"] .wave-logo.logo-terang,
+html:not(.sematan):not([data-tema="gelap"]) .wave-logo.logo-gelap { display: none; }
 html:not(.sematan) .timer { font-size: clamp(2.45rem, min(11vw, 6.2dvh), 3.9rem); line-height: 1; margin-bottom: auto; }
 html:not(.sematan) .song {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .2rem;
@@ -1386,7 +1389,7 @@ html:not(.sematan)[data-tema="gelap"] .wmp.off #play::after {
   <section class="art inner" aria-label="Layar radio">
     <div class="screen">
       <div class="marquee" data-s="idle" aria-hidden="true"><span id="say" data-s="idle">Radio Islam Sragen</span></div>
-      <div class="wave" id="waveBox" role="button" tabindex="0" aria-label="Tampilan spektrum: Pita gulir. Ketuk untuk ganti."><canvas id="wave" aria-hidden="true"></canvas><img class="wave-logo" src="icons/icon-512.png" alt="Logo Rais Streaming" width="512" height="512" draggable="false"></div>
+      <div class="wave" id="waveBox" role="button" tabindex="0" aria-label="Tampilan spektrum: Pita gulir. Ketuk untuk ganti."><canvas id="wave" aria-hidden="true"></canvas><img class="wave-logo logo-terang" src="icons/logo-terang.png" alt="Logo Rais Streaming" width="1024" height="1024" draggable="false"><img class="wave-logo logo-gelap" src="icons/logo-gelap.png" alt="" aria-hidden="true" width="1024" height="1024" draggable="false"></div>
       <div class="timer" id="clock" role="timer" aria-label="Lama mendengarkan"><span class="dim">00:00:00</span></div>
     </div>
   </section>
