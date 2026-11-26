@@ -756,17 +756,17 @@ html:not(.sematan)[data-tema="terang"] .listeners[data-s="idle"] b,
 html:not(.sematan)[data-tema="terang"] .listeners[data-s="retry"] b,
 html:not(.sematan)[data-tema="terang"] .listeners[data-s="error"] b { color: #5c1f1c; }
 
-/* Warna teks animasi mengikuti status on air / off air (Terang) */
+/* Warna teks animasi mengikuti status on air / off air (Terang, diredupkan lembut) */
 html:not(.sematan)[data-tema="terang"] #say,
 html:not(.sematan)[data-tema="terang"] #say.big {
-  color: #7c3834;
-  text-shadow: 0 1px 0 rgba(255,255,255,.9);
+  color: rgba(124, 56, 52, .68);
+  text-shadow: 0 1px 0 rgba(255,255,255,.72);
   transition: color .4s ease;
 }
 html:not(.sematan)[data-tema="terang"] .app[data-s="live"] #say,
 html:not(.sematan)[data-tema="terang"] .marquee[data-s="live"] #say,
 html:not(.sematan)[data-tema="terang"] #say[data-s="live"] {
-  color: #195d38;
+  color: rgba(25, 93, 56, .68);
 }
 html:not(.sematan)[data-tema="terang"] .app[data-s="connecting"] #say,
 html:not(.sematan)[data-tema="terang"] .app[data-s="buffering"] #say,
@@ -774,7 +774,7 @@ html:not(.sematan)[data-tema="terang"] .marquee[data-s="connecting"] #say,
 html:not(.sematan)[data-tema="terang"] .marquee[data-s="buffering"] #say,
 html:not(.sematan)[data-tema="terang"] #say[data-s="connecting"],
 html:not(.sematan)[data-tema="terang"] #say[data-s="buffering"] {
-  color: #7a4e12;
+  color: rgba(122, 78, 18, .68);
 }
 html:not(.sematan)[data-tema="terang"] .app[data-s="idle"] #say,
 html:not(.sematan)[data-tema="terang"] .app[data-s="error"] #say,
@@ -785,7 +785,7 @@ html:not(.sematan)[data-tema="terang"] .marquee[data-s="retry"] #say,
 html:not(.sematan)[data-tema="terang"] #say[data-s="idle"],
 html:not(.sematan)[data-tema="terang"] #say[data-s="error"],
 html:not(.sematan)[data-tema="terang"] #say[data-s="retry"] {
-  color: #7c3834;
+  color: rgba(124, 56, 52, .68);
 }
 html:not(.sematan)[data-tema="terang"] .wave canvas {
   --wave-bar: #258ee4; --wave-mid: rgba(37,142,228,.2); --wave-head: #105290;
@@ -828,11 +828,11 @@ html:not(.sematan)[data-tema="terang"] #frameShine {
   opacity: .84;
 }
 html:not(.sematan)[data-tema="terang"] .capsule {
-  background: #aebcca;
-  border-color: rgba(88, 108, 128, .42);
+  background: #8e9fb2;
+  border-color: rgba(58, 78, 98, .52);
   box-shadow:
-    inset 0 1.5px 3px rgba(24, 44, 68, .22),
-    inset 0 -1px 0 rgba(255, 255, 255, .68),
+    inset 0 2px 4px rgba(16, 32, 50, .38),
+    inset 0 -1px 0 rgba(255, 255, 255, .65),
     0 1px 2px rgba(255, 255, 255, .55);
 }
 html:not(.sematan)[data-tema="terang"] .cap-ring {
@@ -845,43 +845,54 @@ html:not(.sematan)[data-tema="terang"] .wmp.live .cap-ring {
 }
 html:not(.sematan)[data-tema="terang"] .tb,
 html:not(.sematan)[data-tema="terang"] .cap-btn {
-  color: #203d5a;
-  background: linear-gradient(180deg, #f6f9fc 0%, #e4ebf2 46%, #cfd9e4 52%, #dce4ed 100%);
+  color: #0c7c72;
+  background: linear-gradient(180deg, #f7fafd 0%, #e5ecf3 38%, #c5d2e0 52%, #9fb2c6 84%, #8297ad 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, .92),
-    inset 0 -1.5px 2.5px rgba(32, 54, 78, .18),
-    0 1px 3px rgba(20, 42, 66, .16);
+    inset 0 1.4px 0 rgba(255, 255, 255, .96),
+    inset 0 -2.5px 4px rgba(20, 38, 58, .38),
+    0 2px 4px rgba(16, 32, 50, .24);
   transition: transform .08s ease, box-shadow .12s ease, background .15s ease, color .15s ease;
 }
+html:not(.sematan)[data-tema="terang"] .cap-btn { width: 3.7em; }
 html:not(.sematan)[data-tema="terang"] .side-l .tb {
-  border-right: 1px solid rgba(82, 102, 122, .42);
+  border-radius: 999px .22em .22em 999px;
+  border-right: 1px solid rgba(56, 76, 98, .55);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, .92),
-    inset 0 -1.5px 2.5px rgba(32, 54, 78, .18),
-    0 1px 3px rgba(20, 42, 66, .16);
+    inset 0 1.4px 0 rgba(255, 255, 255, .96),
+    inset -1.5px 0 2px rgba(24, 44, 68, .22),
+    inset 0 -2.5px 4px rgba(20, 38, 58, .38),
+    0 2px 4px rgba(16, 32, 50, .24);
 }
 html:not(.sematan)[data-tema="terang"] .side-r .tb {
-  border-left: 1px solid rgba(82, 102, 122, .42);
+  border-radius: .22em 999px 999px .22em;
+  border-left: 1px solid rgba(56, 76, 98, .55);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, .92),
-    inset 0 -1.5px 2.5px rgba(32, 54, 78, .18),
-    0 1px 3px rgba(20, 42, 66, .16);
+    inset 0 1.4px 0 rgba(255, 255, 255, .96),
+    inset 1.5px 0 2px rgba(255, 255, 255, .62),
+    inset 0 -2.5px 4px rgba(20, 38, 58, .38),
+    0 2px 4px rgba(16, 32, 50, .24);
 }
 html:not(.sematan)[data-tema="terang"] .cap-l {
-  border-left: 1px solid rgba(82, 102, 122, .42);
+  margin-left: .08em;
+  border-radius: .22em 0 0 .22em;
+  border-left: 1px solid rgba(56, 76, 98, .55);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, .92),
-    inset 0 -1.5px 2.5px rgba(32, 54, 78, .18);
+    inset 0 1.4px 0 rgba(255, 255, 255, .96),
+    inset 1.5px 0 2px rgba(255, 255, 255, .62),
+    inset 0 -2.5px 4px rgba(20, 38, 58, .38);
 }
 html:not(.sematan)[data-tema="terang"] .cap-r {
-  border-right: 1px solid rgba(82, 102, 122, .42);
+  margin-right: .08em;
+  border-radius: 0 .22em .22em 0;
+  border-right: 1px solid rgba(56, 76, 98, .55);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, .92),
-    inset 0 -1.5px 2.5px rgba(32, 54, 78, .18);
+    inset 0 1.4px 0 rgba(255, 255, 255, .96),
+    inset -1.5px 0 2px rgba(24, 44, 68, .22),
+    inset 0 -2.5px 4px rgba(20, 38, 58, .38);
 }
 html:not(.sematan)[data-tema="terang"] .cap-l::after,
 html:not(.sematan)[data-tema="terang"] .cap-r::after {
-  border-color: rgba(82, 102, 122, .44);
+  border-color: rgba(56, 76, 98, .55);
 }
 html:not(.sematan)[data-tema="terang"] .tb svg.i,
 html:not(.sematan)[data-tema="terang"] .cap-btn svg.i {
@@ -891,14 +902,14 @@ html:not(.sematan)[data-tema="terang"] .tb:hover,
 html:not(.sematan)[data-tema="terang"] .tb:focus-visible,
 html:not(.sematan)[data-tema="terang"] .cap-btn:hover,
 html:not(.sematan)[data-tema="terang"] .cap-btn:focus-visible {
-  color: #122c46;
-  background: linear-gradient(180deg, #fafcfe 0%, #ebf0f6 46%, #d8e1eb 52%, #e4ebf2 100%);
+  color: #085f57;
+  background: linear-gradient(180deg, #fafcfe 0%, #ebf1f6 38%, #cfdbe6 52%, #aabccf 84%, #8da2b7 100%);
 }
 html:not(.sematan)[data-tema="terang"] .tb:hover svg.i,
 html:not(.sematan)[data-tema="terang"] .tb:focus-visible svg.i,
 html:not(.sematan)[data-tema="terang"] .cap-btn:hover svg.i,
 html:not(.sematan)[data-tema="terang"] .cap-btn:focus-visible svg.i {
-  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, .86)) drop-shadow(0 0 2px rgba(45, 95, 145, .24));
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, .86)) drop-shadow(0 0 2px rgba(13, 148, 136, .24));
 }
 html:not(.sematan)[data-tema="terang"] #sleep[aria-pressed="true"] { color: #c43232; }
 html:not(.sematan)[data-tema="terang"] #sleep[aria-pressed="true"] svg.i {
@@ -908,36 +919,36 @@ html:not(.sematan)[data-tema="terang"] #sleep[aria-pressed="true"]:hover,
 html:not(.sematan)[data-tema="terang"] #sleep[aria-pressed="true"]:focus-visible { color: #a52424; }
 html:not(.sematan)[data-tema="terang"] .tb:active,
 html:not(.sematan)[data-tema="terang"] .cap-btn:active {
-  transform: translateY(1px);
-  background: linear-gradient(180deg, #c6d1dd 0%, #d9e2ec 100%);
-  box-shadow: inset 0 2px 3.5px rgba(20, 42, 66, .28), inset 0 -1px 0 rgba(255, 255, 255, .65);
+  transform: translateY(1.2px);
+  background: linear-gradient(180deg, #95a9bd 0%, #b3c3d3 45%, #ccd7e3 100%);
+  box-shadow: inset 0 2.5px 4.5px rgba(18, 36, 56, .45), inset 0 -1px 0 rgba(255, 255, 255, .65);
 }
 html:not(.sematan)[data-tema="terang"] #play {
-  border-color: rgba(88, 108, 128, .55);
-  color: #203d5a;
+  border-color: rgba(58, 78, 98, .68);
+  color: #0c7c72;
   background:
-    radial-gradient(60% 38% at 50% 90%, rgba(235, 244, 252, .72), transparent 70%),
-    radial-gradient(92% 85% at 50% 18%, #f7fafe 0%, #e4ecf3 42%, #c3d0de 76%, #aebdce 100%);
+    radial-gradient(58% 36% at 50% 92%, rgba(205, 224, 242, .55), transparent 70%),
+    radial-gradient(92% 85% at 50% 16%, #f8fbfe 0%, #e1eaf2 36%, #b2c3d4 66%, #8297ad 88%, #637990 100%);
   box-shadow:
-    0 0 0 .08em rgba(58, 78, 98, .28),
-    0 .24em .5em rgba(24, 48, 74, .22),
-    inset 0 .1em .14em rgba(255, 255, 255, .92),
-    inset 0 -.14em .22em rgba(24, 44, 68, .24);
+    0 0 0 .09em rgba(42, 62, 82, .38),
+    0 .32em .62em rgba(18, 36, 56, .34),
+    inset 0 .12em .16em rgba(255, 255, 255, .94),
+    inset 0 -.2em .3em rgba(18, 36, 56, .46);
   transition: transform .08s ease, box-shadow .18s ease, background .25s ease, border-color .25s ease, color .2s ease;
 }
 html:not(.sematan)[data-tema="terang"] #play::before {
-  background: linear-gradient(180deg, rgba(255, 255, 255, .9) 0%, rgba(255, 255, 255, .16) 65%, transparent 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, .92) 0%, rgba(255, 255, 255, .18) 65%, transparent 100%);
 }
 html:not(.sematan)[data-tema="terang"] #play::after {
   border-color: #e4665e;
   box-shadow: 0 0 .34em rgba(228, 102, 94, .65), 0 0 .74em rgba(210, 62, 54, .28), inset 0 0 .2em rgba(255, 200, 195, .75);
 }
 html:not(.sematan)[data-tema="terang"] .wmp.live #play {
-  border-color: rgba(68, 110, 150, .58);
-  color: #144d82;
+  border-color: rgba(54, 92, 130, .72);
+  color: #0a6b62;
   background:
-    radial-gradient(60% 38% at 50% 90%, rgba(210, 236, 255, .78), transparent 70%),
-    radial-gradient(92% 85% at 50% 18%, #f6fafe 0%, #deeaf5 42%, #b6cce2 76%, #9cb6cf 100%);
+    radial-gradient(58% 36% at 50% 92%, rgba(185, 226, 255, .65), transparent 70%),
+    radial-gradient(92% 85% at 50% 16%, #f7fbfe 0%, #dae8f5 36%, #a6bfd8 66%, #7493b2 88%, #537394 100%);
 }
 html:not(.sematan)[data-tema="terang"] .wmp.live #play::after {
   border-color: #2e96e8;
@@ -948,11 +959,11 @@ html:not(.sematan)[data-tema="terang"] #play svg.glyph {
   filter: drop-shadow(0 1px 0 rgba(255, 255, 255, .82));
 }
 html:not(.sematan)[data-tema="terang"] #play:active {
-  transform: translateY(.06em) scale(.97);
+  transform: translateY(.08em) scale(.97);
   box-shadow:
-    0 0 0 .08em rgba(58, 78, 98, .32),
-    0 .08em .2em rgba(24, 48, 74, .22),
-    inset 0 .14em .24em rgba(24, 44, 68, .32);
+    0 0 0 .09em rgba(42, 62, 82, .42),
+    0 .1em .22em rgba(18, 36, 56, .28),
+    inset 0 .18em .3em rgba(18, 36, 56, .52);
 }
 
 /* ==========================================================================
@@ -1024,17 +1035,17 @@ html:not(.sematan)[data-tema="gelap"] .listeners[data-s="idle"] b,
 html:not(.sematan)[data-tema="gelap"] .listeners[data-s="retry"] b,
 html:not(.sematan)[data-tema="gelap"] .listeners[data-s="error"] b { color: #dda9a5; }
 
-/* Warna teks animasi mengikuti status on air / off air (Gelap) */
+/* Warna teks animasi mengikuti status on air / off air (Gelap, diredupkan lembut) */
 html:not(.sematan)[data-tema="gelap"] #say,
 html:not(.sematan)[data-tema="gelap"] #say.big {
-  color: #b98884;
+  color: #916966;
   text-shadow: 0 1px 4px rgba(0,0,0,.5);
   transition: color .4s ease;
 }
 html:not(.sematan)[data-tema="gelap"] .app[data-s="live"] #say,
 html:not(.sematan)[data-tema="gelap"] .marquee[data-s="live"] #say,
 html:not(.sematan)[data-tema="gelap"] #say[data-s="live"] {
-  color: #7cb893;
+  color: #5f9172;
 }
 html:not(.sematan)[data-tema="gelap"] .app[data-s="connecting"] #say,
 html:not(.sematan)[data-tema="gelap"] .app[data-s="buffering"] #say,
@@ -1042,7 +1053,7 @@ html:not(.sematan)[data-tema="gelap"] .marquee[data-s="connecting"] #say,
 html:not(.sematan)[data-tema="gelap"] .marquee[data-s="buffering"] #say,
 html:not(.sematan)[data-tema="gelap"] #say[data-s="connecting"],
 html:not(.sematan)[data-tema="gelap"] #say[data-s="buffering"] {
-  color: #baa872;
+  color: #918258;
 }
 html:not(.sematan)[data-tema="gelap"] .app[data-s="idle"] #say,
 html:not(.sematan)[data-tema="gelap"] .app[data-s="error"] #say,
@@ -1053,7 +1064,7 @@ html:not(.sematan)[data-tema="gelap"] .marquee[data-s="retry"] #say,
 html:not(.sematan)[data-tema="gelap"] #say[data-s="idle"],
 html:not(.sematan)[data-tema="gelap"] #say[data-s="error"],
 html:not(.sematan)[data-tema="gelap"] #say[data-s="retry"] {
-  color: #b98884;
+  color: #916966;
 }
 html:not(.sematan)[data-tema="gelap"] .wave canvas {
   --wave-bar: #84c5f4; --wave-mid: rgba(209,240,255,.18); --wave-head: #d1f0ff;
@@ -1201,19 +1212,19 @@ html:not(.sematan)[data-tema="gelap"] #play:active {
 }
 
 /* ===== Pembaruan: spektrum lebih besar & kurangi ruang kosong di bawah time ===== */
-html:not(.sematan) { --sq: clamp(205px, min(88vw, 41.5dvh), 420px); }
+html:not(.sematan) { --sq: clamp(215px, min(91vw, 46dvh), 460px); }
 html:not(.sematan)[data-tema="terang"] { background: #f4f8fc; }
 html:not(.sematan)[data-tema="gelap"] { background: #000; }
 html:not(.sematan) .app {
   height: 100vh; height: 100dvh; min-height: 0; overflow: hidden;
   zoom: var(--fit, 1);
-  padding-bottom: max(8px, calc(env(safe-area-inset-bottom, 0px) + 6px));
-  gap: clamp(2px, .8dvh, 8px);
+  padding-bottom: max(10px, calc(env(safe-area-inset-bottom, 0px) + 8px));
+  gap: clamp(4px, 1dvh, 10px);
 }
 html:not(.sematan) .app.mengukur { height: auto !important; zoom: 1 !important; min-height: 0; }
-html:not(.sematan) .panel { padding-top: 0; padding-bottom: 2px; }
+html:not(.sematan) .panel { padding-top: 0; padding-bottom: 2px; padding-inline: clamp(4px, 1.2vw, 14px); }
 
-/* Pita atas: ON/OFF AIR di kiri atas, Kbps & pendengar di tengah atas, share di kanan atas */
+/* Pita atas: ON/OFF AIR di kiri atas, Kbps & pendengar / keterangan status di tengah atas, share di kanan atas */
 html:not(.sematan) .head .inner {
   grid-template-columns: auto minmax(0, 1fr) auto;
   grid-template-areas: "state listeners share";
@@ -1235,6 +1246,18 @@ html:not(.sematan) .listeners {
   font-size: clamp(.94rem, 3.6vw, 1.32rem);
   min-height: 1.3em; line-height: 1.3;
 }
+html:not(.sematan) .listeners.is-note {
+  font-family: var(--font-ui);
+  font-size: clamp(.74rem, 2.5vw, .88rem);
+  font-weight: 500;
+  line-height: 1.25;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  text-wrap: balance;
+}
+html:not(.sematan)[data-tema="terang"] .listeners.is-note.bad { color: var(--warn); }
+html:not(.sematan)[data-tema="gelap"] .listeners.is-note.bad { color: #c4685a; }
 html:not(.sematan) .listeners b { font-size: 1.24em; }
 html:not(.sematan) .menu-wrap { grid-area: share; justify-self: end; }
 html:not(.sematan) #share { width: 3.1rem; height: 3.1rem; }
@@ -1266,41 +1289,25 @@ html:not(.sematan)[data-tema="gelap"] .wave-logo.logo-terang,
 html:not(.sematan):not([data-tema="gelap"]) .wave-logo.logo-gelap { display: none; }
 html:not(.sematan) .timer { font-size: clamp(2.45rem, min(11vw, 6.2dvh), 3.9rem); line-height: 1; margin-bottom: auto; }
 html:not(.sematan) .song {
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .2rem;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
 html:not(.sematan) .now {
   --lh: 1.18; font-size: clamp(1.18rem, min(4.5vw, 2.35dvh), 1.62rem); font-weight: 600;
   height: calc(4 * var(--lh) * 1em); min-height: 0; max-height: none;
 }
-html:not(.sematan) .next-track {
-  width: 100%; max-width: 28em; min-height: 2.5em; line-height: 1.3;
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-ui); font-size: clamp(.8rem, 2.8vw, .94rem); font-weight: 400;
-  text-align: center; text-wrap: balance;
-}
-html:not(.sematan) .next-track[hidden] { display: flex !important; visibility: hidden; }
-html:not(.sematan) .next-track .next-upcoming {
-  display: block; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-html:not(.sematan) .next-track .next-note { display: block; max-width: 100%; font-weight: 500; }
-html:not(.sematan) .next-track .next-label { font-weight: 600; opacity: .78; }
-html:not(.sematan)[data-tema="terang"] .next-track { color: #355d80; text-shadow: 0 1px 0 rgba(255,255,255,.85); }
-html:not(.sematan)[data-tema="terang"] .next-track.is-note { color: var(--ink-dim); }
-html:not(.sematan)[data-tema="terang"] .next-track.bad { color: var(--warn); }
-html:not(.sematan)[data-tema="gelap"] .next-track { color: #7e98ad; text-shadow: 0 1px 3px rgba(0,0,0,.45); }
-html:not(.sematan)[data-tema="gelap"] .next-track.is-note { color: #a39b8b; }
-html:not(.sematan)[data-tema="gelap"] .next-track.bad { color: #c4685a; }
 
-/* Saat siaran mati: ring, ikon tombol play, dan ikon tombol volume berwarna merah */
+/* Saat siaran mati: ring merah; ikon play dan volume mode terang berwarna merah */
 html:not(.sematan)[data-tema="terang"] .wmp.off #play { color: #c43232; }
+html:not(.sematan)[data-tema="terang"] .wmp.off #play:hover,
+html:not(.sematan)[data-tema="terang"] .wmp.off #play:focus-visible { color: #a52424; }
 html:not(.sematan)[data-tema="terang"] .wmp.off #play svg.glyph {
-  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, .85)) drop-shadow(0 0 2.5px rgba(196, 50, 50, .22));
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, .85)) drop-shadow(0 0 3px rgba(196, 50, 50, .24));
 }
-html:not(.sematan)[data-tema="terang"] .wmp.off .cap-btn,
+html:not(.sematan)[data-tema="terang"] .wmp.off .cap-btn { color: #c43232; }
 html:not(.sematan)[data-tema="terang"] .wmp.off .cap-btn:hover,
-html:not(.sematan)[data-tema="terang"] .wmp.off .cap-btn:focus-visible { color: #c43232; }
+html:not(.sematan)[data-tema="terang"] .wmp.off .cap-btn:focus-visible { color: #a52424; }
 html:not(.sematan)[data-tema="terang"] .wmp.off .cap-btn svg.i {
-  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, .84));
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, .84)) drop-shadow(0 0 3px rgba(196, 50, 50, .24));
 }
 html:not(.sematan)[data-tema="terang"] .wmp.off #play::after {
   border-color: #e4665e;
@@ -1322,7 +1329,7 @@ html:not(.sematan)[data-tema="gelap"] .wmp.off #play::after {
 }
 
 @media (orientation: landscape) and (min-width: 640px) {
-  html:not(.sematan) { --sq: clamp(205px, min(46vw, 56dvh), 410px); }
+  html:not(.sematan) { --sq: clamp(215px, min(48vw, 60dvh), 450px); }
   html:not(.sematan) .app { gap: clamp(4px, 1dvh, 10px); }
   html:not(.sematan) .art .screen { gap: clamp(4px, 1dvh, 12px); }
   html:not(.sematan) .marquee { height: clamp(54px, 10.5dvh, 92px); }
@@ -1330,18 +1337,17 @@ html:not(.sematan)[data-tema="gelap"] .wmp.off #play::after {
   html:not(.sematan) #say.big { font-size: clamp(2.6rem, min(6.2vw, 8.5dvh), 4.1rem); }
   html:not(.sematan) .timer { font-size: clamp(1.85rem, min(4.4vw, 8dvh), 2.95rem); }
   html:not(.sematan) .now { font-size: clamp(1.12rem, 2.2vw, 1.5rem); }
-  html:not(.sematan) .next-track { font-size: clamp(.78rem, 1.45vw, .94rem); }
 }
 @media (max-height: 480px) {
-  html:not(.sematan) { --sq: clamp(120px, 37dvh, 180px); }
+  html:not(.sematan) { --sq: clamp(125px, 39dvh, 195px); }
   html:not(.sematan) .listeners { font-size: clamp(.88rem, 3.6vh, 1.1rem); }
+  html:not(.sematan) .listeners.is-note { font-size: .74rem; }
   html:not(.sematan) .art .screen { gap: 3px; }
   html:not(.sematan) .marquee { height: clamp(38px, 9.5dvh, 54px); }
   html:not(.sematan) #say { font-size: clamp(1.08rem, 3.2vw, 1.38rem); }
   html:not(.sematan) #say.big { font-size: clamp(1.9rem, 6vw, 2.5rem); }
   html:not(.sematan) .timer { font-size: clamp(1.45rem, 6.2dvh, 1.95rem); }
   html:not(.sematan) .now { --lh: 1.15; font-size: 1rem; height: calc(4 * var(--lh) * 1em); }
-  html:not(.sematan) .next-track { font-size: .78rem; }
 }
 </style>
 </head>
@@ -1397,10 +1403,6 @@ html:not(.sematan)[data-tema="gelap"] .wmp.off #play::after {
   <div class="song inner">
     <div class="now" id="now" hidden aria-label="Sedang diputar">
       <div class="track" id="track"><span id="song"></span></div>
-    </div>
-    <div class="next-track is-note" id="nextWrap" role="status" aria-label="Keterangan siaran">
-      <span class="next-note" id="nextNote">Ketuk tombol putar untuk mendengarkan siaran.</span>
-      <span class="next-upcoming" id="nextUpcoming" hidden><span class="next-label">Berikutnya:</span> <span id="nextSong"></span></span>
     </div>
   </div>
   </div>
@@ -1517,47 +1519,47 @@ const LOGO_MS = 60000;
 let candidates = [], idx = 0, rounds = 0;
 let tryTimer = 0, retryTimer = 0, startedAt = 0, lastTime = -1, stuck = 0;
 
-let noteText = noteEl ? noteEl.textContent : '', noteBad = false, noteTempTimer = 0, nextSongTitle = '';
+let noteText = noteEl ? noteEl.textContent : '', noteBad = false, noteTempTimer = 0;
+let lastKbps = null, lastCount = null;
 
-function syncNextSlot() {
-  const nextWrap = $('nextWrap'), nextNoteEl = $('nextNote'), nextUpcoming = $('nextUpcoming');
-  if (!nextWrap || !nextNoteEl || !nextUpcoming) return;
-  if (SEMATAN) {
-    nextNoteEl.hidden = true;
-    nextWrap.classList.remove('is-note', 'bad');
-    nextWrap.hidden = !nextSongTitle;
-    nextUpcoming.hidden = !nextSongTitle;
-    if (nextSongTitle) {
-      nextWrap.setAttribute('aria-label', 'Diputar setelahnya');
-      nextWrap.title = 'Berikutnya: ' + nextSongTitle;
-    } else {
-      nextWrap.removeAttribute('title');
+function renderListenerInfo() {
+  const hasCount = lastCount !== null, hasKbps = lastKbps !== null;
+  infoEl.hidden = !(hasCount || hasKbps);
+  infoEl.dataset.s = state;
+  if (hasCount || hasKbps) {
+    const parts = [];
+    if (hasKbps) parts.push(`${lastKbps} Kbps`);
+    if (hasKbps && hasCount) parts.push(' · ');
+    if (hasCount) {
+      const b = document.createElement('b');
+      b.textContent = lastCount.toLocaleString('id-ID');
+      parts.push(b, ' pendengar');
     }
+    infoEl.replaceChildren(...parts);
+  } else {
+    infoEl.replaceChildren();
+  }
+}
+
+function syncHeaderSlot() {
+  if (!infoEl) return;
+  if (SEMATAN) {
+    infoEl.classList.remove('is-note', 'bad');
+    infoEl.removeAttribute('role');
+    renderListenerInfo();
     return;
   }
   if (noteText) {
-    nextNoteEl.textContent = noteText;
-    nextNoteEl.hidden = false;
-    nextUpcoming.hidden = true;
-    nextWrap.hidden = false;
-    nextWrap.classList.add('is-note');
-    nextWrap.classList.toggle('bad', !!noteBad);
-    nextWrap.setAttribute('aria-label', 'Keterangan siaran');
-    nextWrap.removeAttribute('title');
+    infoEl.hidden = false;
+    infoEl.dataset.s = state;
+    infoEl.classList.add('is-note');
+    infoEl.classList.toggle('bad', !!noteBad);
+    infoEl.setAttribute('role', 'status');
+    infoEl.textContent = noteText;
   } else {
-    nextNoteEl.textContent = '';
-    nextNoteEl.hidden = true;
-    nextWrap.classList.remove('is-note', 'bad');
-    if (nextSongTitle) {
-      nextUpcoming.hidden = false;
-      nextWrap.hidden = false;
-      nextWrap.setAttribute('aria-label', 'Diputar setelahnya');
-      nextWrap.title = 'Berikutnya: ' + nextSongTitle;
-    } else {
-      nextUpcoming.hidden = true;
-      nextWrap.hidden = true;
-      nextWrap.removeAttribute('title');
-    }
+    infoEl.classList.remove('is-note', 'bad');
+    infoEl.removeAttribute('role');
+    renderListenerInfo();
   }
 }
 
@@ -1569,14 +1571,14 @@ function note(text, bad, autoClearMs = 0) {
     noteEl.textContent = noteText;
     noteEl.classList.toggle('bad', noteBad);
   }
-  syncNextSlot();
+  syncHeaderSlot();
   if (autoClearMs > 0 && noteText) {
     noteTempTimer = setTimeout(() => {
       if (state === 'live') note('');
     }, autoClearMs);
   }
 }
-syncNextSlot();
+syncHeaderSlot();
 
 function setState(s) {
   state = s;
@@ -1890,11 +1892,10 @@ let songTitle = '', npSource = -1, npTimer = 0;
 function decodeHtml(t) { const el = document.createElement('textarea'); el.innerHTML = t; return el.value; }
 
 function parseNowPlaying(path, text) {
-  let title = '', nextTitle = '', count = null, bitrate = null;
+  let title = '', count = null, bitrate = null;
   if (path.endsWith('/stats')) {
     const j = JSON.parse(text);
     title = j.songtitle || '';
-    nextTitle = j.nexttitle || j.nextsong || '';
     count = j.currentlisteners;
     bitrate = j.bitrate;
   } else if (path.endsWith('/icecast')) {
@@ -1902,7 +1903,6 @@ function parseNowPlaying(path, text) {
     if (Array.isArray(src)) src = src.find(x => x.listenurl && x.listenurl.includes(':' + CONFIG.port)) || src[0];
     if (src) {
       title = src.title ? (src.artist ? src.artist + ' - ' + src.title : src.title) : (src.yp_currently_playing || '');
-      nextTitle = src.nexttitle || src.next_song || '';
       count = src.listeners;
       bitrate = src.bitrate ?? src['ice-bitrate'];
     }
@@ -1916,7 +1916,6 @@ function parseNowPlaying(path, text) {
   const numKbps = bitrate != null && bitrate !== '' && Number.isFinite(Number(bitrate)) && Number(bitrate) > 0 ? Math.round(Number(bitrate)) : null;
   return {
     title: decodeHtml(String(title)).trim(),
-    nextTitle: decodeHtml(String(nextTitle)).trim(),
     count: numCount,
     kbps: numKbps
   };
@@ -1932,15 +1931,6 @@ async function fetchNowPlaying() {
       const np = parseNowPlaying(list[i], await res.text());
       if (!np.title && np.count === null && np.kbps === null) continue;
       npSource = i;
-      if (!np.nextTitle && np.title && !SEMATAN) {
-        try {
-          const nres = await fetch('/info/next?t=' + Date.now(), { cache: 'no-store' });
-          if (nres.ok) {
-            const nt = await nres.text();
-            if (!/<html|<!doctype/i.test(nt)) np.nextTitle = decodeHtml(nt).trim();
-          }
-        } catch {}
-      }
       return np;
     } catch {}
   }
@@ -2025,33 +2015,9 @@ if (document.fonts) document.fonts.ready.then(layoutBar);
 
 function showNowPlaying(np) {
   const title = np && np.title ? np.title : '';
-  const nextTitle = np && np.nextTitle ? np.nextTitle : '';
-  const hasCount = np && np.count !== null;
-  const hasKbps = np && np.kbps !== null;
-  infoEl.hidden = !(hasCount || hasKbps);
-  infoEl.dataset.s = state;
-  if (hasCount || hasKbps) {
-    const parts = [];
-    if (hasKbps) parts.push(`${np.kbps} Kbps`);
-    if (hasKbps && hasCount) parts.push(' · ');
-    if (hasCount) {
-      const b = document.createElement('b');
-      b.textContent = np.count.toLocaleString('id-ID');
-      parts.push(b, ' pendengar');
-    }
-    infoEl.replaceChildren(...parts);
-  }
-  const nextEl = $('nextSong');
-  if (nextEl) {
-    if (nextTitle && nextTitle !== nextSongTitle) {
-      nextSongTitle = nextTitle;
-      nextEl.textContent = nextTitle;
-    } else if (!nextTitle) {
-      nextSongTitle = '';
-      nextEl.textContent = '';
-    }
-    syncNextSlot();
-  }
+  lastCount = np && np.count !== null ? np.count : null;
+  lastKbps = np && np.kbps !== null ? np.kbps : null;
+  syncHeaderSlot();
   $('now').hidden = !title;
   if (title === songTitle) return;
   songTitle = title;
