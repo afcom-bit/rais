@@ -1349,10 +1349,209 @@ html:not(.sematan)[data-tema="gelap"] .wmp.off #play::after {
   html:not(.sematan) .timer { font-size: clamp(1.45rem, 6.2dvh, 1.95rem); }
   html:not(.sematan) .now { --lh: 1.15; font-size: 1rem; height: calc(4 * var(--lh) * 1em); }
 }
+/* ===== Fitur Siaran Langsung (mengambil alih tampilan radio setelah tahan Play 30 detik saat off) ===== */
+html:not(.sematan) #play {
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+html:not(.sematan) #play .hold-ring {
+  position: absolute; inset: -.54em; width: calc(100% + 1.08em); height: calc(100% + 1.08em);
+  pointer-events: none; transform: rotate(-90deg); opacity: 0; transition: opacity .25s ease;
+}
+html:not(.sematan) #play.holding-cast .hold-ring { opacity: 1; }
+html:not(.sematan) #play .hold-ring circle {
+  fill: none; stroke-width: 4.5; stroke-linecap: round;
+  stroke-dasharray: 295.31; stroke-dashoffset: 295.31;
+}
+html:not(.sematan)[data-tema="terang"] #play .hold-ring circle { stroke: #0c7c72; }
+html:not(.sematan)[data-tema="gelap"] #play .hold-ring circle { stroke: #5bc0ff; }
+
+.app[hidden] { display: none !important; }
+
+.cast-view {
+  min-height: 100vh; min-height: 100dvh; width: 100%;
+  display: flex; flex-direction: column; align-items: center;
+  padding: max(12px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(18px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  font-family: var(--font-ui);
+  overflow-y: auto;
+}
+.cast-view[hidden] { display: none !important; }
+html:not(.sematan)[data-tema="terang"] .cast-view {
+  background: linear-gradient(180deg, #f4f8fc 0%, #eaf1f8 100%);
+  color: #162636;
+}
+html:not(.sematan)[data-tema="gelap"] .cast-view {
+  background: #000;
+  color: #ebe6dc;
+}
+.cast-shell {
+  width: 100%; max-width: 520px; flex: 1 1 auto;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 16px;
+}
+.cast-topbar {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(120, 140, 160, .2);
+}
+.cast-back {
+  min-height: 44px; padding: 0 12px 0 8px; border-radius: 12px;
+  border: 1px solid rgba(120, 145, 170, .26);
+  background: transparent; color: inherit;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: .84rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.cast-back:hover, .cast-back:focus-visible { background: rgba(120, 145, 170, .12); }
+.cast-back svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.cast-head-title { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; min-width: 0; }
+.cast-head-title h2 { margin: 0; font-size: 1rem; font-weight: 700; line-height: 1.25; text-wrap: balance; }
+.cast-status {
+  font-size: .78rem; font-weight: 600; letter-spacing: .03em;
+  color: #556a80;
+}
+html[data-tema="gelap"] .cast-status { color: #8b96a6; }
+.cast-status[data-s="live"] { color: #0c7c72; }
+html[data-tema="gelap"] .cast-status[data-s="live"] { color: #67c496; }
+.cast-status[data-s="connecting"] { color: #a4640e; }
+html[data-tema="gelap"] .cast-status[data-s="connecting"] { color: #cbb26c; }
+.cast-status[data-s="error"] { color: #c43232; }
+html[data-tema="gelap"] .cast-status[data-s="error"] { color: #e06c66; }
+
+.cast-theme-btn {
+  min-width: 44px; min-height: 44px; border-radius: 12px; border: 0;
+  display: grid; place-items: center; cursor: pointer;
+  background: transparent; color: inherit; opacity: .82;
+}
+.cast-theme-btn:hover, .cast-theme-btn:focus-visible { opacity: 1; background: rgba(120, 145, 170, .14); }
+.cast-theme-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+.cast-body {
+  flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; gap: 16px;
+}
+.cast-telemetry {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  padding: 20px 16px; border-radius: 18px;
+  background: rgba(120, 145, 170, .08);
+  border: 1px solid rgba(120, 145, 170, .18);
+  text-align: center;
+}
+.cast-timer {
+  font-family: var(--font-num); font-size: clamp(2.2rem, 10vw, 3.2rem);
+  font-weight: 700; letter-spacing: .04em; line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.cast-stats { font-size: .84rem; opacity: .82; font-variant-numeric: tabular-nums; }
+.cast-meter {
+  width: 100%; height: 10px; border-radius: 999px; overflow: hidden;
+  background: rgba(120, 145, 170, .2);
+}
+.cast-meter-fill {
+  width: 100%; height: 100%;
+  transform-origin: left center; transform: scaleX(0);
+  transition: transform .07s linear;
+  background: linear-gradient(90deg, #0c7c72 0%, #24a88e 75%, #d96b27 100%);
+}
+html[data-tema="gelap"] .cast-meter-fill {
+  background: linear-gradient(90deg, #3a9ad9 0%, #58c996 75%, #e28246 100%);
+}
+
+.cast-mic-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 10px 12px; border-radius: 12px;
+  background: rgba(12, 124, 114, .1);
+  border: 1px solid rgba(12, 124, 114, .26);
+  font-size: .82rem;
+}
+.cast-mic-banner[hidden] { display: none; }
+html[data-tema="gelap"] .cast-mic-banner {
+  background: rgba(91, 192, 255, .1);
+  border-color: rgba(91, 192, 255, .28);
+}
+
+.cast-primary {
+  width: 100%; min-height: 52px; padding: 12px 18px; border-radius: 14px; border: 0;
+  font-size: 1rem; font-weight: 700; cursor: pointer; color: #fff;
+  background: #0c7c72;
+  transition: transform .1s ease, background-color .15s ease, opacity .15s ease;
+}
+.cast-primary:hover, .cast-primary:focus-visible { background: #09665e; }
+.cast-primary:active { transform: scale(.985); }
+.cast-primary[data-live="true"] { background: #c43232; }
+.cast-primary[data-live="true"]:hover, .cast-primary[data-live="true"]:focus-visible { background: #a52424; }
+.cast-primary:disabled { opacity: .6; cursor: wait; }
+
+.cast-controls-row {
+  display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 12px;
+}
+.cast-btn-sec {
+  min-height: 44px; padding: 0 14px; border-radius: 10px;
+  border: 1px solid rgba(120, 145, 170, .28);
+  background: transparent; color: inherit;
+  font-size: .84rem; font-weight: 600; cursor: pointer;
+  white-space: nowrap;
+}
+.cast-btn-sec:hover, .cast-btn-sec:focus-visible { background: rgba(120, 145, 170, .12); }
+.cast-btn-sec[aria-pressed="true"] {
+  border-color: #c43232; color: #c43232; background: rgba(196, 50, 50, .1);
+}
+html[data-tema="gelap"] .cast-btn-sec[aria-pressed="true"] {
+  border-color: #e06c66; color: #e06c66; background: rgba(224, 108, 102, .12);
+}
+
+.cast-gain-wrap { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.cast-gain-label {
+  display: flex; justify-content: space-between; font-size: .76rem; opacity: .82;
+  font-variant-numeric: tabular-nums;
+}
+.cast-gain-wrap input[type="range"] { width: 100%; accent-color: #0c7c72; cursor: pointer; }
+html[data-tema="gelap"] .cast-gain-wrap input[type="range"] { accent-color: #5bc0ff; }
+
+.cast-title-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.cast-input {
+  width: 100%; min-height: 44px; padding: 8px 12px; border-radius: 10px;
+  font-family: inherit; font-size: .88rem; color: inherit;
+  border: 1px solid rgba(120, 145, 170, .28);
+  background: rgba(120, 145, 170, .06);
+}
+.cast-input:focus { outline: 2px solid #0c7c72; outline-offset: 1px; }
+html[data-tema="gelap"] .cast-input:focus { outline-color: #5bc0ff; }
+
+.cast-details {
+  border-top: 1px solid rgba(120, 145, 170, .2);
+  padding-top: 10px;
+}
+.cast-details summary {
+  min-height: 40px; display: flex; align-items: center; justify-content: space-between;
+  font-size: .84rem; font-weight: 600; cursor: pointer; list-style: none; opacity: .86;
+}
+.cast-details summary::-webkit-details-marker { display: none; }
+.cast-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;
+}
+.cast-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.cast-field.full { grid-column: 1 / -1; }
+.cast-field label { font-size: .74rem; font-weight: 600; opacity: .78; }
+.cast-pass-wrap { position: relative; display: flex; align-items: center; }
+.cast-pass-wrap .cast-input { padding-right: 44px; }
+.cast-eye {
+  position: absolute; right: 2px; min-width: 40px; min-height: 40px; border: 0;
+  background: transparent; color: inherit; opacity: .72; cursor: pointer;
+  display: grid; place-items: center; border-radius: 8px;
+}
+.cast-eye:hover { opacity: 1; }
+.cast-eye svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+.cast-msg {
+  margin: 0; min-height: 1.2em; font-size: .82rem; line-height: 1.4; text-align: center;
+  color: #4e657c;
+}
+html[data-tema="gelap"] .cast-msg { color: #9aa5b5; }
+.cast-msg.bad { color: #c43232; }
+html[data-tema="gelap"] .cast-msg.bad { color: #e27872; }
 </style>
 </head>
 <body>
-<main class="app" data-s="idle">
+<main class="app" id="appMain" data-s="idle">
   <div class="panel">
     <header class="head">
     <div class="inner">
@@ -1439,6 +1638,7 @@ html:not(.sematan)[data-tema="gelap"] .wmp.off #play::after {
         <button id="play" type="button" aria-label="Putar siaran">
           <svg class="glyph" viewBox="0 0 24 24" aria-hidden="true"><path id="glyph" d="M7 4.5v15l13-7.5z"/></svg>
           <svg class="spin" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="47" fill="none" stroke="#3fb6ea" stroke-width="5" stroke-dasharray="50 250"/></svg>
+          <svg class="hold-ring" viewBox="0 0 100 100" aria-hidden="true"><circle id="holdArc" cx="50" cy="50" r="47"/></svg>
         </button>
         <button class="cap-btn cap-r needs-vol" id="volUp" type="button" aria-label="Besarkan suara">
           <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5v5h3.5L11 18V6L6.5 9.5z" fill="currentColor"/><path d="M15 12h6M18 9v6"/></svg>
@@ -1452,6 +1652,102 @@ html:not(.sematan)[data-tema="gelap"] .wmp.off #play::after {
     </div>
   </footer>
 </main>
+
+<section class="cast-view" id="castView" hidden aria-label="Studio siaran langsung">
+  <div class="cast-shell">
+    <header class="cast-topbar">
+      <button type="button" class="cast-back" id="castBackBtn" aria-label="Kembali ke tampilan radio">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        <span>Radio</span>
+      </button>
+      <div class="cast-head-title">
+        <h2 id="castHeading">Siaran Langsung</h2>
+        <span class="cast-status" id="castStateText" data-s="idle">Siap siaran</span>
+      </div>
+      <button type="button" class="cast-theme-btn" id="castThemeBtn" aria-label="Beralih tema" title="Beralih tema">
+        <svg id="castThemeIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </header>
+
+    <div class="cast-body">
+      <div class="cast-telemetry">
+        <div class="cast-timer" id="castTimer">00:00:00</div>
+        <div class="cast-meter" aria-hidden="true"><div class="cast-meter-fill" id="castMeter"></div></div>
+        <div class="cast-stats" id="castStat">48 Kbps · 0 KB · streamy1.radioislam.my.id:9210</div>
+      </div>
+
+      <div class="cast-mic-banner" id="castMicBanner" hidden>
+        <span id="castMicHint">Izin mikrofon diperlukan untuk siaran.</span>
+        <button type="button" class="cast-btn-sec" id="castMicBtn">Izinkan Mic</button>
+      </div>
+
+      <button type="button" class="cast-primary" id="castToggleBtn" data-live="false">Mulai Siaran</button>
+
+      <div class="cast-controls-row">
+        <button type="button" class="cast-btn-sec" id="castMuteBtn" aria-pressed="false">Mikrofon Aktif</button>
+        <div class="cast-gain-wrap">
+          <div class="cast-gain-label">
+            <label for="castGain">Penguat Mic</label>
+            <span id="castGainVal">100%</span>
+          </div>
+          <input id="castGain" type="range" min="50" max="200" step="5" value="100">
+        </div>
+      </div>
+
+      <div class="cast-title-row">
+        <input id="castTitle" class="cast-input" type="text" maxlength="160" placeholder="Judul kajian atau pemateri...">
+        <button type="button" class="cast-btn-sec" id="castMetaBtn">Kirim Judul</button>
+      </div>
+
+      <details class="cast-details" id="castDetails">
+        <summary>
+          <span>Pengaturan Server</span>
+          <span aria-hidden="true">▾</span>
+        </summary>
+        <div class="cast-grid">
+          <div class="cast-field full">
+            <label for="castHost">Address</label>
+            <input id="castHost" class="cast-input" type="text" value="streamy1.radioislam.my.id" autocomplete="off">
+          </div>
+          <div class="cast-field">
+            <label for="castPort">Port</label>
+            <input id="castPort" class="cast-input" type="number" min="1" max="65535" value="9210">
+          </div>
+          <div class="cast-field">
+            <label for="castUser">User</label>
+            <input id="castUser" class="cast-input" type="text" value="sragen" autocomplete="off">
+          </div>
+          <div class="cast-field full">
+            <label for="castPass">Pass</label>
+            <div class="cast-pass-wrap">
+              <input id="castPass" class="cast-input" type="password" placeholder="Masukkan kata sandi stream" autocomplete="current-password">
+              <button type="button" class="cast-eye" id="castPassEye" aria-label="Tampilkan atau sembunyikan kata sandi">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="cast-field">
+            <label for="castBitrate">Bitrate</label>
+            <select id="castBitrate" class="cast-input">
+              <option value="24">24 Kbps</option>
+              <option value="32">32 Kbps</option>
+              <option value="48" selected>48 Kbps</option>
+              <option value="64">64 Kbps</option>
+              <option value="96">96 Kbps</option>
+              <option value="128">128 Kbps</option>
+            </select>
+          </div>
+          <div class="cast-field">
+            <label for="castStation">Nama Radio</label>
+            <input id="castStation" class="cast-input" type="text" value="Radio Islam Sragen">
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <p class="cast-msg" id="castMsg" role="status"></p>
+  </div>
+</section>
 
 <audio id="radio" preload="none"></audio>
 
@@ -1673,7 +1969,13 @@ function stop(message) {
   note(message || 'Siaran dihentikan.');
 }
 
-playBtn.addEventListener('click', () => {
+let suppressNextPlayClick = false;
+playBtn.addEventListener('click', e => {
+  if (suppressNextPlayClick) {
+    suppressNextPlayClick = false;
+    e.preventDefault();
+    return;
+  }
   if (wanted) stop(); else start();
 });
 
@@ -2284,6 +2586,7 @@ function syncSpectrumWidth() {
 function fitApp() {
   if (SEMATAN) return;
   const app = document.querySelector('.app'), root = document.documentElement;
+  if (!app || app.hidden) return;
   root.style.setProperty('--fit', '1');
   app.style.height = '';
   app.classList.add('mengukur');
@@ -2402,6 +2705,496 @@ if (SEMATAN) {
 
 pollNowPlaying();
 (async () => { await wait(1200); for (;;) for (const t of CONFIG.texts) await scene(t); })();
+
+/* ---------- Fitur Siaran Langsung (tahan Play 30 detik saat posisi off) ---------- */
+if (!SEMATAN) {
+  const HOLD_MS = 30000;
+  const HOLD_VISUAL_DELAY_MS = 2000;
+  const HOLD_CIRC = 295.31;
+  const holdArc = $('holdArc');
+  let holdStartAt = 0, holdTimer = 0, holdRaf = 0, holdStartPt = null, holdPointerId = null;
+
+  const resetPlayHold = () => {
+    clearTimeout(holdTimer);
+    cancelAnimationFrame(holdRaf);
+    holdStartAt = 0;
+    holdStartPt = null;
+    holdPointerId = null;
+    playBtn.classList.remove('holding-cast');
+    if (holdArc) holdArc.style.strokeDashoffset = String(HOLD_CIRC);
+  };
+
+  const tickHoldArc = () => {
+    if (!holdStartAt) return;
+    const elapsed = Date.now() - holdStartAt;
+    if (elapsed >= HOLD_VISUAL_DELAY_MS) {
+      playBtn.classList.add('holding-cast');
+      const frac = Math.min(1, (elapsed - HOLD_VISUAL_DELAY_MS) / (HOLD_MS - HOLD_VISUAL_DELAY_MS));
+      if (holdArc) holdArc.style.strokeDashoffset = (HOLD_CIRC * (1 - frac)).toFixed(2);
+    }
+    if (elapsed < HOLD_MS) holdRaf = requestAnimationFrame(tickHoldArc);
+  };
+
+  playBtn.addEventListener('contextmenu', e => {
+    if (!wanted) e.preventDefault();
+  });
+
+  playBtn.addEventListener('pointerdown', e => {
+    if (e.button && e.button !== 0) return;
+    if (wanted || (state !== 'idle' && state !== 'error')) return;
+    resetPlayHold();
+    holdStartAt = Date.now();
+    holdStartPt = { x: e.clientX, y: e.clientY };
+    holdPointerId = e.pointerId;
+    holdRaf = requestAnimationFrame(tickHoldArc);
+    holdTimer = setTimeout(() => {
+      suppressNextPlayClick = true;
+      resetPlayHold();
+      try { if (navigator.vibrate) navigator.vibrate(40); } catch {}
+      openCastView();
+    }, HOLD_MS);
+  });
+
+  playBtn.addEventListener('pointermove', e => {
+    if (!holdStartAt || e.pointerId !== holdPointerId || !holdStartPt) return;
+    if (Math.hypot(e.clientX - holdStartPt.x, e.clientY - holdStartPt.y) > 26) {
+      resetPlayHold();
+    }
+  });
+
+  const endPlayHold = e => {
+    if (!holdStartAt || (e.pointerId !== undefined && e.pointerId !== holdPointerId)) return;
+    const heldFor = Date.now() - holdStartAt;
+    if (heldFor >= 1500) suppressNextPlayClick = true;
+    resetPlayHold();
+  };
+  playBtn.addEventListener('pointerup', endPlayHold);
+  playBtn.addEventListener('pointercancel', endPlayHold);
+
+  const appMain = $('appMain');
+  const castView = $('castView');
+  const castBackBtn = $('castBackBtn');
+  const castThemeBtn = $('castThemeBtn');
+  const castThemeIcon = $('castThemeIcon');
+  const castStateText = $('castStateText');
+  const castTimerEl = $('castTimer');
+  const castStatEl = $('castStat');
+  const castMeterEl = $('castMeter');
+  const castMicBanner = $('castMicBanner');
+  const castMicHint = $('castMicHint');
+  const castMicBtn = $('castMicBtn');
+  const castToggleBtn = $('castToggleBtn');
+  const castMuteBtn = $('castMuteBtn');
+  const castGainInput = $('castGain');
+  const castGainVal = $('castGainVal');
+  const castTitleInput = $('castTitle');
+  const castMetaBtn = $('castMetaBtn');
+  const castHostInput = $('castHost');
+  const castPortInput = $('castPort');
+  const castUserInput = $('castUser');
+  const castPassInput = $('castPass');
+  const castPassEye = $('castPassEye');
+  const castBitrateSelect = $('castBitrate');
+  const castStationInput = $('castStation');
+  const castMsgEl = $('castMsg');
+
+  let castWs = null, castStream = null, castCtx = null, castSource = null;
+  let castGainNode = null, castAnalyser = null, castProc = null, castMuteSink = null;
+  let castLive = false, castConnecting = false, castMuted = false, castGain = 1;
+  let castHasServerPass = false, castMeterRaf = 0, castClockTimer = 0, castStartedAt = 0;
+
+  function syncCastThemeIcon() {
+    const isDark = document.documentElement.dataset.tema === 'gelap';
+    castThemeIcon.innerHTML = isDark ? THEME_ICONS.sun : THEME_ICONS.moon;
+    castThemeBtn.setAttribute('aria-label', isDark ? 'Beralih ke mode terang' : 'Beralih ke mode gelap');
+  }
+
+  castThemeBtn.addEventListener('click', () => {
+    const cur = document.documentElement.dataset.tema === 'gelap' ? 'gelap' : 'terang';
+    applyTheme(cur === 'gelap' ? 'terang' : 'gelap', true);
+    syncCastThemeIcon();
+  });
+
+  function setCastMsg(text, bad = false) {
+    castMsgEl.textContent = text || '';
+    castMsgEl.classList.toggle('bad', !!bad);
+  }
+
+  function setCastStatus(mode, text) {
+    castStateText.dataset.s = mode;
+    castStateText.textContent = text;
+  }
+
+  function formatDuration(sec) {
+    const h = pad(Math.floor(sec / 3600));
+    const m = pad(Math.floor(sec / 60) % 60);
+    const s = pad(sec % 60);
+    return `${h}:${m}:${s}`;
+  }
+
+  function updateStatLine(kb = 0) {
+    const br = Number(castBitrateSelect.value) || 48;
+    const h = castHostInput.value.trim() || 'streamy1.radioislam.my.id';
+    const p = castPortInput.value.trim() || '9210';
+    castStatEl.textContent = `${br} Kbps · ${kb.toLocaleString('id-ID')} KB · ${h}:${p}`;
+  }
+
+  function syncCastUi() {
+    castToggleBtn.dataset.live = castLive ? 'true' : 'false';
+    castToggleBtn.disabled = castConnecting;
+    castToggleBtn.textContent = castConnecting
+      ? 'Menyambung ke server...'
+      : (castLive ? 'Hentikan Siaran' : 'Mulai Siaran');
+    castMuteBtn.setAttribute('aria-pressed', castMuted ? 'true' : 'false');
+    castMuteBtn.textContent = castMuted ? 'Mikrofon Bisu' : 'Mikrofon Aktif';
+    castBackBtn.disabled = castLive || castConnecting;
+  }
+
+  async function loadBroadcastConfig() {
+    try {
+      const res = await fetch('/api/broadcast/config?t=' + Date.now(), { cache: 'no-store' });
+      if (!res.ok) return;
+      const cfg = await res.json();
+      if (cfg.host && !castHostInput.dataset.edited) castHostInput.value = cfg.host;
+      if (cfg.port && !castPortInput.dataset.edited) castPortInput.value = String(cfg.port);
+      if (cfg.user && !castUserInput.dataset.edited) castUserInput.value = cfg.user;
+      if (cfg.station && !castStationInput.dataset.edited) castStationInput.value = cfg.station;
+      if (cfg.bitrate && !castBitrateSelect.dataset.edited) castBitrateSelect.value = String(cfg.bitrate);
+      castHasServerPass = !!cfg.hasPass;
+      if (castHasServerPass) {
+        castPassInput.placeholder = 'Tersimpan di server (kosongkan jika pakai bawaan)';
+      } else {
+        castPassInput.placeholder = 'Masukkan kata sandi stream';
+      }
+      updateStatLine(0);
+      if (cfg.busy && !castLive) {
+        setCastMsg('Catatan: Ada sumber siaran aktif di server.');
+      }
+    } catch {}
+  }
+
+  [castHostInput, castPortInput, castUserInput, castStationInput, castBitrateSelect].forEach(el => {
+    el.addEventListener('input', () => {
+      el.dataset.edited = '1';
+      if (!castLive) updateStatLine(0);
+    });
+  });
+
+  function startMeterLoop() {
+    cancelAnimationFrame(castMeterRaf);
+    const buf = castAnalyser ? new Uint8Array(castAnalyser.fftSize) : null;
+    const step = () => {
+      if (!castAnalyser || castView.hidden) {
+        castMeterEl.style.transform = 'scaleX(0)';
+        return;
+      }
+      if (castMuted) {
+        castMeterEl.style.transform = 'scaleX(0.02)';
+      } else if (buf) {
+        castAnalyser.getByteTimeDomainData(buf);
+        let peak = 0;
+        for (let i = 0; i < buf.length; i++) {
+          const v = Math.abs((buf[i] - 128) / 128);
+          if (v > peak) peak = v;
+        }
+        const level = Math.min(1, peak * 1.85);
+        castMeterEl.style.transform = `scaleX(${level.toFixed(3)})`;
+      }
+      castMeterRaf = requestAnimationFrame(step);
+    };
+    castMeterRaf = requestAnimationFrame(step);
+  }
+
+  async function ensureMicrophone() {
+    if (castStream && castStream.getTracks().some(t => t.readyState === 'live')) {
+      castMicBanner.hidden = true;
+      if (castCtx && castCtx.state === 'suspended') {
+        try { await castCtx.resume(); } catch {}
+      }
+      return true;
+    }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      castMicBanner.hidden = false;
+      castMicHint.textContent = 'Browser ini tidak mendukung akses mikrofon.';
+      castMicBtn.hidden = true;
+      return false;
+    }
+    try {
+      castStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+    } catch {
+      castMicBanner.hidden = false;
+      castMicHint.textContent = 'Izinkan akses mikrofon agar siap siaran.';
+      castMicBtn.hidden = false;
+      return false;
+    }
+
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    castCtx = new AudioCtx();
+    if (castCtx.state === 'suspended') {
+      try { await castCtx.resume(); } catch {}
+    }
+
+    castSource = castCtx.createMediaStreamSource(castStream);
+    castGainNode = castCtx.createGain();
+    castGainNode.gain.value = castMuted ? 0 : castGain;
+    castAnalyser = castCtx.createAnalyser();
+    castAnalyser.fftSize = 512;
+    castProc = castCtx.createScriptProcessor(4096, 1, 1);
+    castMuteSink = castCtx.createGain();
+    castMuteSink.gain.value = 0;
+
+    castSource.connect(castGainNode);
+    castGainNode.connect(castAnalyser);
+    castGainNode.connect(castProc);
+    castProc.connect(castMuteSink);
+    castMuteSink.connect(castCtx.destination);
+
+    castProc.onaudioprocess = (ev) => {
+      if (!castLive || !castWs || castWs.readyState !== 1) return;
+      const input = ev.inputBuffer.getChannelData(0);
+      const pcm = new Int16Array(input.length);
+      for (let i = 0; i < input.length; i++) {
+        const s = Math.max(-1, Math.min(1, input[i]));
+        pcm[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+      }
+      castWs.send(pcm.buffer);
+    };
+
+    castMicBanner.hidden = true;
+    startMeterLoop();
+    return true;
+  }
+
+  function releaseAudioHardware() {
+    cancelAnimationFrame(castMeterRaf);
+    castMeterEl.style.transform = 'scaleX(0)';
+    try { if (castProc) { castProc.onaudioprocess = null; castProc.disconnect(); } } catch {}
+    try { if (castSource) castSource.disconnect(); } catch {}
+    try { if (castGainNode) castGainNode.disconnect(); } catch {}
+    try { if (castAnalyser) castAnalyser.disconnect(); } catch {}
+    try { if (castMuteSink) castMuteSink.disconnect(); } catch {}
+    if (castStream) {
+      castStream.getTracks().forEach(t => { try { t.stop(); } catch {} });
+    }
+    if (castCtx) {
+      try { castCtx.close(); } catch {}
+    }
+    castStream = null; castCtx = null; castSource = null;
+    castGainNode = null; castAnalyser = null; castProc = null; castMuteSink = null;
+  }
+
+  function teardownWs(sendStop = false) {
+    clearInterval(castClockTimer);
+    if (castWs) {
+      const ws = castWs;
+      castWs = null;
+      try {
+        if (sendStop && ws.readyState === 1) ws.send(JSON.stringify({ type: 'stop' }));
+        ws.close();
+      } catch {}
+    }
+    castLive = false;
+    castConnecting = false;
+    castStartedAt = 0;
+    syncCastUi();
+  }
+
+  function openCastView() {
+    if (wanted) stop();
+    appMain.hidden = true;
+    castView.hidden = false;
+    syncCastThemeIcon();
+    loadBroadcastConfig();
+    syncCastUi();
+    ensureMicrophone();
+    setTimeout(() => castToggleBtn.focus(), 40);
+  }
+
+  function closeCastView() {
+    if (castLive || castConnecting) {
+      setCastMsg('Hentikan siaran terlebih dahulu sebelum kembali ke mode radio.', true);
+      return;
+    }
+    teardownWs(false);
+    releaseAudioHardware();
+    castView.hidden = true;
+    appMain.hidden = false;
+    requestAnimationFrame(() => {
+      fitApp();
+      layoutBar();
+      syncSpectrumWidth();
+      drawWave();
+    });
+  }
+
+  castBackBtn.addEventListener('click', closeCastView);
+  castMicBtn.addEventListener('click', async () => {
+    const ok = await ensureMicrophone();
+    if (ok) setCastMsg('Mikrofon aktif dan siap digunakan.');
+    else setCastMsg('Izin mikrofon ditolak browser. Aktifkan izin mikrofon di pengaturan situs.', true);
+  });
+
+  castPassEye.addEventListener('click', () => {
+    castPassInput.type = castPassInput.type === 'password' ? 'text' : 'password';
+  });
+
+  castMuteBtn.addEventListener('click', () => {
+    castMuted = !castMuted;
+    if (castGainNode) castGainNode.gain.value = castMuted ? 0 : castGain;
+    syncCastUi();
+  });
+
+  castGainInput.addEventListener('input', () => {
+    const pct = Number(castGainInput.value) || 100;
+    castGain = pct / 100;
+    castGainVal.textContent = `${pct}%`;
+    if (castGainNode && !castMuted) castGainNode.gain.value = castGain;
+  });
+
+  async function startBroadcast() {
+    if (castLive || castConnecting) return;
+    if (wanted) stop();
+    setCastMsg('');
+
+    const host = castHostInput.value.trim();
+    const port = Number(castPortInput.value);
+    const user = castUserInput.value.trim();
+    const pass = castPassInput.value;
+    const bitrate = Number(castBitrateSelect.value) || 48;
+    const station = castStationInput.value.trim() || 'Radio Islam Sragen';
+    const title = castTitleInput.value.trim();
+
+    if (!host || !Number.isInteger(port) || port < 1 || port > 65535) {
+      setCastMsg('Periksa alamat dan nomor port server.', true);
+      return;
+    }
+    if (!pass && !castHasServerPass) {
+      setCastMsg('Masukkan kata sandi stream di Pengaturan Server terlebih dahulu.', true);
+      $('castDetails').open = true;
+      castPassInput.focus();
+      return;
+    }
+
+    castConnecting = true;
+    setCastStatus('connecting', 'Menyiapkan mikrofon...');
+    syncCastUi();
+
+    const micOk = await ensureMicrophone();
+    if (!micOk) {
+      teardownWs(false);
+      setCastStatus('error', 'Izin mikrofon ditolak');
+      setCastMsg('Izinkan akses mikrofon pada browser untuk memulai siaran.', true);
+      return;
+    }
+
+    setCastStatus('connecting', 'Menyambung ke server...');
+    const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${proto}//${location.host}/ws/broadcast`);
+    ws.binaryType = 'arraybuffer';
+    castWs = ws;
+
+    ws.onopen = () => {
+      ws.send(JSON.stringify({
+        type: 'start',
+        host,
+        port,
+        user,
+        pass,
+        bitrate,
+        sampleRate: castCtx ? castCtx.sampleRate : 44100,
+        station,
+        genre: 'Islamic',
+        title,
+      }));
+    };
+
+    ws.onmessage = (ev) => {
+      if (typeof ev.data !== 'string') return;
+      let msg;
+      try { msg = JSON.parse(ev.data); } catch { return; }
+
+      if (msg.type === 'live') {
+        castConnecting = false;
+        castLive = true;
+        castStartedAt = Date.now();
+        castTimerEl.textContent = '00:00:00';
+        updateStatLine(0);
+        setCastStatus('live', 'ON AIR · Siaran aktif');
+        setCastMsg(`Terhubung ke ${msg.host}:${msg.port}.`);
+        startMeterLoop();
+        clearInterval(castClockTimer);
+        castClockTimer = setInterval(() => {
+          if (castStartedAt) castTimerEl.textContent = formatDuration(Math.floor((Date.now() - castStartedAt) / 1000));
+        }, 1000);
+        syncCastUi();
+      } else if (msg.type === 'stats') {
+        const kb = Math.round((Number(msg.bytesSent) || 0) / 1024);
+        updateStatLine(kb);
+      } else if (msg.type === 'meta_ok') {
+        setCastMsg(msg.ok ? `Judul siaran diperbarui: ${msg.title}` : 'Judul dikirim, namun server belum mengonfirmasi.', !msg.ok);
+      } else if (msg.type === 'error') {
+        const errText = msg.message || 'Gagal memulai siaran.';
+        teardownWs(false);
+        setCastStatus('error', 'Gagal menyambung');
+        setCastMsg(errText, true);
+      } else if (msg.type === 'stopped') {
+        const stopText = msg.message || 'Siaran dihentikan.';
+        teardownWs(false);
+        setCastStatus('idle', 'Siaran selesai');
+        setCastMsg(stopText);
+      }
+    };
+
+    ws.onerror = () => {
+      if (castWs === ws) {
+        teardownWs(false);
+        setCastStatus('error', 'Koneksi terputus');
+        setCastMsg('Gagal terhubung ke layanan siaran.', true);
+      }
+    };
+
+    ws.onclose = () => {
+      if (castWs === ws) {
+        const wasActive = castLive || castConnecting;
+        teardownWs(false);
+        if (wasActive) {
+          setCastStatus('idle', 'Terputus');
+          setCastMsg('Sambungan siaran ditutup.');
+        }
+      }
+    };
+  }
+
+  castToggleBtn.addEventListener('click', () => {
+    if (castLive || castConnecting) {
+      teardownWs(true);
+      castTimerEl.textContent = '00:00:00';
+      setCastStatus('idle', 'Siap siaran');
+      setCastMsg('Siaran dihentikan.');
+    } else {
+      startBroadcast();
+    }
+  });
+
+  castMetaBtn.addEventListener('click', () => {
+    const title = castTitleInput.value.trim();
+    if (!title) {
+      setCastMsg('Tulis judul siaran terlebih dahulu.', true);
+      return;
+    }
+    if (!castLive || !castWs || castWs.readyState !== 1) {
+      setCastMsg('Judul akan otomatis dikirim saat siaran dimulai.');
+      return;
+    }
+    castWs.send(JSON.stringify({ type: 'metadata', title }));
+  });
+}
 </script>
 </body>
 </html>
