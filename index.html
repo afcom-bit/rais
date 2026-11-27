@@ -1813,27 +1813,7 @@ html[data-tema="gelap"] .set-btn-danger { border-color: rgba(224, 108, 102, .45)
     </header>
 
     <div class="cast-body">
-      <form class="cast-card" id="castLoginPanel">
-        <div class="cast-field">
-          <h3>Masuk Penyiar</h3>
-          <p class="cast-sub">Hanya akun Gmail terdaftar yang dapat mengakses siaran. Masukkan akun Gmail dan kode 6 digit Authenticator.</p>
-        </div>
-        <div class="cast-field">
-          <label for="castLoginEmail">Akun Gmail Terdaftar</label>
-          <input id="castLoginEmail" class="cast-input" type="email" required autocomplete="email" placeholder="nama@gmail.com">
-        </div>
-        <div class="cast-field">
-          <label for="castLoginCode">Kode Authenticator (6 digit)</label>
-          <input id="castLoginCode" class="cast-input cast-code-input" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required autocomplete="one-time-code" placeholder="000000">
-        </div>
-        <button type="submit" class="cast-primary" id="castLoginBtn">Masuk ke Siaran</button>
-      </form>
-
-      <div class="cast-panel-stack" id="castStudioPanel" hidden>
-        <div class="cast-userbar">
-          <span class="cast-userbar-info" id="castUserLabel">Penyiar</span>
-          <button type="button" class="cast-btn-sec" id="castLogoutBtn" style="min-height:36px;padding:0 10px">Keluar</button>
-        </div>
+      <div class="cast-panel-stack" id="castStudioPanel">
 
         <div class="cast-telemetry">
           <div class="cast-timer" id="castTimer">00:00:00</div>
@@ -1955,7 +1935,7 @@ html[data-tema="gelap"] .set-btn-danger { border-color: rgba(224, 108, 102, .45)
       </button>
       <div class="cast-head-title">
         <h2>Pengaturan Akun</h2>
-        <span class="cast-status" id="setStateText" data-s="idle">Akses Admin</span>
+        <span class="cast-status" id="setStateText" data-s="live">Tanpa Kode</span>
       </div>
       <button type="button" class="cast-theme-btn" id="setThemeBtn" aria-label="Beralih tema" title="Beralih tema">
         <svg id="setThemeIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -1963,53 +1943,10 @@ html[data-tema="gelap"] .set-btn-danger { border-color: rgba(224, 108, 102, .45)
     </header>
 
     <div class="cast-body">
-      <form class="cast-card" id="setBootstrapPanel" hidden>
-        <div class="cast-field">
-          <h3>Atur Kunci Menu Setting</h3>
-          <p class="cast-sub">Belum ada kode akses Setting. Buat kode akses (minimal 4 angka/karakter) untuk mengunci pengelolaan akun penyiar.</p>
-        </div>
-        <div class="cast-field">
-          <label for="setBootCode">Kode Akses Baru</label>
-          <div class="cast-pass-wrap">
-            <input id="setBootCode" class="cast-input" type="password" inputmode="numeric" minlength="4" maxlength="64" required autocomplete="new-password" placeholder="Masukkan kode baru">
-            <button type="button" class="cast-eye" data-eye="setBootCode" aria-label="Tampilkan atau sembunyikan kode">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-          </div>
-        </div>
-        <div class="cast-field">
-          <label for="setBootConfirm">Ulangi Kode Akses</label>
-          <div class="cast-pass-wrap">
-            <input id="setBootConfirm" class="cast-input" type="password" inputmode="numeric" minlength="4" maxlength="64" required autocomplete="new-password" placeholder="Ulangi kode akses">
-            <button type="button" class="cast-eye" data-eye="setBootConfirm" aria-label="Tampilkan atau sembunyikan kode">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-          </div>
-        </div>
-        <button type="submit" class="cast-primary" id="setBootBtn">Simpan Kunci &amp; Masuk</button>
-      </form>
-
-      <form class="cast-card" id="setLoginPanel" hidden>
-        <div class="cast-field">
-          <h3>Masuk Menu Setting</h3>
-          <p class="cast-sub">Masukkan kode akses Setting untuk mengelola akun penyiar.</p>
-        </div>
-        <div class="cast-field">
-          <label for="setLoginCode">Kode Akses Setting</label>
-          <div class="cast-pass-wrap">
-            <input id="setLoginCode" class="cast-input" type="password" inputmode="numeric" minlength="4" maxlength="64" required autocomplete="current-password" placeholder="Masukkan kode akses">
-            <button type="button" class="cast-eye" data-eye="setLoginCode" aria-label="Tampilkan atau sembunyikan kode">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-          </div>
-        </div>
-        <button type="submit" class="cast-primary" id="setLoginBtn">Masuk Pengaturan</button>
-      </form>
-
-      <div class="cast-panel-stack" id="setDashPanel" hidden>
+      <div class="cast-panel-stack" id="setDashPanel">
         <div class="set-top-row">
           <span class="cast-sub" id="setAccCount">0 akun penyiar</span>
-          <button type="button" class="cast-btn-sec" id="setLogoutBtn" style="min-height:38px">Keluar</button>
+          <span class="set-badge">Akses Terbuka</span>
         </div>
 
         <form class="cast-card" id="setCreateForm">
@@ -2040,46 +1977,6 @@ html[data-tema="gelap"] .set-btn-danger { border-color: rgba(224, 108, 102, .45)
           <h3>Daftar Akun Penyiar</h3>
           <div class="set-acc-list" id="setAccList"></div>
         </div>
-
-        <details class="cast-details" id="setPassDetails">
-          <summary>
-            <span>Ubah Kode Setting</span>
-            <span aria-hidden="true">▾</span>
-          </summary>
-          <div class="cast-panel-stack" style="margin-top:10px">
-            <p class="cast-sub" id="setPassEnvHint" hidden>Kode akses dikelola melalui pengaturan variabel lingkungan server.</p>
-            <form class="cast-panel-stack" id="setPassForm">
-              <div class="cast-field">
-                <label for="setOldPass">Kode Saat Ini</label>
-                <div class="cast-pass-wrap">
-                  <input id="setOldPass" class="cast-input" type="password" inputmode="numeric" minlength="4" maxlength="64" required autocomplete="current-password" placeholder="Kode saat ini">
-                  <button type="button" class="cast-eye" data-eye="setOldPass" aria-label="Tampilkan atau sembunyikan kode">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></svg>
-                  </button>
-                </div>
-              </div>
-              <div class="cast-field">
-                <label for="setNewPass">Kode Baru</label>
-                <div class="cast-pass-wrap">
-                  <input id="setNewPass" class="cast-input" type="password" inputmode="numeric" minlength="4" maxlength="64" required autocomplete="new-password" placeholder="Minimal 4 karakter">
-                  <button type="button" class="cast-eye" data-eye="setNewPass" aria-label="Tampilkan atau sembunyikan kode">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></svg>
-                  </button>
-                </div>
-              </div>
-              <div class="cast-field">
-                <label for="setConfirmNewPass">Ulangi Kode Baru</label>
-                <div class="cast-pass-wrap">
-                  <input id="setConfirmNewPass" class="cast-input" type="password" inputmode="numeric" minlength="4" maxlength="64" required autocomplete="new-password" placeholder="Ulangi kode baru">
-                  <button type="button" class="cast-eye" data-eye="setConfirmNewPass" aria-label="Tampilkan atau sembunyikan kode">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></svg>
-                  </button>
-                </div>
-              </div>
-              <button type="submit" class="cast-btn-sec" id="setPassBtn">Simpan Kode Baru</button>
-            </form>
-          </div>
-        </details>
       </div>
     </div>
 
@@ -3222,13 +3119,6 @@ if (!SEMATAN) {
 
   const appMain = $('appMain');
   const castView = $('castView');
-  const castLoginPanel = $('castLoginPanel');
-  const castLoginEmail = $('castLoginEmail');
-  const castLoginCode = $('castLoginCode');
-  const castLoginBtn = $('castLoginBtn');
-  const castStudioPanel = $('castStudioPanel');
-  const castUserLabel = $('castUserLabel');
-  const castLogoutBtn = $('castLogoutBtn');
   const castBackBtn = $('castBackBtn');
   const castThemeBtn = $('castThemeBtn');
   const castThemeIcon = $('castThemeIcon');
@@ -3266,7 +3156,6 @@ if (!SEMATAN) {
   const castMp3SeekInput = $('castMp3Seek');
   const castMp3TimeEl = $('castMp3Time');
 
-  let castToken = '', castAuthUser = null;
   let castWs = null, castStream = null, castCtx = null, castSource = null;
   let castGainNode = null, castMicCrossGain = null, castMp3Source = null, castMp3CrossGain = null, castMp3MonGain = null;
   let castMasterGain = null, castAnalyser = null, castProc = null, castMuteSink = null;
@@ -3365,16 +3254,8 @@ if (!SEMATAN) {
   }
 
   async function loadBroadcastConfig() {
-    if (!castToken) return;
     try {
-      const res = await fetch('/api/broadcast/config?t=' + Date.now(), {
-        cache: 'no-store',
-        headers: { Authorization: `Bearer ${castToken}` },
-      });
-      if (res.status === 401) {
-        handleCastSessionExpired();
-        return;
-      }
+      const res = await fetch('/api/broadcast/config?t=' + Date.now(), { cache: 'no-store' });
       if (!res.ok) return;
       const cfg = await res.json();
       if (cfg.host && !castHostInput.dataset.edited) castHostInput.value = cfg.host;
@@ -3617,26 +3498,6 @@ if (!SEMATAN) {
     syncCastUi();
   }
 
-  function applyCastAuthUi(loggedIn) {
-    castLoginPanel.hidden = loggedIn;
-    castStudioPanel.hidden = !loggedIn;
-    if (loggedIn && castAuthUser) {
-      castUserLabel.textContent = castAuthUser.name ? `${castAuthUser.name} (${castAuthUser.email})` : castAuthUser.email;
-      setCastStatus(castLive ? 'live' : 'idle', castLive ? 'ON AIR · Siaran aktif' : 'Siap siaran');
-    } else {
-      setCastStatus('idle', 'Verifikasi Akun');
-    }
-  }
-
-  function handleCastSessionExpired(msg) {
-    castToken = '';
-    castAuthUser = null;
-    teardownWs(false);
-    releaseAudioHardware();
-    applyCastAuthUi(false);
-    if (msg) setCastMsg(msg, true);
-  }
-
   async function openCastView() {
     if (wanted) stop();
     appMain.hidden = true;
@@ -3644,29 +3505,12 @@ if (!SEMATAN) {
     castView.hidden = false;
     syncCastThemeIcon();
     setCastMsg('');
-    if (castToken) {
-      try {
-        const res = await fetch('/api/broadcast/session?t=' + Date.now(), {
-          cache: 'no-store',
-          headers: { Authorization: `Bearer ${castToken}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          castAuthUser = data.user || castAuthUser;
-          applyCastAuthUi(true);
-          loadBroadcastConfig();
-          applyCrossfader(castFaderVal);
-          syncCastUi();
-          ensureMicrophone();
-          setTimeout(() => castToggleBtn.focus(), 40);
-          return;
-        }
-      } catch {}
-    }
-    castToken = '';
-    castAuthUser = null;
-    applyCastAuthUi(false);
-    setTimeout(() => castLoginEmail.focus(), 40);
+    setCastStatus(castLive ? 'live' : 'idle', castLive ? 'ON AIR · Siaran aktif' : 'Siap siaran');
+    loadBroadcastConfig();
+    applyCrossfader(castFaderVal);
+    syncCastUi();
+    ensureMicrophone();
+    setTimeout(() => castToggleBtn.focus(), 40);
   }
 
   function closeCastView() {
@@ -3685,62 +3529,6 @@ if (!SEMATAN) {
       drawWave();
     });
   }
-
-  castLoginPanel.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = castLoginEmail.value.trim().toLowerCase();
-    const code = castLoginCode.value.replace(/\s+/g, '');
-    if (!email || !/^\d{6}$/.test(code)) {
-      setCastMsg('Masukkan akun Gmail dan kode Authenticator 6 digit.', true);
-      return;
-    }
-    castLoginBtn.disabled = true;
-    setCastMsg('');
-    try {
-      const res = await fetch('/api/broadcast/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.token) {
-        setCastMsg(data.error || 'Gagal masuk ke siaran.', true);
-        return;
-      }
-      castToken = data.token;
-      castAuthUser = data.user || { email };
-      castLoginCode.value = '';
-      applyCastAuthUi(true);
-      applyCrossfader(castFaderVal);
-      syncCastUi();
-      loadBroadcastConfig();
-      ensureMicrophone();
-      setCastMsg(`Berhasil masuk sebagai ${castAuthUser.email}.`);
-    } catch {
-      setCastMsg('Gagal menghubungi server login.', true);
-    } finally {
-      castLoginBtn.disabled = false;
-    }
-  });
-
-  castLogoutBtn.addEventListener('click', async () => {
-    if (castLive || castConnecting) {
-      setCastMsg('Hentikan siaran terlebih dahulu sebelum keluar.', true);
-      return;
-    }
-    const oldTok = castToken;
-    castToken = '';
-    castAuthUser = null;
-    releaseAudioHardware();
-    applyCastAuthUi(false);
-    setCastMsg('Anda telah keluar dari sesi siaran.');
-    if (oldTok) {
-      fetch('/api/broadcast/logout', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${oldTok}` },
-      }).catch(() => {});
-    }
-  });
 
   castBackBtn.addEventListener('click', closeCastView);
   castMicBtn.addEventListener('click', async () => {
@@ -3850,11 +3638,6 @@ if (!SEMATAN) {
       return;
     }
 
-    if (!castToken) {
-      handleCastSessionExpired('Silakan masuk dengan akun Gmail dan kode Authenticator terlebih dahulu.');
-      return;
-    }
-
     castConnecting = true;
     setCastStatus('connecting', 'Menyiapkan audio...');
     syncCastUi();
@@ -3879,7 +3662,6 @@ if (!SEMATAN) {
     ws.onopen = () => {
       ws.send(JSON.stringify({
         type: 'start',
-        token: castToken,
         host,
         port,
         user,
@@ -3918,10 +3700,6 @@ if (!SEMATAN) {
         setCastMsg(msg.ok ? `Judul siaran diperbarui: ${msg.title}` : 'Judul dikirim, namun server belum mengonfirmasi.', !msg.ok);
       } else if (msg.type === 'error') {
         const errText = msg.message || 'Gagal memulai siaran.';
-        if (msg.authRequired) {
-          handleCastSessionExpired(errText);
-          return;
-        }
         teardownWs(false);
         setCastStatus('error', 'Gagal menyambung');
         setCastMsg(errText, true);
@@ -3977,21 +3755,11 @@ if (!SEMATAN) {
     castWs.send(JSON.stringify({ type: 'metadata', title }));
   });
 
-  /* ==================== MENU PENGATURAN AKUN (KODE SETTING) ==================== */
+  /* ==================== MENU PENGATURAN AKUN (TANPA KODE) ==================== */
   const settingView = $('settingView');
   const setBackBtn = $('setBackBtn');
   const setThemeBtn = $('setThemeBtn');
-  const setStateText = $('setStateText');
-  const setBootstrapPanel = $('setBootstrapPanel');
-  const setBootCode = $('setBootCode');
-  const setBootConfirm = $('setBootConfirm');
-  const setBootBtn = $('setBootBtn');
-  const setLoginPanel = $('setLoginPanel');
-  const setLoginCode = $('setLoginCode');
-  const setLoginBtn = $('setLoginBtn');
-  const setDashPanel = $('setDashPanel');
   const setAccCount = $('setAccCount');
-  const setLogoutBtn = $('setLogoutBtn');
   const setCreateForm = $('setCreateForm');
   const setNewEmail = $('setNewEmail');
   const setNewName = $('setNewName');
@@ -4004,25 +3772,9 @@ if (!SEMATAN) {
   const setQrCopyBtn = $('setQrCopyBtn');
   const setQrCloseBtn = $('setQrCloseBtn');
   const setAccList = $('setAccList');
-  const setPassDetails = $('setPassDetails');
-  const setPassEnvHint = $('setPassEnvHint');
-  const setPassForm = $('setPassForm');
-  const setOldPass = $('setOldPass');
-  const setNewPass = $('setNewPass');
-  const setConfirmNewPass = $('setConfirmNewPass');
-  const setPassBtn = $('setPassBtn');
   const setMsgEl = $('setMsg');
 
-  let adminToken = '', setDeleteConfirmId = '', setDeleteResetTimer = 0;
-
-  settingView.addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-eye]');
-    if (!btn) return;
-    const target = $(btn.dataset.eye);
-    if (target) {
-      target.type = target.type === 'password' ? 'text' : 'password';
-    }
-  });
+  let setDeleteConfirmId = '', setDeleteResetTimer = 0;
 
   function setAdminMsg(text, bad = false) {
     setMsgEl.textContent = text || '';
@@ -4034,18 +3786,6 @@ if (!SEMATAN) {
     applyTheme(cur === 'gelap' ? 'terang' : 'gelap', true);
     syncCastThemeIcon();
   });
-
-  function showSetPanel(mode, envManaged = false) {
-    setBootstrapPanel.hidden = mode !== 'bootstrap';
-    setLoginPanel.hidden = mode !== 'login';
-    setDashPanel.hidden = mode !== 'dash';
-    setStateText.dataset.s = mode === 'dash' ? 'live' : 'idle';
-    setStateText.textContent = mode === 'bootstrap' ? 'Atur Kunci Awal' : (mode === 'dash' ? 'Terhubung' : 'Masukkan Kunci');
-    if (mode === 'dash') {
-      setPassEnvHint.hidden = !envManaged;
-      setPassForm.hidden = !!envManaged;
-    }
-  }
 
   function showQrBanner(email, secret, qrDataUrl, isReset = false) {
     setQrTitle.textContent = isReset ? 'QR Authenticator Baru' : 'Pindai QR di Aplikasi Authenticator';
@@ -4158,22 +3898,19 @@ if (!SEMATAN) {
 
   async function adminFetch(url, opts = {}) {
     const headers = Object.assign({}, opts.headers || {});
-    if (adminToken) headers.Authorization = `Bearer ${adminToken}`;
     if (opts.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
-    const res = await fetch(url, Object.assign({}, opts, { headers, cache: 'no-store' }));
-    if (res.status === 401 && adminToken && !url.includes('/api/admin/passcode')) {
-      adminToken = '';
-      showSetPanel('login');
-      setAdminMsg('Sesi pengaturan berakhir. Masukkan kembali kode akses Setting.', true);
-    }
-    return res;
+    return fetch(url, Object.assign({}, opts, { headers, cache: 'no-store' }));
   }
 
   async function loadAdminAccounts() {
-    const res = await adminFetch('/api/admin/accounts?t=' + Date.now());
-    if (!res.ok) return;
-    const data = await res.json();
-    renderAccounts(Array.isArray(data.accounts) ? data.accounts : []);
+    try {
+      const res = await adminFetch('/api/admin/accounts?t=' + Date.now());
+      if (!res.ok) return;
+      const data = await res.json();
+      renderAccounts(Array.isArray(data.accounts) ? data.accounts : []);
+    } catch {
+      setAdminMsg('Gagal memuat daftar akun.', true);
+    }
   }
 
   async function toggleAccountEnabled(acc) {
@@ -4230,32 +3967,7 @@ if (!SEMATAN) {
     syncCastThemeIcon();
     setAdminMsg('');
     setQrBox.hidden = true;
-    setPassDetails.open = false;
-    try {
-      const res = await fetch('/api/admin/status?t=' + Date.now(), {
-        cache: 'no-store',
-        headers: adminToken ? { Authorization: `Bearer ${adminToken}` } : {},
-      });
-      const st = await res.json();
-      if (st.needsSetup) {
-        adminToken = '';
-        setBootCode.value = '';
-        setBootConfirm.value = '';
-        showSetPanel('bootstrap');
-        setTimeout(() => setBootCode.focus(), 40);
-      } else if (st.authenticated && adminToken) {
-        showSetPanel('dash', !!st.envManaged);
-        loadAdminAccounts();
-      } else {
-        adminToken = '';
-        setLoginCode.value = '';
-        showSetPanel('login');
-        setTimeout(() => setLoginCode.focus(), 40);
-      }
-    } catch {
-      showSetPanel('login');
-      setAdminMsg('Gagal memeriksa status pengaturan.', true);
-    }
+    await loadAdminAccounts();
   }
 
   function closeSettingView() {
@@ -4270,94 +3982,6 @@ if (!SEMATAN) {
   }
 
   setBackBtn.addEventListener('click', closeSettingView);
-
-  setBootstrapPanel.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const code = setBootCode.value.trim();
-    const confirmCode = setBootConfirm.value.trim();
-    if (code.length < 4 || code.length > 64) {
-      setAdminMsg('Kode akses minimal 4 karakter.', true);
-      return;
-    }
-    if (code !== confirmCode) {
-      setAdminMsg('Konfirmasi kode akses tidak sama.', true);
-      return;
-    }
-    setBootBtn.disabled = true;
-    setAdminMsg('');
-    try {
-      const res = await fetch('/api/admin/bootstrap', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.token) {
-        setAdminMsg(data.error || 'Gagal menyimpan kode akses.', true);
-        return;
-      }
-      adminToken = data.token;
-      setBootCode.value = '';
-      setBootConfirm.value = '';
-      showSetPanel('dash', false);
-      loadAdminAccounts();
-      setAdminMsg('Kode akses Setting berhasil disimpan.');
-    } catch {
-      setAdminMsg('Gagal terhubung ke server.', true);
-    } finally {
-      setBootBtn.disabled = false;
-    }
-  });
-
-  setLoginPanel.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const code = setLoginCode.value.trim();
-    if (!code) {
-      setAdminMsg('Masukkan kode akses Setting.', true);
-      return;
-    }
-    setLoginBtn.disabled = true;
-    setAdminMsg('');
-    try {
-      const res = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.token) {
-        setAdminMsg(data.error || 'Kode akses Setting salah.', true);
-        return;
-      }
-      adminToken = data.token;
-      setLoginCode.value = '';
-      const stRes = await fetch('/api/admin/status?t=' + Date.now(), {
-        cache: 'no-store',
-        headers: { Authorization: `Bearer ${adminToken}` },
-      }).catch(() => null);
-      const st = stRes && stRes.ok ? await stRes.json().catch(() => ({})) : {};
-      showSetPanel('dash', !!st.envManaged);
-      loadAdminAccounts();
-    } catch {
-      setAdminMsg('Gagal terhubung ke server.', true);
-    } finally {
-      setLoginBtn.disabled = false;
-    }
-  });
-
-  setLogoutBtn.addEventListener('click', () => {
-    const oldTok = adminToken;
-    adminToken = '';
-    setQrBox.hidden = true;
-    showSetPanel('login');
-    setAdminMsg('Keluar dari menu Setting.');
-    if (oldTok) {
-      fetch('/api/admin/logout', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${oldTok}` },
-      }).catch(() => {});
-    }
-  });
 
   setCreateForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -4379,49 +4003,12 @@ if (!SEMATAN) {
       setNewEmail.value = '';
       setNewName.value = '';
       showQrBanner(data.account.email, data.totpSecret, data.qrDataUrl, false);
-      setAdminMsg(`Akun ${data.account.email} dibuat. Pindai QR Authenticator di bawah.`);
+      setAdminMsg(`Akun ${data.account.email} dibuat.`);
       loadAdminAccounts();
     } catch {
       setAdminMsg('Gagal menghubungi server.', true);
     } finally {
       setCreateBtn.disabled = false;
-    }
-  });
-
-  setPassForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const currentCode = setOldPass.value.trim();
-    const newCode = setNewPass.value.trim();
-    const confirmNew = setConfirmNewPass.value.trim();
-    if (newCode.length < 4 || newCode.length > 64) {
-      setAdminMsg('Kode akses baru minimal 4 karakter.', true);
-      return;
-    }
-    if (newCode !== confirmNew) {
-      setAdminMsg('Konfirmasi kode akses baru tidak sama.', true);
-      return;
-    }
-    setPassBtn.disabled = true;
-    setAdminMsg('');
-    try {
-      const res = await adminFetch('/api/admin/passcode', {
-        method: 'POST',
-        body: JSON.stringify({ currentCode, newCode }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setAdminMsg(data.error || 'Gagal mengubah kode akses.', true);
-        return;
-      }
-      setOldPass.value = '';
-      setNewPass.value = '';
-      setConfirmNewPass.value = '';
-      setPassDetails.open = false;
-      setAdminMsg('Kode akses Setting berhasil diperbarui.');
-    } catch {
-      setAdminMsg('Gagal menghubungi server.', true);
-    } finally {
-      setPassBtn.disabled = false;
     }
   });
 }
