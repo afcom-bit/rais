@@ -3,9 +3,12 @@ import http from 'node:http';
 import net from 'node:net';
 import dns from 'node:dns/promises';
 import path from 'node:path';
+import fs from 'node:fs';
+import crypto from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { WebSocketServer } from 'ws';
+import QRCode from 'qrcode';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,6 +22,295 @@ const BROADCAST_USER = process.env.BROADCAST_USER || 'sragen';
 
 const ALLOWED_BITRATES = new Set([24, 32, 48, 64, 96, 128]);
 
+const DATA_DIR = path.join(__dirname, 'data');
+const AUTH_FILE = path.join(DATA_DIR, 'auth.json');
+
+const ADMIN_SESSION_TTL_MS = 2 * 60 * 60 * 1000;
+const BROADCAST_SESSION_TTL_MS = 12 * 60 * 60 * 1000;
+const RATE_WINDOW_MS = 10 * 60 * 1000;
+const RATE_MAX_ATTEMPTS = 10;
+
+const BASE32_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+
+function ensureAuthFile() {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true, mode: 0o700 });
+  }
+  if (!fs.existsSync(AUTH_FILE)) {
+    const initial = { adminPassHash: null, accounts: [] };
+    fs.writeFileSync(AUTH_FILE, JSON.stringify(initial, null, 2), { mode: 0o600 });
+    return initial;
+  }
+  try {
+    const raw = fs.readFileSync(AUTH_FILE, 'utf8');
+    const parsed = JSON.parse(raw);
+    return {
+      adminPassHash: typeof parsed.adminPassHash === 'string' ? parsed.adminPassHash : null,
+      accounts: Array.isArray(parsed.accounts) ? parsed.accounts : [],
+    };
+  } catch {
+    return { adminPassHash: null, accounts: [] };
+  }
+}
+
+let authState = ensureAuthFile();
+
+function saveAuthState() {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true, mode: 0o700 });
+  }
+  const tmpFile = path.join(DATA_DIR, `.auth.${crypto.randomBytes(6).toString('hex')}.tmp`);
+  fs.writeFileSync(tmpFile, JSON.stringify(authState, null, 2), { mode: 0o600 });
+  fs.renameSync(tmpFile, AUTH_FILE);
+}
+
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const derived = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `scrypt$${salt}$${derived}`;
+}
+
+function verifyPassword(password, storedHash) {
+  if (typeof password !== 'string' || typeof storedHash !== 'string') return false;
+  const parts = storedHash.split('$');
+  if (parts.length !== 3 || parts[0] !== 'scrypt') return false;
+  const [, salt, hex] = parts;
+  if (!salt || !hex) return false;
+  try {
+    const expected = Buffer.from(hex, 'hex');
+    const actual = crypto.scryptSync(password, salt, expected.length);
+    return expected.length === actual.length && crypto.timingSafeEqual(expected, actual);
+  } catch {
+    return false;
+  }
+}
+
+function verifyEnvPasscode(candidate, envPasscode) {
+  if (typeof candidate !== 'string' || typeof envPasscode !== 'string' || !envPasscode) return false;
+  const a = crypto.createHash('sha256').update(candidate).digest();
+  const b = crypto.createHash('sha256').update(envPasscode).digest();
+  return crypto.timingSafeEqual(a, b);
+}
+
+function base32Encode(buf) {
+  let bits = 0;
+  let value = 0;
+  let output = '';
+  for (const byte of buf) {
+    value = (value << 8) | byte;
+    bits += 8;
+    while (bits >= 5) {
+      output += BASE32_ALPHABET[(value >>> (bits - 5)) & 31];
+      bits -= 5;
+    }
+  }
+  if (bits > 0) {
+    output += BASE32_ALPHABET[(value << (5 - bits)) & 31];
+  }
+  return output;
+}
+
+function base32Decode(str) {
+  const clean = String(str || '').toUpperCase().replace(/[^A-Z2-7]/g, '');
+  let bits = 0;
+  let value = 0;
+  const out = [];
+  for (const ch of clean) {
+    const idx = BASE32_ALPHABET.indexOf(ch);
+    if (idx === -1) continue;
+    value = (value << 5) | idx;
+    bits += 5;
+    if (bits >= 8) {
+      out.push((value >>> (bits - 8)) & 0xff);
+      bits -= 8;
+    }
+  }
+  return Buffer.from(out);
+}
+
+function generateTotpSecret() {
+  return base32Encode(crypto.randomBytes(20));
+}
+
+function hotp(secretBase32, counter) {
+  const key = base32Decode(secretBase32);
+  const buf = Buffer.alloc(8);
+  let val = BigInt(counter);
+  for (let i = 7; i >= 0; i--) {
+    buf[i] = Number(val & 0xffn);
+    val >>= 8n;
+  }
+  const hmac = crypto.createHmac('sha1', key).update(buf).digest();
+  const offset = hmac[hmac.length - 1] & 0x0f;
+  const code =
+    ((hmac[offset] & 0x7f) << 24) |
+    ((hmac[offset + 1] & 0xff) << 16) |
+    ((hmac[offset + 2] & 0xff) << 8) |
+    (hmac[offset + 3] & 0xff);
+  return String(code % 1000000).padStart(6, '0');
+}
+
+function verifyTotpCode(secretBase32, rawCode, lastUsedStep) {
+  const code = String(rawCode ?? '').replace(/\s+/g, '');
+  if (!/^\d{6}$/.test(code)) return { ok: false };
+  const currentStep = Math.floor(Date.now() / 30000);
+  const candidateBuf = Buffer.from(code, 'utf8');
+  for (const offset of [-1, 0, 1]) {
+    const step = currentStep + offset;
+    if (step < 0) continue;
+    if (Number.isInteger(lastUsedStep) && step <= lastUsedStep) continue;
+    const expectedBuf = Buffer.from(hotp(secretBase32, step), 'utf8');
+    if (expectedBuf.length === candidateBuf.length && crypto.timingSafeEqual(expectedBuf, candidateBuf)) {
+      return { ok: true, step };
+    }
+  }
+  return { ok: false };
+}
+
+function buildOtpAuthUri(email, secret) {
+  const label = encodeURIComponent(`Radio Islam Sragen:${email}`);
+  const issuer = encodeURIComponent('Radio Islam Sragen');
+  return `otpauth://totp/${label}?secret=${secret}&issuer=${issuer}&algorithm=SHA1&digits=6&period=30`;
+}
+
+function normalizeEmail(raw) {
+  return String(raw ?? '').trim().toLowerCase();
+}
+
+function isValidEmail(email) {
+  return email.length <= 160 && /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(email);
+}
+
+function sanitizeAccount(acc) {
+  return {
+    id: acc.id,
+    email: acc.email,
+    name: acc.name || '',
+    enabled: Boolean(acc.enabled),
+    createdAt: acc.createdAt,
+    lastLoginAt: acc.lastLoginAt || null,
+  };
+}
+
+const adminSessions = new Map();
+const broadcastSessions = new Map();
+const rateLimits = new Map();
+
+function checkRateLimit(key) {
+  const now = Date.now();
+  const entry = rateLimits.get(key);
+  if (!entry || now - entry.windowStart > RATE_WINDOW_MS) {
+    return { allowed: true };
+  }
+  if (entry.count >= RATE_MAX_ATTEMPTS) {
+    const waitMin = Math.max(1, Math.ceil((RATE_WINDOW_MS - (now - entry.windowStart)) / 60000));
+    return { allowed: false, waitMin };
+  }
+  return { allowed: true };
+}
+
+function recordFailedAttempt(key) {
+  const now = Date.now();
+  const entry = rateLimits.get(key);
+  if (!entry || now - entry.windowStart > RATE_WINDOW_MS) {
+    rateLimits.set(key, { count: 1, windowStart: now });
+  } else {
+    entry.count += 1;
+  }
+}
+
+function clearRateLimit(key) {
+  rateLimits.delete(key);
+}
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [k, v] of adminSessions) {
+    if (v.expiresAt <= now) adminSessions.delete(k);
+  }
+  for (const [k, v] of broadcastSessions) {
+    if (v.expiresAt <= now) broadcastSessions.delete(k);
+  }
+  for (const [k, v] of rateLimits) {
+    if (now - v.windowStart > RATE_WINDOW_MS) rateLimits.delete(k);
+  }
+}, 5 * 60 * 1000).unref();
+
+function extractBearerToken(req) {
+  const header = req.get('authorization') || '';
+  const m = header.match(/^Bearer\s+([A-Za-z0-9_-]{20,128})$/);
+  return m ? m[1] : '';
+}
+
+function getAdminSession(req) {
+  const token = extractBearerToken(req);
+  if (!token) return null;
+  const s = adminSessions.get(token);
+  if (!s) return null;
+  if (s.expiresAt <= Date.now()) {
+    adminSessions.delete(token);
+    return null;
+  }
+  s.expiresAt = Date.now() + ADMIN_SESSION_TTL_MS;
+  return { token, ...s };
+}
+
+function requireAdmin(req, res, next) {
+  const sess = getAdminSession(req);
+  if (!sess) {
+    res.status(401).json({ error: 'Sesi pengaturan tidak valid atau kedaluwarsa.' });
+    return;
+  }
+  req.adminSession = sess;
+  next();
+}
+
+function verifyBroadcastToken(token) {
+  if (!token || typeof token !== 'string') return null;
+  const s = broadcastSessions.get(token);
+  if (!s) return null;
+  if (s.expiresAt <= Date.now()) {
+    broadcastSessions.delete(token);
+    return null;
+  }
+  const acc = authState.accounts.find((a) => a.id === s.accountId && a.enabled);
+  if (!acc) {
+    broadcastSessions.delete(token);
+    return null;
+  }
+  s.expiresAt = Date.now() + BROADCAST_SESSION_TTL_MS;
+  return {
+    token,
+    accountId: acc.id,
+    email: acc.email,
+    name: acc.name || '',
+  };
+}
+
+function requireBroadcastAuth(req, res, next) {
+  const token = extractBearerToken(req);
+  const user = verifyBroadcastToken(token);
+  if (!user) {
+    res.status(401).json({ error: 'Silakan masuk menggunakan akun Gmail terdaftar dan kode Authenticator.' });
+    return;
+  }
+  req.broadcastUser = user;
+  next();
+}
+
+let activeBroadcast = null;
+
+function revokeAccountAccess(accountId, reason) {
+  for (const [tok, sess] of broadcastSessions) {
+    if (sess.accountId === accountId) {
+      broadcastSessions.delete(tok);
+    }
+  }
+  if (activeBroadcast && activeBroadcast.accountId === accountId && typeof activeBroadcast.cleanup === 'function') {
+    activeBroadcast.cleanup(reason || 'Akses akun siaran Anda dinonaktifkan.');
+  }
+}
+
 const PROXY_ROUTES = {
   '/stream': { targetPath: '/;', isStream: true },
   '/info/stats': { targetPath: '/stats?sid=1&json=1', isStream: false },
@@ -30,11 +322,12 @@ const PROXY_ROUTES = {
 
 const app = express();
 app.disable('x-powered-by');
+app.set('trust proxy', 1);
 app.use((req, res, next) => {
   res.setHeader('Permissions-Policy', 'microphone=(self)');
   next();
 });
-app.use(express.json({ limit: '16kb' }));
+app.use(express.json({ limit: '24kb' }));
 
 function proxyUpstream(req, res, { targetPath, isStream }) {
   res.setHeader('Cache-Control', 'no-store');
@@ -108,14 +401,14 @@ function isDisallowedIp(ip) {
   if (ver === 4) {
     const p = ip.split('.').map(Number);
     if (p.length !== 4 || p.some((n) => Number.isNaN(n) || n < 0 || n > 255)) return true;
-    if (p[0] === 0) return true; // 0.0.0.0/8
-    if (p[0] === 10) return true; // 10.0.0.0/8
-    if (p[0] === 100 && p[1] >= 64 && p[1] <= 127) return true; // CGNAT 100.64.0.0/10
-    if (p[0] === 127) return true; // Loopback 127.0.0.0/8
-    if (p[0] === 169 && p[1] === 254) return true; // Link-local 169.254.0.0/16
-    if (p[0] === 172 && p[1] >= 16 && p[1] <= 31) return true; // Private 172.16.0.0/12
-    if (p[0] === 192 && p[1] === 168) return true; // Private 192.168.0.0/16
-    if (p[0] >= 224) return true; // Multicast & reserved
+    if (p[0] === 0) return true;
+    if (p[0] === 10) return true;
+    if (p[0] === 100 && p[1] >= 64 && p[1] <= 127) return true;
+    if (p[0] === 127) return true;
+    if (p[0] === 169 && p[1] === 254) return true;
+    if (p[0] === 172 && p[1] >= 16 && p[1] <= 31) return true;
+    if (p[0] === 192 && p[1] === 168) return true;
+    if (p[0] >= 224) return true;
     return false;
   }
   const lower = ip.toLowerCase();
@@ -157,9 +450,300 @@ async function resolvePublicHost(rawHost) {
   return { host, ip: publicRecord.address, family: publicRecord.family };
 }
 
-let activeBroadcast = null;
+/* ==================== API PENGATURAN & AKUN ADMIN ==================== */
 
-app.get('/api/broadcast/config', (req, res) => {
+app.get('/api/admin/status', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const envPass = process.env.ADMIN_PASSCODE || '';
+  const hasPass = Boolean(envPass || authState.adminPassHash);
+  res.json({
+    needsSetup: !hasPass,
+    envManaged: Boolean(envPass),
+    authenticated: Boolean(getAdminSession(req)),
+  });
+});
+
+app.post('/api/admin/bootstrap', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  if (process.env.ADMIN_PASSCODE || authState.adminPassHash) {
+    res.status(409).json({ error: 'Sandi admin sudah diatur sebelumnya.' });
+    return;
+  }
+  const pass = typeof req.body?.pass === 'string' ? req.body.pass : '';
+  if (pass.length < 6 || pass.length > 128) {
+    res.status(400).json({ error: 'Sandi admin minimal 6 karakter.' });
+    return;
+  }
+  authState.adminPassHash = hashPassword(pass);
+  saveAuthState();
+
+  const token = crypto.randomBytes(32).toString('base64url');
+  adminSessions.set(token, {
+    createdAt: Date.now(),
+    expiresAt: Date.now() + ADMIN_SESSION_TTL_MS,
+  });
+  res.status(201).json({ token, envManaged: false, expiresInMs: ADMIN_SESSION_TTL_MS });
+});
+
+app.post('/api/admin/login', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const rateKey = `admin:${req.ip || 'unknown'}`;
+  const rl = checkRateLimit(rateKey);
+  if (!rl.allowed) {
+    res.status(429).json({ error: `Terlalu banyak percobaan. Coba lagi dalam ${rl.waitMin} menit.` });
+    return;
+  }
+
+  const envPass = process.env.ADMIN_PASSCODE || '';
+  if (!envPass && !authState.adminPassHash) {
+    res.status(409).json({ error: 'Sandi admin belum dibuat.' });
+    return;
+  }
+
+  const pass = typeof req.body?.pass === 'string' ? req.body.pass : '';
+  const ok = envPass ? verifyEnvPasscode(pass, envPass) : verifyPassword(pass, authState.adminPassHash);
+  if (!ok) {
+    recordFailedAttempt(rateKey);
+    res.status(401).json({ error: 'Sandi pengaturan salah.' });
+    return;
+  }
+
+  clearRateLimit(rateKey);
+  const token = crypto.randomBytes(32).toString('base64url');
+  adminSessions.set(token, {
+    createdAt: Date.now(),
+    expiresAt: Date.now() + ADMIN_SESSION_TTL_MS,
+  });
+  res.json({ token, envManaged: Boolean(envPass), expiresInMs: ADMIN_SESSION_TTL_MS });
+});
+
+app.post('/api/admin/logout', (req, res) => {
+  const token = extractBearerToken(req);
+  if (token) adminSessions.delete(token);
+  res.json({ ok: true });
+});
+
+app.post('/api/admin/password', requireAdmin, (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  if (process.env.ADMIN_PASSCODE) {
+    res.status(409).json({ error: 'Sandi admin dikelola oleh konfigurasi server (ADMIN_PASSCODE).' });
+    return;
+  }
+  const currentPass = typeof req.body?.currentPass === 'string' ? req.body.currentPass : '';
+  const newPass = typeof req.body?.newPass === 'string' ? req.body.newPass : '';
+  if (!verifyPassword(currentPass, authState.adminPassHash)) {
+    res.status(401).json({ error: 'Sandi saat ini salah.' });
+    return;
+  }
+  if (newPass.length < 6 || newPass.length > 128) {
+    res.status(400).json({ error: 'Sandi baru minimal 6 karakter.' });
+    return;
+  }
+  authState.adminPassHash = hashPassword(newPass);
+  saveAuthState();
+  for (const [tok] of adminSessions) {
+    if (tok !== req.adminSession.token) adminSessions.delete(tok);
+  }
+  res.json({ ok: true });
+});
+
+app.get('/api/admin/accounts', requireAdmin, (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  res.json({
+    accounts: authState.accounts.map(sanitizeAccount),
+  });
+});
+
+app.post('/api/admin/accounts', requireAdmin, async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const email = normalizeEmail(req.body?.email);
+  const name = cleanHeaderValue(req.body?.name, '', 60);
+
+  if (!isValidEmail(email)) {
+    res.status(400).json({ error: 'Masukkan alamat email Gmail yang valid.' });
+    return;
+  }
+  if (authState.accounts.some((a) => a.email === email)) {
+    res.status(409).json({ error: 'Akun email ini sudah terdaftar.' });
+    return;
+  }
+
+  const totpSecret = generateTotpSecret();
+  const account = {
+    id: crypto.randomUUID(),
+    email,
+    name,
+    totpSecret,
+    enabled: true,
+    lastUsedStep: null,
+    createdAt: new Date().toISOString(),
+    lastLoginAt: null,
+  };
+  authState.accounts.push(account);
+  saveAuthState();
+
+  const otpauthUri = buildOtpAuthUri(email, totpSecret);
+  const qrDataUrl = await QRCode.toDataURL(otpauthUri, {
+    width: 220,
+    margin: 1,
+    color: { dark: '#12324a', light: '#ffffff' },
+  });
+
+  res.status(201).json({
+    account: sanitizeAccount(account),
+    totpSecret,
+    otpauthUri,
+    qrDataUrl,
+  });
+});
+
+app.patch('/api/admin/accounts/:id', requireAdmin, (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const id = String(req.params.id || '');
+  const acc = authState.accounts.find((a) => a.id === id);
+  if (!acc) {
+    res.status(404).json({ error: 'Akun tidak ditemukan.' });
+    return;
+  }
+  if (typeof req.body?.enabled === 'boolean') {
+    acc.enabled = req.body.enabled;
+  }
+  if (typeof req.body?.name === 'string') {
+    acc.name = cleanHeaderValue(req.body.name, '', 60);
+  }
+  saveAuthState();
+  if (!acc.enabled) {
+    revokeAccountAccess(acc.id, 'Akun siaran dinonaktifkan oleh admin.');
+  }
+  res.json({ account: sanitizeAccount(acc) });
+});
+
+app.post('/api/admin/accounts/:id/reset-totp', requireAdmin, async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const id = String(req.params.id || '');
+  const acc = authState.accounts.find((a) => a.id === id);
+  if (!acc) {
+    res.status(404).json({ error: 'Akun tidak ditemukan.' });
+    return;
+  }
+  acc.totpSecret = generateTotpSecret();
+  acc.lastUsedStep = null;
+  saveAuthState();
+  revokeAccountAccess(acc.id, 'Kunci Authenticator akun telah direset oleh admin. Silakan masuk ulang.');
+
+  const otpauthUri = buildOtpAuthUri(acc.email, acc.totpSecret);
+  const qrDataUrl = await QRCode.toDataURL(otpauthUri, {
+    width: 220,
+    margin: 1,
+    color: { dark: '#12324a', light: '#ffffff' },
+  });
+
+  res.json({
+    account: sanitizeAccount(acc),
+    totpSecret: acc.totpSecret,
+    otpauthUri,
+    qrDataUrl,
+  });
+});
+
+app.delete('/api/admin/accounts/:id', requireAdmin, (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const id = String(req.params.id || '');
+  const idx = authState.accounts.findIndex((a) => a.id === id);
+  if (idx === -1) {
+    res.status(404).json({ error: 'Akun tidak ditemukan.' });
+    return;
+  }
+  authState.accounts.splice(idx, 1);
+  saveAuthState();
+  revokeAccountAccess(id, 'Akun siaran dihapus oleh admin.');
+  res.json({ ok: true });
+});
+
+/* ==================== API LOGIN & KONFIGURASI SIARAN ==================== */
+
+app.post('/api/broadcast/login', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const email = normalizeEmail(req.body?.email);
+  const code = String(req.body?.code ?? '').replace(/\s+/g, '');
+
+  const rateKeyIp = `cast-ip:${req.ip || 'unknown'}`;
+  const rateKeyMail = `cast-mail:${email || 'empty'}`;
+  const rlIp = checkRateLimit(rateKeyIp);
+  const rlMail = checkRateLimit(rateKeyMail);
+  if (!rlIp.allowed || !rlMail.allowed) {
+    const waitMin = Math.max(rlIp.waitMin || 1, rlMail.waitMin || 1);
+    res.status(429).json({ error: `Terlalu banyak percobaan login. Coba lagi dalam ${waitMin} menit.` });
+    return;
+  }
+
+  if (!isValidEmail(email) || !/^\d{6}$/.test(code)) {
+    recordFailedAttempt(rateKeyIp);
+    res.status(400).json({ error: 'Masukkan alamat Gmail dan kode Authenticator 6 digit yang valid.' });
+    return;
+  }
+
+  const acc = authState.accounts.find((a) => a.email === email);
+  if (!acc || !acc.enabled) {
+    recordFailedAttempt(rateKeyIp);
+    recordFailedAttempt(rateKeyMail);
+    res.status(401).json({ error: 'Akun Gmail tidak terdaftar atau dinonaktifkan.' });
+    return;
+  }
+
+  const check = verifyTotpCode(acc.totpSecret, code, acc.lastUsedStep);
+  if (!check.ok) {
+    recordFailedAttempt(rateKeyIp);
+    recordFailedAttempt(rateKeyMail);
+    res.status(401).json({ error: 'Kode Authenticator salah atau sudah kedaluwarsa.' });
+    return;
+  }
+
+  clearRateLimit(rateKeyIp);
+  clearRateLimit(rateKeyMail);
+
+  acc.lastUsedStep = check.step;
+  acc.lastLoginAt = new Date().toISOString();
+  saveAuthState();
+
+  const token = crypto.randomBytes(32).toString('base64url');
+  broadcastSessions.set(token, {
+    accountId: acc.id,
+    email: acc.email,
+    name: acc.name || '',
+    createdAt: Date.now(),
+    expiresAt: Date.now() + BROADCAST_SESSION_TTL_MS,
+  });
+
+  res.json({
+    token,
+    user: {
+      id: acc.id,
+      email: acc.email,
+      name: acc.name || '',
+    },
+  });
+});
+
+app.post('/api/broadcast/logout', (req, res) => {
+  const token = extractBearerToken(req);
+  if (token) broadcastSessions.delete(token);
+  res.json({ ok: true });
+});
+
+app.get('/api/broadcast/session', requireBroadcastAuth, (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  res.json({
+    authenticated: true,
+    user: {
+      id: req.broadcastUser.accountId,
+      email: req.broadcastUser.email,
+      name: req.broadcastUser.name,
+    },
+  });
+});
+
+app.get('/api/broadcast/config', requireBroadcastAuth, (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   res.json({
     host: STREAM_HOST,
@@ -173,7 +757,31 @@ app.get('/api/broadcast/config', (req, res) => {
   });
 });
 
-app.use(express.static(__dirname, { extensions: ['html'] }));
+const BLOCKED_STATIC_PATHS = new Set([
+  '/server.js',
+  '/package.json',
+  '/bun.lock',
+  '/vercel.json',
+  '/.vercelignore',
+  '/.env',
+  '/.env.example',
+]);
+
+app.use((req, res, next) => {
+  const reqPath = (req.path || '').toLowerCase();
+  if (
+    reqPath === '/data' ||
+    reqPath.startsWith('/data/') ||
+    reqPath.startsWith('/.') ||
+    BLOCKED_STATIC_PATHS.has(reqPath)
+  ) {
+    res.status(404).end();
+    return;
+  }
+  next();
+});
+
+app.use(express.static(__dirname, { extensions: ['html'], dotfiles: 'deny' }));
 
 const server = http.createServer(app);
 const wss = new WebSocketServer({
@@ -447,6 +1055,11 @@ wss.on('connection', (ws) => {
 
     if (msg.type === 'metadata') {
       if (!session) return;
+      const activeAccount = authState.accounts.find((a) => a.id === session.accountId && a.enabled);
+      if (!activeAccount) {
+        cleanupSession('Akses akun siaran Anda dinonaktifkan.');
+        return;
+      }
       const nextTitle = cleanHeaderValue(msg.title, '', 180);
       if (!nextTitle) return;
       try {
@@ -472,6 +1085,17 @@ wss.on('connection', (ws) => {
         sendJson({ type: 'error', message: 'Sesi siaran sudah berjalan.' });
         return;
       }
+
+      const authUser = verifyBroadcastToken(typeof msg.token === 'string' ? msg.token : '');
+      if (!authUser) {
+        sendJson({
+          type: 'error',
+          authRequired: true,
+          message: 'Akses ditolak. Masuk dengan akun Gmail terdaftar dan kode Authenticator terlebih dahulu.',
+        });
+        return;
+      }
+
       if (activeBroadcast) {
         sendJson({ type: 'error', message: 'Sedang ada penyiar lain yang aktif di server.' });
         return;
@@ -550,9 +1174,14 @@ wss.on('connection', (ws) => {
         return;
       }
 
-      if (ws.readyState !== 1 || activeBroadcast) {
+      const stillEnabled = verifyBroadcastToken(authUser.token);
+      if (!stillEnabled || ws.readyState !== 1 || activeBroadcast) {
         upstreamInfo.socket.destroy();
-        if (activeBroadcast) sendJson({ type: 'error', message: 'Sedang ada penyiar lain yang aktif.' });
+        if (!stillEnabled) {
+          sendJson({ type: 'error', authRequired: true, message: 'Akun siaran dinonaktifkan.' });
+        } else if (activeBroadcast) {
+          sendJson({ type: 'error', message: 'Sedang ada penyiar lain yang aktif.' });
+        }
         return;
       }
 
@@ -589,6 +1218,9 @@ wss.on('connection', (ws) => {
       const startedAt = Date.now();
 
       session = {
+        accountId: authUser.accountId,
+        accountEmail: authUser.email,
+        cleanup: cleanupSession,
         ff,
         upstream: upstreamInfo.socket,
         mode: upstreamInfo.mode,

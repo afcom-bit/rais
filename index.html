@@ -1349,11 +1349,20 @@ html:not(.sematan)[data-tema="gelap"] .wmp.off #play::after {
   html:not(.sematan) .timer { font-size: clamp(1.45rem, 6.2dvh, 1.95rem); }
   html:not(.sematan) .now { --lh: 1.15; font-size: 1rem; height: calc(4 * var(--lh) * 1em); }
 }
-/* ===== Fitur Siaran Langsung (mengambil alih tampilan radio setelah tahan Play 30 detik saat off) ===== */
-html:not(.sematan) #play {
+/* ===== Fitur Siaran & Pengaturan (tahan Play 15 detik saat off -> Siaran; tahan kapsul ON/OFF AIR 15 detik -> Setting) ===== */
+html:not(.sematan) #play,
+html:not(.sematan) .state {
   user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
   touch-action: manipulation;
 }
+html:not(.sematan) .state { cursor: pointer; }
+html:not(.sematan) .state::after {
+  content: ""; position: absolute; left: 10px; right: 10px; bottom: 2px; height: 2.5px;
+  border-radius: 999px; background: currentColor; opacity: 0;
+  transform-origin: left center; transform: scaleX(var(--hold-p, 0));
+  pointer-events: none; transition: opacity .2s ease;
+}
+html:not(.sematan) .state.holding-setting::after { opacity: .82; }
 html:not(.sematan) #play .hold-ring {
   position: absolute; inset: -.54em; width: calc(100% + 1.08em); height: calc(100% + 1.08em);
   pointer-events: none; transform: rotate(-90deg); opacity: 0; transition: opacity .25s ease;
@@ -1605,6 +1614,78 @@ html[data-tema="gelap"] .cast-mp3-prog input[type="range"] { accent-color: #5bc0
 html[data-tema="gelap"] .cast-msg { color: #9aa5b5; }
 .cast-msg.bad { color: #c43232; }
 html[data-tema="gelap"] .cast-msg.bad { color: #e27872; }
+
+.cast-panel-stack { display: flex; flex-direction: column; gap: 14px; }
+.cast-card {
+  display: flex; flex-direction: column; gap: 12px;
+  padding: 16px; border-radius: 16px;
+  background: rgba(120, 145, 170, .08);
+  border: 1px solid rgba(120, 145, 170, .18);
+}
+.cast-card h3 { margin: 0; font-size: .98rem; font-weight: 700; }
+.cast-sub { margin: 0; font-size: .82rem; line-height: 1.45; opacity: .8; }
+.cast-userbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 8px 12px; border-radius: 12px;
+  background: rgba(12, 124, 114, .09);
+  border: 1px solid rgba(12, 124, 114, .22);
+  font-size: .82rem;
+}
+html[data-tema="gelap"] .cast-userbar {
+  background: rgba(91, 192, 255, .1);
+  border-color: rgba(91, 192, 255, .24);
+}
+.cast-userbar-info { min-width: 0; flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.cast-code-input {
+  font-family: var(--font-num, monospace); font-size: 1.25rem; font-weight: 700;
+  letter-spacing: .28em; text-align: center;
+}
+.set-top-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.set-qr-box {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 16px; border-radius: 16px;
+  background: rgba(12, 124, 114, .08);
+  border: 1px solid rgba(12, 124, 114, .28);
+  text-align: center;
+}
+html[data-tema="gelap"] .set-qr-box {
+  background: rgba(91, 192, 255, .08);
+  border-color: rgba(91, 192, 255, .28);
+}
+.set-qr-img {
+  width: 196px; height: 196px; border-radius: 12px; background: #fff; padding: 6px;
+  object-fit: contain;
+}
+.set-qr-secret {
+  width: 100%; padding: 8px 10px; border-radius: 10px;
+  background: rgba(120, 145, 170, .14);
+  font-family: ui-monospace, monospace; font-size: .82rem; font-weight: 700;
+  letter-spacing: .08em; word-break: break-all; user-select: all;
+}
+.set-qr-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.set-acc-list { display: flex; flex-direction: column; gap: 10px; }
+.set-acc-item {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 12px; border-radius: 12px;
+  background: rgba(120, 145, 170, .06);
+  border: 1px solid rgba(120, 145, 170, .18);
+}
+.set-acc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.set-acc-meta { min-width: 0; flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px; }
+.set-acc-email { font-size: .88rem; font-weight: 700; word-break: break-word; }
+.set-acc-sub { font-size: .76rem; opacity: .74; }
+.set-badge {
+  flex: none; padding: 3px 9px; border-radius: 999px; font-size: .72rem; font-weight: 700;
+  background: rgba(12, 124, 114, .14); color: #0c7c72;
+}
+html[data-tema="gelap"] .set-badge { background: rgba(103, 196, 150, .16); color: #67c496; }
+.set-badge.off { background: rgba(196, 50, 50, .14); color: #c43232; }
+html[data-tema="gelap"] .set-badge.off { background: rgba(224, 108, 102, .16); color: #e06c66; }
+.set-acc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.set-btn-danger { border-color: rgba(196, 50, 50, .4); color: #c43232; }
+html[data-tema="gelap"] .set-btn-danger { border-color: rgba(224, 108, 102, .45); color: #e06c66; }
 </style>
 </head>
 <body>
@@ -1727,113 +1808,249 @@ html[data-tema="gelap"] .cast-msg.bad { color: #e27872; }
     </header>
 
     <div class="cast-body">
-      <div class="cast-telemetry">
-        <div class="cast-timer" id="castTimer">00:00:00</div>
-        <div class="cast-meter" aria-hidden="true"><div class="cast-meter-fill" id="castMeter"></div></div>
-        <div class="cast-stats" id="castStat">48 Kbps · 0 KB · streamy1.radioislam.my.id:9210</div>
-      </div>
-
-      <div class="cast-mic-banner" id="castMicBanner" hidden>
-        <span id="castMicHint">Izin mikrofon diperlukan untuk siaran.</span>
-        <button type="button" class="cast-btn-sec" id="castMicBtn">Izinkan Mic</button>
-      </div>
-
-      <button type="button" class="cast-primary" id="castToggleBtn" data-live="false">Mulai Siaran</button>
-
-      <div class="cast-mixer" aria-label="Penggeser sumber suara">
-        <div class="cast-fader-head">
-          <button type="button" class="cast-src-btn active" id="castSrcLeft">Soundcard 100%</button>
-          <span id="castFaderCenter" style="font-size:.72rem;opacity:.65">Geser Sumber</span>
-          <button type="button" class="cast-src-btn" id="castSrcRight">MP3 0%</button>
+      <form class="cast-card" id="castLoginPanel">
+        <div class="cast-field">
+          <h3>Masuk Penyiar</h3>
+          <p class="cast-sub">Hanya akun Gmail terdaftar yang dapat mengakses siaran. Masukkan akun Gmail dan kode 6 digit Authenticator.</p>
         </div>
-        <input id="castFader" class="cast-fader" type="range" min="0" max="100" step="1" value="0" aria-label="Pilih sumber suara Soundcard di kiri atau MP3 di kanan">
-      </div>
+        <div class="cast-field">
+          <label for="castLoginEmail">Akun Gmail Terdaftar</label>
+          <input id="castLoginEmail" class="cast-input" type="email" required autocomplete="email" placeholder="nama@gmail.com">
+        </div>
+        <div class="cast-field">
+          <label for="castLoginCode">Kode Authenticator (6 digit)</label>
+          <input id="castLoginCode" class="cast-input cast-code-input" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required autocomplete="one-time-code" placeholder="000000">
+        </div>
+        <button type="submit" class="cast-primary" id="castLoginBtn">Masuk ke Siaran</button>
+      </form>
 
-      <div class="cast-mp3" aria-label="Pemutar MP3 lokal">
-        <div class="cast-mp3-top">
-          <span class="cast-mp3-name" id="castMp3Name">Belum ada file MP3 dipilih</span>
-          <button type="button" class="cast-btn-sec" id="castMp3PickBtn">Pilih MP3</button>
-          <input id="castMp3Input" type="file" accept=".mp3,audio/mpeg,audio/*" multiple hidden>
+      <div class="cast-panel-stack" id="castStudioPanel" hidden>
+        <div class="cast-userbar">
+          <span class="cast-userbar-info" id="castUserLabel">Penyiar</span>
+          <button type="button" class="cast-btn-sec" id="castLogoutBtn" style="min-height:36px;padding:0 10px">Keluar</button>
         </div>
-        <div class="cast-mp3-ctrls">
-          <button type="button" class="cast-mp3-icon" id="castMp3Prev" aria-label="Lagu sebelumnya" disabled>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 20L9 12l10-8v16zM5 19V5"/></svg>
-          </button>
-          <button type="button" class="cast-mp3-icon" id="castMp3PlayBtn" style="flex:1 1 auto" disabled>Putar MP3</button>
-          <button type="button" class="cast-mp3-icon" id="castMp3Next" aria-label="Lagu berikutnya" disabled>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4l10 8-10 8V4zM19 5v14"/></svg>
-          </button>
-          <button type="button" class="cast-mp3-icon" id="castMp3MonBtn" aria-pressed="true" title="Pantau suara MP3 di perangkat">Monitor</button>
-        </div>
-        <div class="cast-mp3-prog">
-          <input id="castMp3Seek" type="range" min="0" max="100" step="0.1" value="0" aria-label="Posisi pemutaran MP3" disabled>
-          <span id="castMp3Time">00:00 / 00:00</span>
-        </div>
-      </div>
 
-      <div class="cast-controls-row">
-        <button type="button" class="cast-btn-sec" id="castMuteBtn" aria-pressed="false">Mikrofon Aktif</button>
-        <div class="cast-gain-wrap">
-          <div class="cast-gain-label">
-            <label for="castGain">Penguat Mic</label>
-            <span id="castGainVal">100%</span>
+        <div class="cast-telemetry">
+          <div class="cast-timer" id="castTimer">00:00:00</div>
+          <div class="cast-meter" aria-hidden="true"><div class="cast-meter-fill" id="castMeter"></div></div>
+          <div class="cast-stats" id="castStat">48 Kbps · 0 KB · streamy1.radioislam.my.id:9210</div>
+        </div>
+
+        <div class="cast-mic-banner" id="castMicBanner" hidden>
+          <span id="castMicHint">Izin mikrofon diperlukan untuk siaran.</span>
+          <button type="button" class="cast-btn-sec" id="castMicBtn">Izinkan Mic</button>
+        </div>
+
+        <button type="button" class="cast-primary" id="castToggleBtn" data-live="false">Mulai Siaran</button>
+
+        <div class="cast-mixer" aria-label="Penggeser sumber suara">
+          <div class="cast-fader-head">
+            <button type="button" class="cast-src-btn active" id="castSrcLeft">Soundcard 100%</button>
+            <span id="castFaderCenter" style="font-size:.72rem;opacity:.65">Geser Sumber</span>
+            <button type="button" class="cast-src-btn" id="castSrcRight">MP3 0%</button>
           </div>
-          <input id="castGain" type="range" min="50" max="200" step="5" value="100">
+          <input id="castFader" class="cast-fader" type="range" min="0" max="100" step="1" value="0" aria-label="Pilih sumber suara Soundcard di kiri atau MP3 di kanan">
         </div>
-      </div>
 
-      <div class="cast-title-row">
-        <input id="castTitle" class="cast-input" type="text" maxlength="160" placeholder="Judul kajian atau pemateri...">
-        <button type="button" class="cast-btn-sec" id="castMetaBtn">Kirim Judul</button>
-      </div>
+        <div class="cast-mp3" aria-label="Pemutar MP3 lokal">
+          <div class="cast-mp3-top">
+            <span class="cast-mp3-name" id="castMp3Name">Belum ada file MP3 dipilih</span>
+            <button type="button" class="cast-btn-sec" id="castMp3PickBtn">Pilih MP3</button>
+            <input id="castMp3Input" type="file" accept=".mp3,audio/mpeg,audio/*" multiple hidden>
+          </div>
+          <div class="cast-mp3-ctrls">
+            <button type="button" class="cast-mp3-icon" id="castMp3Prev" aria-label="Lagu sebelumnya" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 20L9 12l10-8v16zM5 19V5"/></svg>
+            </button>
+            <button type="button" class="cast-mp3-icon" id="castMp3PlayBtn" style="flex:1 1 auto" disabled>Putar MP3</button>
+            <button type="button" class="cast-mp3-icon" id="castMp3Next" aria-label="Lagu berikutnya" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4l10 8-10 8V4zM19 5v14"/></svg>
+            </button>
+            <button type="button" class="cast-mp3-icon" id="castMp3MonBtn" aria-pressed="true" title="Pantau suara MP3 di perangkat">Monitor</button>
+          </div>
+          <div class="cast-mp3-prog">
+            <input id="castMp3Seek" type="range" min="0" max="100" step="0.1" value="0" aria-label="Posisi pemutaran MP3" disabled>
+            <span id="castMp3Time">00:00 / 00:00</span>
+          </div>
+        </div>
 
-      <details class="cast-details" id="castDetails">
-        <summary>
-          <span>Pengaturan Server</span>
-          <span aria-hidden="true">▾</span>
-        </summary>
-        <div class="cast-grid">
-          <div class="cast-field full">
-            <label for="castHost">Address</label>
-            <input id="castHost" class="cast-input" type="text" value="streamy1.radioislam.my.id" autocomplete="off">
+        <div class="cast-controls-row">
+          <button type="button" class="cast-btn-sec" id="castMuteBtn" aria-pressed="false">Mikrofon Aktif</button>
+          <div class="cast-gain-wrap">
+            <div class="cast-gain-label">
+              <label for="castGain">Penguat Mic</label>
+              <span id="castGainVal">100%</span>
+            </div>
+            <input id="castGain" type="range" min="50" max="200" step="5" value="100">
           </div>
-          <div class="cast-field">
-            <label for="castPort">Port</label>
-            <input id="castPort" class="cast-input" type="number" min="1" max="65535" value="9210">
-          </div>
-          <div class="cast-field">
-            <label for="castUser">User</label>
-            <input id="castUser" class="cast-input" type="text" value="sragen" autocomplete="off">
-          </div>
-          <div class="cast-field full">
-            <label for="castPass">Pass</label>
-            <div class="cast-pass-wrap">
-              <input id="castPass" class="cast-input" type="password" placeholder="Masukkan kata sandi stream" autocomplete="current-password">
-              <button type="button" class="cast-eye" id="castPassEye" aria-label="Tampilkan atau sembunyikan kata sandi">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></svg>
-              </button>
+        </div>
+
+        <div class="cast-title-row">
+          <input id="castTitle" class="cast-input" type="text" maxlength="160" placeholder="Judul kajian atau pemateri...">
+          <button type="button" class="cast-btn-sec" id="castMetaBtn">Kirim Judul</button>
+        </div>
+
+        <details class="cast-details" id="castDetails">
+          <summary>
+            <span>Pengaturan Server</span>
+            <span aria-hidden="true">▾</span>
+          </summary>
+          <div class="cast-grid">
+            <div class="cast-field full">
+              <label for="castHost">Address</label>
+              <input id="castHost" class="cast-input" type="text" value="streamy1.radioislam.my.id" autocomplete="off">
+            </div>
+            <div class="cast-field">
+              <label for="castPort">Port</label>
+              <input id="castPort" class="cast-input" type="number" min="1" max="65535" value="9210">
+            </div>
+            <div class="cast-field">
+              <label for="castUser">User</label>
+              <input id="castUser" class="cast-input" type="text" value="sragen" autocomplete="off">
+            </div>
+            <div class="cast-field full">
+              <label for="castPass">Pass</label>
+              <div class="cast-pass-wrap">
+                <input id="castPass" class="cast-input" type="password" placeholder="Masukkan kata sandi stream" autocomplete="current-password">
+                <button type="button" class="cast-eye" id="castPassEye" aria-label="Tampilkan atau sembunyikan kata sandi">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="cast-field">
+              <label for="castBitrate">Bitrate</label>
+              <select id="castBitrate" class="cast-input">
+                <option value="24">24 Kbps</option>
+                <option value="32">32 Kbps</option>
+                <option value="48" selected>48 Kbps</option>
+                <option value="64">64 Kbps</option>
+                <option value="96">96 Kbps</option>
+                <option value="128">128 Kbps</option>
+              </select>
+            </div>
+            <div class="cast-field">
+              <label for="castStation">Nama Radio</label>
+              <input id="castStation" class="cast-input" type="text" value="Radio Islam Sragen">
             </div>
           </div>
-          <div class="cast-field">
-            <label for="castBitrate">Bitrate</label>
-            <select id="castBitrate" class="cast-input">
-              <option value="24">24 Kbps</option>
-              <option value="32">32 Kbps</option>
-              <option value="48" selected>48 Kbps</option>
-              <option value="64">64 Kbps</option>
-              <option value="96">96 Kbps</option>
-              <option value="128">128 Kbps</option>
-            </select>
-          </div>
-          <div class="cast-field">
-            <label for="castStation">Nama Radio</label>
-            <input id="castStation" class="cast-input" type="text" value="Radio Islam Sragen">
-          </div>
-        </div>
-      </details>
+        </details>
+      </div>
     </div>
 
     <p class="cast-msg" id="castMsg" role="status"></p>
+  </div>
+</section>
+
+<section class="cast-view" id="settingView" hidden aria-label="Pengaturan akun siaran">
+  <div class="cast-shell">
+    <header class="cast-topbar">
+      <button type="button" class="cast-back" id="setBackBtn" aria-label="Kembali ke tampilan radio">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        <span>Radio</span>
+      </button>
+      <div class="cast-head-title">
+        <h2>Pengaturan Akun</h2>
+        <span class="cast-status" id="setStateText" data-s="idle">Akses Admin</span>
+      </div>
+      <button type="button" class="cast-theme-btn" id="setThemeBtn" aria-label="Beralih tema" title="Beralih tema">
+        <svg id="setThemeIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </header>
+
+    <div class="cast-body">
+      <form class="cast-card" id="setBootstrapPanel" hidden>
+        <div class="cast-field">
+          <h3>Buat Sandi Admin</h3>
+          <p class="cast-sub">Atur sandi admin pertama kali untuk membuat dan mengelola akun siaran.</p>
+        </div>
+        <div class="cast-field">
+          <label for="setBootPass">Sandi Admin Baru (minimal 6 karakter)</label>
+          <div class="cast-pass-wrap">
+            <input id="setBootPass" class="cast-input" type="password" minlength="6" maxlength="128" required autocomplete="new-password" placeholder="Masukkan sandi admin">
+            <button type="button" class="cast-eye" data-eye="setBootPass" aria-label="Tampilkan sandi">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="cast-field">
+          <label for="setBootConfirm">Ulangi Sandi Admin</label>
+          <input id="setBootConfirm" class="cast-input" type="password" minlength="6" maxlength="128" required autocomplete="new-password" placeholder="Ketik ulang sandi">
+        </div>
+        <button type="submit" class="cast-primary" id="setBootBtn">Simpan Sandi & Masuk</button>
+      </form>
+
+      <form class="cast-card" id="setLoginPanel" hidden>
+        <div class="cast-field">
+          <h3>Masuk Pengaturan</h3>
+          <p class="cast-sub">Masukkan sandi admin untuk mengelola akun Gmail penyiar dan kode Authenticator.</p>
+        </div>
+        <div class="cast-field">
+          <label for="setAdminPass">Sandi Admin</label>
+          <div class="cast-pass-wrap">
+            <input id="setAdminPass" class="cast-input" type="password" required autocomplete="current-password" placeholder="Masukkan sandi admin">
+            <button type="button" class="cast-eye" data-eye="setAdminPass" aria-label="Tampilkan sandi">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="cast-primary" id="setLoginBtn">Buka Pengaturan</button>
+      </form>
+
+      <div class="cast-panel-stack" id="setDashPanel" hidden>
+        <div class="set-top-row">
+          <span class="cast-sub" id="setAccCount">0 akun terdaftar</span>
+          <button type="button" class="cast-btn-sec" id="setLogoutBtn" style="min-height:38px">Keluar Admin</button>
+        </div>
+
+        <form class="cast-card" id="setCreateForm">
+          <h3>Tambah Akun Penyiar</h3>
+          <div class="cast-field">
+            <label for="setNewEmail">Alamat Gmail</label>
+            <input id="setNewEmail" class="cast-input" type="email" required placeholder="contoh@gmail.com" autocomplete="off">
+          </div>
+          <div class="cast-field">
+            <label for="setNewName">Nama Penyiar (opsional)</label>
+            <input id="setNewName" class="cast-input" type="text" maxlength="60" placeholder="Misal: Operator Studio" autocomplete="off">
+          </div>
+          <button type="submit" class="cast-primary" id="setCreateBtn">Buat Akun & Kode Authenticator</button>
+        </form>
+
+        <div class="set-qr-box" id="setQrBox" hidden>
+          <strong id="setQrTitle">Pindai QR di Aplikasi Authenticator</strong>
+          <span class="cast-sub" id="setQrEmail"></span>
+          <img class="set-qr-img" id="setQrImg" alt="Kode QR Authenticator">
+          <div class="set-qr-secret" id="setQrSecret"></div>
+          <div class="set-qr-btns">
+            <button type="button" class="cast-btn-sec" id="setQrCopyBtn">Salin Kunci</button>
+            <button type="button" class="cast-btn-sec" id="setQrCloseBtn">Tutup</button>
+          </div>
+        </div>
+
+        <div class="cast-card">
+          <h3>Daftar Akun Terdaftar</h3>
+          <div class="set-acc-list" id="setAccList"></div>
+        </div>
+
+        <details class="cast-details" id="setPassDetails">
+          <summary>
+            <span>Ubah Sandi Admin</span>
+            <span aria-hidden="true">▾</span>
+          </summary>
+          <form class="cast-card" id="setPassForm" style="margin-top:10px">
+            <p class="cast-sub" id="setPassEnvHint" hidden>Sandi admin diatur melalui variabel environment server (ADMIN_PASSCODE).</p>
+            <div class="cast-field" id="setPassFields">
+              <label for="setCurPass">Sandi Saat Ini</label>
+              <input id="setCurPass" class="cast-input" type="password" required autocomplete="current-password">
+              <label for="setNextPass" style="margin-top:6px">Sandi Baru (minimal 6 karakter)</label>
+              <input id="setNextPass" class="cast-input" type="password" minlength="6" maxlength="128" required autocomplete="new-password">
+              <button type="submit" class="cast-btn-sec" id="setPassSaveBtn" style="margin-top:8px">Simpan Sandi Baru</button>
+            </div>
+          </form>
+        </details>
+      </div>
+    </div>
+
+    <p class="cast-msg" id="setMsg" role="status"></p>
   </div>
 </section>
 
@@ -2794,10 +3011,10 @@ if (SEMATAN) {
 pollNowPlaying();
 (async () => { await wait(1200); for (;;) for (const t of CONFIG.texts) await scene(t); })();
 
-/* ---------- Fitur Siaran Langsung (tahan Play 30 detik saat posisi off) ---------- */
+/* ---------- Fitur Siaran & Pengaturan (tahan Play 15 detik saat off -> Siaran; tahan kapsul ON/OFF AIR 15 detik -> Setting) ---------- */
 if (!SEMATAN) {
-  const HOLD_MS = 30000;
-  const HOLD_VISUAL_DELAY_MS = 2000;
+  const HOLD_MS = 15000;
+  const HOLD_VISUAL_DELAY_MS = 1500;
   const HOLD_CIRC = 295.31;
   const holdArc = $('holdArc');
   let holdStartAt = 0, holdTimer = 0, holdRaf = 0, holdStartPt = null, holdPointerId = null;
@@ -2859,8 +3076,63 @@ if (!SEMATAN) {
   playBtn.addEventListener('pointerup', endPlayHold);
   playBtn.addEventListener('pointercancel', endPlayHold);
 
+  /* Tahan kapsul ON/OFF AIR selama 15 detik untuk membuka menu Setting */
+  let setHoldStartAt = 0, setHoldTimer = 0, setHoldRaf = 0, setHoldPt = null, setHoldPtr = null;
+  const resetSettingHold = () => {
+    clearTimeout(setHoldTimer);
+    cancelAnimationFrame(setHoldRaf);
+    setHoldStartAt = 0;
+    setHoldPt = null;
+    setHoldPtr = null;
+    stateEl.classList.remove('holding-setting');
+    stateEl.style.removeProperty('--hold-p');
+  };
+  const tickSettingHold = () => {
+    if (!setHoldStartAt) return;
+    const elapsed = Date.now() - setHoldStartAt;
+    if (elapsed >= HOLD_VISUAL_DELAY_MS) {
+      stateEl.classList.add('holding-setting');
+      const frac = Math.min(1, (elapsed - HOLD_VISUAL_DELAY_MS) / (HOLD_MS - HOLD_VISUAL_DELAY_MS));
+      stateEl.style.setProperty('--hold-p', frac.toFixed(3));
+    }
+    if (elapsed < HOLD_MS) setHoldRaf = requestAnimationFrame(tickSettingHold);
+  };
+  stateEl.addEventListener('contextmenu', e => e.preventDefault());
+  stateEl.addEventListener('pointerdown', e => {
+    if (e.button && e.button !== 0) return;
+    resetSettingHold();
+    setHoldStartAt = Date.now();
+    setHoldPt = { x: e.clientX, y: e.clientY };
+    setHoldPtr = e.pointerId;
+    setHoldRaf = requestAnimationFrame(tickSettingHold);
+    setHoldTimer = setTimeout(() => {
+      resetSettingHold();
+      try { if (navigator.vibrate) navigator.vibrate(40); } catch {}
+      openSettingView();
+    }, HOLD_MS);
+  });
+  stateEl.addEventListener('pointermove', e => {
+    if (!setHoldStartAt || e.pointerId !== setHoldPtr || !setHoldPt) return;
+    if (Math.hypot(e.clientX - setHoldPt.x, e.clientY - setHoldPt.y) > 26) {
+      resetSettingHold();
+    }
+  });
+  const endSettingHold = e => {
+    if (!setHoldStartAt || (e.pointerId !== undefined && e.pointerId !== setHoldPtr)) return;
+    resetSettingHold();
+  };
+  stateEl.addEventListener('pointerup', endSettingHold);
+  stateEl.addEventListener('pointercancel', endSettingHold);
+
   const appMain = $('appMain');
   const castView = $('castView');
+  const castLoginPanel = $('castLoginPanel');
+  const castLoginEmail = $('castLoginEmail');
+  const castLoginCode = $('castLoginCode');
+  const castLoginBtn = $('castLoginBtn');
+  const castStudioPanel = $('castStudioPanel');
+  const castUserLabel = $('castUserLabel');
+  const castLogoutBtn = $('castLogoutBtn');
   const castBackBtn = $('castBackBtn');
   const castThemeBtn = $('castThemeBtn');
   const castThemeIcon = $('castThemeIcon');
@@ -2898,6 +3170,7 @@ if (!SEMATAN) {
   const castMp3SeekInput = $('castMp3Seek');
   const castMp3TimeEl = $('castMp3Time');
 
+  let castToken = '', castAuthUser = null;
   let castWs = null, castStream = null, castCtx = null, castSource = null;
   let castGainNode = null, castMicCrossGain = null, castMp3Source = null, castMp3CrossGain = null, castMp3MonGain = null;
   let castMasterGain = null, castAnalyser = null, castProc = null, castMuteSink = null;
@@ -2910,6 +3183,12 @@ if (!SEMATAN) {
     const isDark = document.documentElement.dataset.tema === 'gelap';
     castThemeIcon.innerHTML = isDark ? THEME_ICONS.sun : THEME_ICONS.moon;
     castThemeBtn.setAttribute('aria-label', isDark ? 'Beralih ke mode terang' : 'Beralih ke mode gelap');
+    const setIcon = $('setThemeIcon');
+    const setBtn = $('setThemeBtn');
+    if (setIcon && setBtn) {
+      setIcon.innerHTML = isDark ? THEME_ICONS.sun : THEME_ICONS.moon;
+      setBtn.setAttribute('aria-label', isDark ? 'Beralih ke mode terang' : 'Beralih ke mode gelap');
+    }
   }
 
   castThemeBtn.addEventListener('click', () => {
@@ -2990,8 +3269,16 @@ if (!SEMATAN) {
   }
 
   async function loadBroadcastConfig() {
+    if (!castToken) return;
     try {
-      const res = await fetch('/api/broadcast/config?t=' + Date.now(), { cache: 'no-store' });
+      const res = await fetch('/api/broadcast/config?t=' + Date.now(), {
+        cache: 'no-store',
+        headers: { Authorization: `Bearer ${castToken}` },
+      });
+      if (res.status === 401) {
+        handleCastSessionExpired();
+        return;
+      }
       if (!res.ok) return;
       const cfg = await res.json();
       if (cfg.host && !castHostInput.dataset.edited) castHostInput.value = cfg.host;
@@ -3234,16 +3521,56 @@ if (!SEMATAN) {
     syncCastUi();
   }
 
-  function openCastView() {
+  function applyCastAuthUi(loggedIn) {
+    castLoginPanel.hidden = loggedIn;
+    castStudioPanel.hidden = !loggedIn;
+    if (loggedIn && castAuthUser) {
+      castUserLabel.textContent = castAuthUser.name ? `${castAuthUser.name} (${castAuthUser.email})` : castAuthUser.email;
+      setCastStatus(castLive ? 'live' : 'idle', castLive ? 'ON AIR · Siaran aktif' : 'Siap siaran');
+    } else {
+      setCastStatus('idle', 'Verifikasi Akun');
+    }
+  }
+
+  function handleCastSessionExpired(msg) {
+    castToken = '';
+    castAuthUser = null;
+    teardownWs(false);
+    releaseAudioHardware();
+    applyCastAuthUi(false);
+    if (msg) setCastMsg(msg, true);
+  }
+
+  async function openCastView() {
     if (wanted) stop();
     appMain.hidden = true;
+    settingView.hidden = true;
     castView.hidden = false;
     syncCastThemeIcon();
-    loadBroadcastConfig();
-    applyCrossfader(castFaderVal);
-    syncCastUi();
-    ensureMicrophone();
-    setTimeout(() => castToggleBtn.focus(), 40);
+    setCastMsg('');
+    if (castToken) {
+      try {
+        const res = await fetch('/api/broadcast/session?t=' + Date.now(), {
+          cache: 'no-store',
+          headers: { Authorization: `Bearer ${castToken}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          castAuthUser = data.user || castAuthUser;
+          applyCastAuthUi(true);
+          loadBroadcastConfig();
+          applyCrossfader(castFaderVal);
+          syncCastUi();
+          ensureMicrophone();
+          setTimeout(() => castToggleBtn.focus(), 40);
+          return;
+        }
+      } catch {}
+    }
+    castToken = '';
+    castAuthUser = null;
+    applyCastAuthUi(false);
+    setTimeout(() => castLoginEmail.focus(), 40);
   }
 
   function closeCastView() {
@@ -3262,6 +3589,62 @@ if (!SEMATAN) {
       drawWave();
     });
   }
+
+  castLoginPanel.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = castLoginEmail.value.trim().toLowerCase();
+    const code = castLoginCode.value.replace(/\s+/g, '');
+    if (!email || !/^\d{6}$/.test(code)) {
+      setCastMsg('Masukkan akun Gmail dan kode Authenticator 6 digit.', true);
+      return;
+    }
+    castLoginBtn.disabled = true;
+    setCastMsg('');
+    try {
+      const res = await fetch('/api/broadcast/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.token) {
+        setCastMsg(data.error || 'Gagal masuk ke siaran.', true);
+        return;
+      }
+      castToken = data.token;
+      castAuthUser = data.user || { email };
+      castLoginCode.value = '';
+      applyCastAuthUi(true);
+      applyCrossfader(castFaderVal);
+      syncCastUi();
+      loadBroadcastConfig();
+      ensureMicrophone();
+      setCastMsg(`Berhasil masuk sebagai ${castAuthUser.email}.`);
+    } catch {
+      setCastMsg('Gagal menghubungi server login.', true);
+    } finally {
+      castLoginBtn.disabled = false;
+    }
+  });
+
+  castLogoutBtn.addEventListener('click', async () => {
+    if (castLive || castConnecting) {
+      setCastMsg('Hentikan siaran terlebih dahulu sebelum keluar.', true);
+      return;
+    }
+    const oldTok = castToken;
+    castToken = '';
+    castAuthUser = null;
+    releaseAudioHardware();
+    applyCastAuthUi(false);
+    setCastMsg('Anda telah keluar dari sesi siaran.');
+    if (oldTok) {
+      fetch('/api/broadcast/logout', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${oldTok}` },
+      }).catch(() => {});
+    }
+  });
 
   castBackBtn.addEventListener('click', closeCastView);
   castMicBtn.addEventListener('click', async () => {
@@ -3371,6 +3754,11 @@ if (!SEMATAN) {
       return;
     }
 
+    if (!castToken) {
+      handleCastSessionExpired('Silakan masuk dengan akun Gmail dan kode Authenticator terlebih dahulu.');
+      return;
+    }
+
     castConnecting = true;
     setCastStatus('connecting', 'Menyiapkan audio...');
     syncCastUi();
@@ -3395,6 +3783,7 @@ if (!SEMATAN) {
     ws.onopen = () => {
       ws.send(JSON.stringify({
         type: 'start',
+        token: castToken,
         host,
         port,
         user,
@@ -3433,6 +3822,10 @@ if (!SEMATAN) {
         setCastMsg(msg.ok ? `Judul siaran diperbarui: ${msg.title}` : 'Judul dikirim, namun server belum mengonfirmasi.', !msg.ok);
       } else if (msg.type === 'error') {
         const errText = msg.message || 'Gagal memulai siaran.';
+        if (msg.authRequired) {
+          handleCastSessionExpired(errText);
+          return;
+        }
         teardownWs(false);
         setCastStatus('error', 'Gagal menyambung');
         setCastMsg(errText, true);
@@ -3486,6 +3879,425 @@ if (!SEMATAN) {
       return;
     }
     castWs.send(JSON.stringify({ type: 'metadata', title }));
+  });
+
+  /* ==================== MENU PENGATURAN AKUN (ADMIN) ==================== */
+  const settingView = $('settingView');
+  const setBackBtn = $('setBackBtn');
+  const setThemeBtn = $('setThemeBtn');
+  const setStateText = $('setStateText');
+  const setBootstrapPanel = $('setBootstrapPanel');
+  const setBootPass = $('setBootPass');
+  const setBootConfirm = $('setBootConfirm');
+  const setBootBtn = $('setBootBtn');
+  const setLoginPanel = $('setLoginPanel');
+  const setAdminPass = $('setAdminPass');
+  const setLoginBtn = $('setLoginBtn');
+  const setDashPanel = $('setDashPanel');
+  const setAccCount = $('setAccCount');
+  const setLogoutBtn = $('setLogoutBtn');
+  const setCreateForm = $('setCreateForm');
+  const setNewEmail = $('setNewEmail');
+  const setNewName = $('setNewName');
+  const setCreateBtn = $('setCreateBtn');
+  const setQrBox = $('setQrBox');
+  const setQrTitle = $('setQrTitle');
+  const setQrEmail = $('setQrEmail');
+  const setQrImg = $('setQrImg');
+  const setQrSecret = $('setQrSecret');
+  const setQrCopyBtn = $('setQrCopyBtn');
+  const setQrCloseBtn = $('setQrCloseBtn');
+  const setAccList = $('setAccList');
+  const setPassForm = $('setPassForm');
+  const setPassEnvHint = $('setPassEnvHint');
+  const setPassFields = $('setPassFields');
+  const setCurPass = $('setCurPass');
+  const setNextPass = $('setNextPass');
+  const setMsgEl = $('setMsg');
+
+  let adminToken = '', setEnvManaged = false, setDeleteConfirmId = '', setDeleteResetTimer = 0;
+
+  function setAdminMsg(text, bad = false) {
+    setMsgEl.textContent = text || '';
+    setMsgEl.classList.toggle('bad', !!bad);
+  }
+
+  settingView.querySelectorAll('[data-eye]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = $(btn.dataset.eye);
+      if (target) target.type = target.type === 'password' ? 'text' : 'password';
+    });
+  });
+
+  setThemeBtn.addEventListener('click', () => {
+    const cur = document.documentElement.dataset.tema === 'gelap' ? 'gelap' : 'terang';
+    applyTheme(cur === 'gelap' ? 'terang' : 'gelap', true);
+    syncCastThemeIcon();
+  });
+
+  function showSetPanel(mode) {
+    setBootstrapPanel.hidden = mode !== 'bootstrap';
+    setLoginPanel.hidden = mode !== 'login';
+    setDashPanel.hidden = mode !== 'dash';
+    setStateText.dataset.s = mode === 'dash' ? 'live' : 'idle';
+    setStateText.textContent = mode === 'bootstrap' ? 'Atur Sandi Awal' : (mode === 'dash' ? 'Terhubung' : 'Kunci Admin');
+    setPassEnvHint.hidden = !setEnvManaged;
+    setPassFields.hidden = setEnvManaged;
+  }
+
+  function showQrBanner(email, secret, qrDataUrl, isReset = false) {
+    setQrTitle.textContent = isReset ? 'QR Authenticator Baru' : 'Pindai QR di Aplikasi Authenticator';
+    setQrEmail.textContent = email;
+    setQrImg.src = qrDataUrl;
+    setQrSecret.textContent = secret;
+    setQrBox.hidden = false;
+  }
+
+  setQrCloseBtn.addEventListener('click', () => {
+    setQrBox.hidden = true;
+    setQrImg.removeAttribute('src');
+    setQrSecret.textContent = '';
+  });
+
+  setQrCopyBtn.addEventListener('click', async () => {
+    const key = setQrSecret.textContent.trim();
+    if (!key) return;
+    try {
+      await navigator.clipboard.writeText(key);
+      setAdminMsg('Kunci Authenticator disalin.');
+    } catch {
+      setAdminMsg('Salin kunci secara manual dari kotak di atas.');
+    }
+  });
+
+  function renderAccounts(accounts) {
+    setAccCount.textContent = `${accounts.length} akun terdaftar`;
+    setAccList.replaceChildren();
+    if (!accounts.length) {
+      const empty = document.createElement('p');
+      empty.className = 'cast-sub';
+      empty.textContent = 'Belum ada akun penyiar terdaftar. Buat akun baru di atas.';
+      setAccList.append(empty);
+      return;
+    }
+
+    for (const acc of accounts) {
+      const item = document.createElement('div');
+      item.className = 'set-acc-item';
+
+      const top = document.createElement('div');
+      top.className = 'set-acc-top';
+
+      const meta = document.createElement('div');
+      meta.className = 'set-acc-meta';
+
+      const emailEl = document.createElement('span');
+      emailEl.className = 'set-acc-email';
+      emailEl.textContent = acc.name ? `${acc.name} · ${acc.email}` : acc.email;
+
+      const subEl = document.createElement('span');
+      subEl.className = 'set-acc-sub';
+      if (acc.lastLoginAt) {
+        const d = new Date(acc.lastLoginAt);
+        subEl.textContent = `Masuk terakhir: ${Number.isNaN(d.getTime()) ? acc.lastLoginAt : d.toLocaleString('id-ID')}`;
+      } else {
+        subEl.textContent = 'Belum pernah masuk siaran';
+      }
+      meta.append(emailEl, subEl);
+
+      const badge = document.createElement('span');
+      badge.className = acc.enabled ? 'set-badge' : 'set-badge off';
+      badge.textContent = acc.enabled ? 'Aktif' : 'Nonaktif';
+
+      top.append(meta, badge);
+
+      const actions = document.createElement('div');
+      actions.className = 'set-acc-actions';
+
+      const toggleBtn = document.createElement('button');
+      toggleBtn.type = 'button';
+      toggleBtn.className = 'cast-btn-sec';
+      toggleBtn.textContent = acc.enabled ? 'Nonaktifkan' : 'Aktifkan';
+      toggleBtn.addEventListener('click', () => toggleAccountEnabled(acc));
+
+      const resetBtn = document.createElement('button');
+      resetBtn.type = 'button';
+      resetBtn.className = 'cast-btn-sec';
+      resetBtn.textContent = 'Reset QR';
+      resetBtn.addEventListener('click', () => resetAccountTotp(acc));
+
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'cast-btn-sec set-btn-danger';
+      delBtn.textContent = setDeleteConfirmId === acc.id ? 'Yakin Hapus?' : 'Hapus';
+      delBtn.addEventListener('click', () => {
+        if (setDeleteConfirmId !== acc.id) {
+          setDeleteConfirmId = acc.id;
+          clearTimeout(setDeleteResetTimer);
+          delBtn.textContent = 'Yakin Hapus?';
+          setDeleteResetTimer = setTimeout(() => {
+            if (setDeleteConfirmId === acc.id) {
+              setDeleteConfirmId = '';
+              delBtn.textContent = 'Hapus';
+            }
+          }, 4000);
+          return;
+        }
+        clearTimeout(setDeleteResetTimer);
+        setDeleteConfirmId = '';
+        deleteAccount(acc);
+      });
+
+      actions.append(toggleBtn, resetBtn, delBtn);
+      item.append(top, actions);
+      setAccList.append(item);
+    }
+  }
+
+  async function adminFetch(url, opts = {}) {
+    const headers = Object.assign({}, opts.headers || {});
+    if (adminToken) headers.Authorization = `Bearer ${adminToken}`;
+    if (opts.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    const res = await fetch(url, Object.assign({}, opts, { headers, cache: 'no-store' }));
+    if (res.status === 401 && adminToken) {
+      adminToken = '';
+      showSetPanel('login');
+      setAdminMsg('Sesi pengaturan berakhir. Silakan masuk kembali.', true);
+    }
+    return res;
+  }
+
+  async function loadAdminAccounts() {
+    const res = await adminFetch('/api/admin/accounts?t=' + Date.now());
+    if (!res.ok) return;
+    const data = await res.json();
+    renderAccounts(Array.isArray(data.accounts) ? data.accounts : []);
+  }
+
+  async function toggleAccountEnabled(acc) {
+    setAdminMsg('');
+    const res = await adminFetch(`/api/admin/accounts/${encodeURIComponent(acc.id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ enabled: !acc.enabled }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setAdminMsg(data.error || 'Gagal memperbarui status akun.', true);
+      return;
+    }
+    setAdminMsg(`Akun ${acc.email} ${!acc.enabled ? 'diaktifkan' : 'dinonaktifkan'}.`);
+    loadAdminAccounts();
+  }
+
+  async function resetAccountTotp(acc) {
+    setAdminMsg('');
+    const res = await adminFetch(`/api/admin/accounts/${encodeURIComponent(acc.id)}/reset-totp`, {
+      method: 'POST',
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setAdminMsg(data.error || 'Gagal mereset QR Authenticator.', true);
+      return;
+    }
+    showQrBanner(acc.email, data.totpSecret, data.qrDataUrl, true);
+    setAdminMsg(`Kunci Authenticator baru untuk ${acc.email} siap dipindai.`);
+  }
+
+  async function deleteAccount(acc) {
+    setAdminMsg('');
+    const res = await adminFetch(`/api/admin/accounts/${encodeURIComponent(acc.id)}`, {
+      method: 'DELETE',
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setAdminMsg(data.error || 'Gagal menghapus akun.', true);
+      return;
+    }
+    if (setQrEmail.textContent === acc.email) {
+      setQrBox.hidden = true;
+      setQrImg.removeAttribute('src');
+    }
+    setAdminMsg(`Akun ${acc.email} dihapus.`);
+    loadAdminAccounts();
+  }
+
+  async function openSettingView() {
+    appMain.hidden = true;
+    castView.hidden = true;
+    settingView.hidden = false;
+    syncCastThemeIcon();
+    setAdminMsg('');
+    setQrBox.hidden = true;
+    try {
+      const res = await fetch('/api/admin/status?t=' + Date.now(), {
+        cache: 'no-store',
+        headers: adminToken ? { Authorization: `Bearer ${adminToken}` } : {},
+      });
+      const st = await res.json();
+      setEnvManaged = !!st.envManaged;
+      if (st.needsSetup) {
+        adminToken = '';
+        showSetPanel('bootstrap');
+        setTimeout(() => setBootPass.focus(), 40);
+      } else if (st.authenticated && adminToken) {
+        showSetPanel('dash');
+        loadAdminAccounts();
+      } else {
+        adminToken = '';
+        showSetPanel('login');
+        setTimeout(() => setAdminPass.focus(), 40);
+      }
+    } catch {
+      showSetPanel('login');
+      setAdminMsg('Gagal memeriksa status pengaturan.', true);
+    }
+  }
+
+  function closeSettingView() {
+    settingView.hidden = true;
+    appMain.hidden = false;
+    requestAnimationFrame(() => {
+      fitApp();
+      layoutBar();
+      syncSpectrumWidth();
+      drawWave();
+    });
+  }
+
+  setBackBtn.addEventListener('click', closeSettingView);
+
+  setBootstrapPanel.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const pass = setBootPass.value;
+    const confirm = setBootConfirm.value;
+    if (pass.length < 6) {
+      setAdminMsg('Sandi admin minimal 6 karakter.', true);
+      return;
+    }
+    if (pass !== confirm) {
+      setAdminMsg('Konfirmasi sandi tidak cocok.', true);
+      return;
+    }
+    setBootBtn.disabled = true;
+    setAdminMsg('');
+    try {
+      const res = await fetch('/api/admin/bootstrap', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pass }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.token) {
+        setAdminMsg(data.error || 'Gagal menyimpan sandi admin.', true);
+        return;
+      }
+      adminToken = data.token;
+      setEnvManaged = !!data.envManaged;
+      setBootPass.value = '';
+      setBootConfirm.value = '';
+      showSetPanel('dash');
+      loadAdminAccounts();
+      setAdminMsg('Sandi admin berhasil disimpan.');
+    } catch {
+      setAdminMsg('Gagal terhubung ke server.', true);
+    } finally {
+      setBootBtn.disabled = false;
+    }
+  });
+
+  setLoginPanel.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const pass = setAdminPass.value;
+    if (!pass) return;
+    setLoginBtn.disabled = true;
+    setAdminMsg('');
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pass }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.token) {
+        setAdminMsg(data.error || 'Sandi admin salah.', true);
+        return;
+      }
+      adminToken = data.token;
+      setEnvManaged = !!data.envManaged;
+      setAdminPass.value = '';
+      showSetPanel('dash');
+      loadAdminAccounts();
+    } catch {
+      setAdminMsg('Gagal terhubung ke server.', true);
+    } finally {
+      setLoginBtn.disabled = false;
+    }
+  });
+
+  setLogoutBtn.addEventListener('click', () => {
+    const oldTok = adminToken;
+    adminToken = '';
+    setQrBox.hidden = true;
+    showSetPanel('login');
+    setAdminMsg('Keluar dari pengaturan admin.');
+    if (oldTok) {
+      fetch('/api/admin/logout', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${oldTok}` },
+      }).catch(() => {});
+    }
+  });
+
+  setCreateForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = setNewEmail.value.trim().toLowerCase();
+    const name = setNewName.value.trim();
+    if (!email) return;
+    setCreateBtn.disabled = true;
+    setAdminMsg('');
+    try {
+      const res = await adminFetch('/api/admin/accounts', {
+        method: 'POST',
+        body: JSON.stringify({ email, name }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setAdminMsg(data.error || 'Gagal membuat akun.', true);
+        return;
+      }
+      setNewEmail.value = '';
+      setNewName.value = '';
+      showQrBanner(data.account.email, data.totpSecret, data.qrDataUrl, false);
+      setAdminMsg(`Akun ${data.account.email} dibuat. Pindai QR Authenticator di bawah.`);
+      loadAdminAccounts();
+    } catch {
+      setAdminMsg('Gagal menghubungi server.', true);
+    } finally {
+      setCreateBtn.disabled = false;
+    }
+  });
+
+  setPassForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const currentPass = setCurPass.value;
+    const newPass = setNextPass.value;
+    if (newPass.length < 6) {
+      setAdminMsg('Sandi baru minimal 6 karakter.', true);
+      return;
+    }
+    setAdminMsg('');
+    const res = await adminFetch('/api/admin/password', {
+      method: 'POST',
+      body: JSON.stringify({ currentPass, newPass }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setAdminMsg(data.error || 'Gagal mengubah sandi.', true);
+      return;
+    }
+    setCurPass.value = '';
+    setNextPass.value = '';
+    setAdminMsg('Sandi admin berhasil diperbarui.');
   });
 }
 </script>
