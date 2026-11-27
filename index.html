@@ -1541,6 +1541,63 @@ html[data-tema="gelap"] .cast-input:focus { outline-color: #5bc0ff; }
 .cast-eye:hover { opacity: 1; }
 .cast-eye svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; }
 
+.cast-mixer, .cast-mp3 {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 12px 14px; border-radius: 14px;
+  background: rgba(120, 145, 170, .08);
+  border: 1px solid rgba(120, 145, 170, .18);
+}
+.cast-fader-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  font-size: .8rem; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.cast-src-btn {
+  min-height: 36px; padding: 4px 8px; border-radius: 8px; border: 0;
+  background: transparent; color: inherit; cursor: pointer;
+  font: inherit; opacity: .78; transition: opacity .15s ease, background-color .15s ease;
+}
+.cast-src-btn:hover, .cast-src-btn:focus-visible { opacity: 1; background: rgba(120, 145, 170, .14); }
+.cast-src-btn.active { opacity: 1; color: #0c7c72; }
+html[data-tema="gelap"] .cast-src-btn.active { color: #5bc0ff; }
+
+.cast-fader {
+  width: 100%; height: 28px; margin: 0; cursor: pointer;
+  accent-color: #0c7c72;
+}
+html[data-tema="gelap"] .cast-fader { accent-color: #5bc0ff; }
+
+.cast-mp3-top {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.cast-mp3-name {
+  font-size: .86rem; font-weight: 600; min-width: 0; flex: 1 1 auto;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cast-mp3-ctrls {
+  display: flex; align-items: center; gap: 8px;
+}
+.cast-mp3-icon {
+  min-width: 44px; min-height: 44px; padding: 0 10px; border-radius: 10px;
+  border: 1px solid rgba(120, 145, 170, .28); background: transparent; color: inherit;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-size: .82rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.cast-mp3-icon:hover:not(:disabled), .cast-mp3-icon:focus-visible:not(:disabled) { background: rgba(120, 145, 170, .12); }
+.cast-mp3-icon:disabled { opacity: .4; cursor: default; }
+.cast-mp3-icon[aria-pressed="true"] {
+  border-color: #0c7c72; color: #0c7c72; background: rgba(12, 124, 114, .1);
+}
+html[data-tema="gelap"] .cast-mp3-icon[aria-pressed="true"] {
+  border-color: #5bc0ff; color: #5bc0ff; background: rgba(91, 192, 255, .12);
+}
+.cast-mp3-icon svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.cast-mp3-prog {
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px;
+  font-size: .76rem; opacity: .82; font-variant-numeric: tabular-nums;
+}
+.cast-mp3-prog input[type="range"] { width: 100%; accent-color: #0c7c72; cursor: pointer; }
+html[data-tema="gelap"] .cast-mp3-prog input[type="range"] { accent-color: #5bc0ff; }
+
 .cast-msg {
   margin: 0; min-height: 1.2em; font-size: .82rem; line-height: 1.4; text-align: center;
   color: #4e657c;
@@ -1682,6 +1739,37 @@ html[data-tema="gelap"] .cast-msg.bad { color: #e27872; }
       </div>
 
       <button type="button" class="cast-primary" id="castToggleBtn" data-live="false">Mulai Siaran</button>
+
+      <div class="cast-mixer" aria-label="Penggeser sumber suara">
+        <div class="cast-fader-head">
+          <button type="button" class="cast-src-btn active" id="castSrcLeft">Soundcard 100%</button>
+          <span id="castFaderCenter" style="font-size:.72rem;opacity:.65">Geser Sumber</span>
+          <button type="button" class="cast-src-btn" id="castSrcRight">MP3 0%</button>
+        </div>
+        <input id="castFader" class="cast-fader" type="range" min="0" max="100" step="1" value="0" aria-label="Pilih sumber suara Soundcard di kiri atau MP3 di kanan">
+      </div>
+
+      <div class="cast-mp3" aria-label="Pemutar MP3 lokal">
+        <div class="cast-mp3-top">
+          <span class="cast-mp3-name" id="castMp3Name">Belum ada file MP3 dipilih</span>
+          <button type="button" class="cast-btn-sec" id="castMp3PickBtn">Pilih MP3</button>
+          <input id="castMp3Input" type="file" accept=".mp3,audio/mpeg,audio/*" multiple hidden>
+        </div>
+        <div class="cast-mp3-ctrls">
+          <button type="button" class="cast-mp3-icon" id="castMp3Prev" aria-label="Lagu sebelumnya" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 20L9 12l10-8v16zM5 19V5"/></svg>
+          </button>
+          <button type="button" class="cast-mp3-icon" id="castMp3PlayBtn" style="flex:1 1 auto" disabled>Putar MP3</button>
+          <button type="button" class="cast-mp3-icon" id="castMp3Next" aria-label="Lagu berikutnya" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4l10 8-10 8V4zM19 5v14"/></svg>
+          </button>
+          <button type="button" class="cast-mp3-icon" id="castMp3MonBtn" aria-pressed="true" title="Pantau suara MP3 di perangkat">Monitor</button>
+        </div>
+        <div class="cast-mp3-prog">
+          <input id="castMp3Seek" type="range" min="0" max="100" step="0.1" value="0" aria-label="Posisi pemutaran MP3" disabled>
+          <span id="castMp3Time">00:00 / 00:00</span>
+        </div>
+      </div>
 
       <div class="cast-controls-row">
         <button type="button" class="cast-btn-sec" id="castMuteBtn" aria-pressed="false">Mikrofon Aktif</button>
@@ -2797,10 +2885,25 @@ if (!SEMATAN) {
   const castBitrateSelect = $('castBitrate');
   const castStationInput = $('castStation');
   const castMsgEl = $('castMsg');
+  const castFaderInput = $('castFader');
+  const castSrcLeftBtn = $('castSrcLeft');
+  const castSrcRightBtn = $('castSrcRight');
+  const castMp3NameEl = $('castMp3Name');
+  const castMp3PickBtn = $('castMp3PickBtn');
+  const castMp3Input = $('castMp3Input');
+  const castMp3PrevBtn = $('castMp3Prev');
+  const castMp3PlayBtn = $('castMp3PlayBtn');
+  const castMp3NextBtn = $('castMp3Next');
+  const castMp3MonBtn = $('castMp3MonBtn');
+  const castMp3SeekInput = $('castMp3Seek');
+  const castMp3TimeEl = $('castMp3Time');
 
   let castWs = null, castStream = null, castCtx = null, castSource = null;
-  let castGainNode = null, castAnalyser = null, castProc = null, castMuteSink = null;
+  let castGainNode = null, castMicCrossGain = null, castMp3Source = null, castMp3CrossGain = null, castMp3MonGain = null;
+  let castMasterGain = null, castAnalyser = null, castProc = null, castMuteSink = null;
   let castLive = false, castConnecting = false, castMuted = false, castGain = 1;
+  let castFaderVal = 0, castMp3Monitor = true;
+  let castMp3Audio = null, castMp3Files = [], castMp3Idx = 0, castMp3Url = '', castMp3Seeking = false;
   let castHasServerPass = false, castMeterRaf = 0, castClockTimer = 0, castStartedAt = 0;
 
   function syncCastThemeIcon() {
@@ -2832,11 +2935,46 @@ if (!SEMATAN) {
     return `${h}:${m}:${s}`;
   }
 
+  function formatMmSs(sec) {
+    if (!Number.isFinite(sec) || sec < 0) return '00:00';
+    const total = Math.floor(sec);
+    return `${pad(Math.floor(total / 60))}:${pad(total % 60)}`;
+  }
+
+  function applyCrossfader(val) {
+    castFaderVal = Math.max(0, Math.min(100, Number(val) || 0));
+    castFaderInput.value = String(castFaderVal);
+    const pos = castFaderVal / 100;
+    const micW = Math.cos(pos * Math.PI / 2);
+    const mp3W = Math.sin(pos * Math.PI / 2);
+    if (castMicCrossGain) castMicCrossGain.gain.value = micW;
+    if (castMp3CrossGain) castMp3CrossGain.gain.value = mp3W;
+    const micPct = Math.round(micW * 100);
+    const mp3Pct = Math.round(mp3W * 100);
+    castSrcLeftBtn.textContent = `Soundcard ${micPct}%`;
+    castSrcRightBtn.textContent = `MP3 ${mp3Pct}%`;
+    castSrcLeftBtn.classList.toggle('active', micPct >= mp3Pct);
+    castSrcRightBtn.classList.toggle('active', mp3Pct >= micPct);
+  }
+
   function updateStatLine(kb = 0) {
     const br = Number(castBitrateSelect.value) || 48;
     const h = castHostInput.value.trim() || 'streamy1.radioislam.my.id';
     const p = castPortInput.value.trim() || '9210';
     castStatEl.textContent = `${br} Kbps · ${kb.toLocaleString('id-ID')} KB · ${h}:${p}`;
+  }
+
+  function syncMp3Ui() {
+    const hasFiles = castMp3Files.length > 0;
+    const playing = !!(castMp3Audio && !castMp3Audio.paused && !castMp3Audio.ended);
+    castMp3PrevBtn.disabled = castMp3Files.length < 2;
+    castMp3NextBtn.disabled = castMp3Files.length < 2;
+    castMp3PlayBtn.disabled = !hasFiles;
+    castMp3PlayBtn.textContent = playing ? 'Jeda MP3' : 'Putar MP3';
+    castMp3PlayBtn.setAttribute('aria-pressed', playing ? 'true' : 'false');
+    castMp3SeekInput.disabled = !hasFiles;
+    castMp3MonBtn.setAttribute('aria-pressed', castMp3Monitor ? 'true' : 'false');
+    castMp3MonBtn.textContent = castMp3Monitor ? 'Monitor: ON' : 'Monitor: OFF';
   }
 
   function syncCastUi() {
@@ -2848,6 +2986,7 @@ if (!SEMATAN) {
     castMuteBtn.setAttribute('aria-pressed', castMuted ? 'true' : 'false');
     castMuteBtn.textContent = castMuted ? 'Mikrofon Bisu' : 'Mikrofon Aktif';
     castBackBtn.disabled = castLive || castConnecting;
+    syncMp3Ui();
   }
 
   async function loadBroadcastConfig() {
@@ -2888,9 +3027,7 @@ if (!SEMATAN) {
         castMeterEl.style.transform = 'scaleX(0)';
         return;
       }
-      if (castMuted) {
-        castMeterEl.style.transform = 'scaleX(0.02)';
-      } else if (buf) {
+      if (buf) {
         castAnalyser.getByteTimeDomainData(buf);
         let peak = 0;
         for (let i = 0; i < buf.length; i++) {
@@ -2905,12 +3042,117 @@ if (!SEMATAN) {
     castMeterRaf = requestAnimationFrame(step);
   }
 
+  async function ensureAudioGraph() {
+    if (!castCtx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      castCtx = new AudioCtx();
+      castMasterGain = castCtx.createGain();
+      castMasterGain.gain.value = 1;
+      castMicCrossGain = castCtx.createGain();
+      castMp3CrossGain = castCtx.createGain();
+      castMp3MonGain = castCtx.createGain();
+      castMp3MonGain.gain.value = castMp3Monitor ? 1 : 0;
+
+      castAnalyser = castCtx.createAnalyser();
+      castAnalyser.fftSize = 512;
+      castProc = castCtx.createScriptProcessor(4096, 1, 1);
+      castMuteSink = castCtx.createGain();
+      castMuteSink.gain.value = 0;
+
+      castMicCrossGain.connect(castMasterGain);
+      castMp3CrossGain.connect(castMasterGain);
+      castMp3MonGain.connect(castCtx.destination);
+
+      castMasterGain.connect(castAnalyser);
+      castMasterGain.connect(castProc);
+      castProc.connect(castMuteSink);
+      castMuteSink.connect(castCtx.destination);
+
+      castProc.onaudioprocess = (ev) => {
+        if (!castLive || !castWs || castWs.readyState !== 1) return;
+        const input = ev.inputBuffer.getChannelData(0);
+        const pcm = new Int16Array(input.length);
+        for (let i = 0; i < input.length; i++) {
+          const s = Math.max(-1, Math.min(1, input[i]));
+          pcm[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+        }
+        castWs.send(pcm.buffer);
+      };
+
+      applyCrossfader(castFaderVal);
+      startMeterLoop();
+    }
+    if (castCtx.state === 'suspended') {
+      try { await castCtx.resume(); } catch {}
+    }
+    return castCtx;
+  }
+
+  function ensureMp3AudioNode() {
+    if (!castMp3Audio) {
+      castMp3Audio = new Audio();
+      castMp3Audio.preload = 'auto';
+      castMp3Audio.addEventListener('timeupdate', () => {
+        if (!castMp3Audio || castMp3Seeking) return;
+        const dur = castMp3Audio.duration;
+        const cur = castMp3Audio.currentTime || 0;
+        if (Number.isFinite(dur) && dur > 0) {
+          castMp3SeekInput.value = ((cur / dur) * 100).toFixed(1);
+          castMp3TimeEl.textContent = `${formatMmSs(cur)} / ${formatMmSs(dur)}`;
+        } else {
+          castMp3TimeEl.textContent = `${formatMmSs(cur)} / 00:00`;
+        }
+      });
+      castMp3Audio.addEventListener('loadedmetadata', () => {
+        if (!castMp3Audio) return;
+        const dur = castMp3Audio.duration;
+        castMp3TimeEl.textContent = `00:00 / ${formatMmSs(dur)}`;
+      });
+      castMp3Audio.addEventListener('play', syncMp3Ui);
+      castMp3Audio.addEventListener('pause', syncMp3Ui);
+      castMp3Audio.addEventListener('ended', () => {
+        if (castMp3Files.length > 1) {
+          loadMp3Track((castMp3Idx + 1) % castMp3Files.length, true);
+        } else {
+          syncMp3Ui();
+        }
+      });
+    }
+    if (castCtx && !castMp3Source) {
+      castMp3Source = castCtx.createMediaElementSource(castMp3Audio);
+      castMp3Source.connect(castMp3CrossGain);
+      castMp3Source.connect(castMp3MonGain);
+    }
+  }
+
+  function loadMp3Track(index, autoplay = false) {
+    if (!castMp3Files.length) return;
+    castMp3Idx = ((index % castMp3Files.length) + castMp3Files.length) % castMp3Files.length;
+    const file = castMp3Files[castMp3Idx];
+    if (castMp3Url) {
+      try { URL.revokeObjectURL(castMp3Url); } catch {}
+    }
+    castMp3Url = URL.createObjectURL(file);
+    ensureMp3AudioNode();
+    castMp3Audio.src = castMp3Url;
+    castMp3Audio.load();
+    castMp3SeekInput.value = '0';
+    castMp3TimeEl.textContent = '00:00 / 00:00';
+    const prefix = castMp3Files.length > 1 ? `${castMp3Idx + 1}/${castMp3Files.length} · ` : '';
+    castMp3NameEl.textContent = `${prefix}${file.name}`;
+    syncMp3Ui();
+    if (autoplay) {
+      ensureAudioGraph().then(() => {
+        ensureMp3AudioNode();
+        castMp3Audio.play().catch(() => {});
+      });
+    }
+  }
+
   async function ensureMicrophone() {
+    await ensureAudioGraph();
     if (castStream && castStream.getTracks().some(t => t.readyState === 'live')) {
       castMicBanner.hidden = true;
-      if (castCtx && castCtx.state === 'suspended') {
-        try { await castCtx.resume(); } catch {}
-      }
       return true;
     }
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -2929,54 +3171,40 @@ if (!SEMATAN) {
       });
     } catch {
       castMicBanner.hidden = false;
-      castMicHint.textContent = 'Izinkan akses mikrofon agar siap siaran.';
+      castMicHint.textContent = 'Izinkan akses mikrofon untuk sumber Soundcard.';
       castMicBtn.hidden = false;
       return false;
-    }
-
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    castCtx = new AudioCtx();
-    if (castCtx.state === 'suspended') {
-      try { await castCtx.resume(); } catch {}
     }
 
     castSource = castCtx.createMediaStreamSource(castStream);
     castGainNode = castCtx.createGain();
     castGainNode.gain.value = castMuted ? 0 : castGain;
-    castAnalyser = castCtx.createAnalyser();
-    castAnalyser.fftSize = 512;
-    castProc = castCtx.createScriptProcessor(4096, 1, 1);
-    castMuteSink = castCtx.createGain();
-    castMuteSink.gain.value = 0;
-
     castSource.connect(castGainNode);
-    castGainNode.connect(castAnalyser);
-    castGainNode.connect(castProc);
-    castProc.connect(castMuteSink);
-    castMuteSink.connect(castCtx.destination);
-
-    castProc.onaudioprocess = (ev) => {
-      if (!castLive || !castWs || castWs.readyState !== 1) return;
-      const input = ev.inputBuffer.getChannelData(0);
-      const pcm = new Int16Array(input.length);
-      for (let i = 0; i < input.length; i++) {
-        const s = Math.max(-1, Math.min(1, input[i]));
-        pcm[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
-      }
-      castWs.send(pcm.buffer);
-    };
+    castGainNode.connect(castMicCrossGain);
 
     castMicBanner.hidden = true;
-    startMeterLoop();
     return true;
   }
 
   function releaseAudioHardware() {
     cancelAnimationFrame(castMeterRaf);
     castMeterEl.style.transform = 'scaleX(0)';
+    if (castMp3Audio) {
+      try { castMp3Audio.pause(); castMp3Audio.removeAttribute('src'); castMp3Audio.load(); } catch {}
+      castMp3Audio = null;
+    }
+    if (castMp3Url) {
+      try { URL.revokeObjectURL(castMp3Url); } catch {}
+      castMp3Url = '';
+    }
     try { if (castProc) { castProc.onaudioprocess = null; castProc.disconnect(); } } catch {}
     try { if (castSource) castSource.disconnect(); } catch {}
     try { if (castGainNode) castGainNode.disconnect(); } catch {}
+    try { if (castMicCrossGain) castMicCrossGain.disconnect(); } catch {}
+    try { if (castMp3Source) castMp3Source.disconnect(); } catch {}
+    try { if (castMp3CrossGain) castMp3CrossGain.disconnect(); } catch {}
+    try { if (castMp3MonGain) castMp3MonGain.disconnect(); } catch {}
+    try { if (castMasterGain) castMasterGain.disconnect(); } catch {}
     try { if (castAnalyser) castAnalyser.disconnect(); } catch {}
     try { if (castMuteSink) castMuteSink.disconnect(); } catch {}
     if (castStream) {
@@ -2985,8 +3213,9 @@ if (!SEMATAN) {
     if (castCtx) {
       try { castCtx.close(); } catch {}
     }
-    castStream = null; castCtx = null; castSource = null;
-    castGainNode = null; castAnalyser = null; castProc = null; castMuteSink = null;
+    castStream = null; castCtx = null; castSource = null; castGainNode = null;
+    castMicCrossGain = null; castMp3Source = null; castMp3CrossGain = null; castMp3MonGain = null;
+    castMasterGain = null; castAnalyser = null; castProc = null; castMuteSink = null;
   }
 
   function teardownWs(sendStop = false) {
@@ -3011,6 +3240,7 @@ if (!SEMATAN) {
     castView.hidden = false;
     syncCastThemeIcon();
     loadBroadcastConfig();
+    applyCrossfader(castFaderVal);
     syncCastUi();
     ensureMicrophone();
     setTimeout(() => castToggleBtn.focus(), 40);
@@ -3038,6 +3268,66 @@ if (!SEMATAN) {
     const ok = await ensureMicrophone();
     if (ok) setCastMsg('Mikrofon aktif dan siap digunakan.');
     else setCastMsg('Izin mikrofon ditolak browser. Aktifkan izin mikrofon di pengaturan situs.', true);
+  });
+
+  castFaderInput.addEventListener('input', () => applyCrossfader(castFaderInput.value));
+  castSrcLeftBtn.addEventListener('click', () => applyCrossfader(0));
+  castSrcRightBtn.addEventListener('click', () => applyCrossfader(100));
+
+  castMp3PickBtn.addEventListener('click', () => castMp3Input.click());
+  castMp3Input.addEventListener('change', () => {
+    const files = Array.from(castMp3Input.files || []);
+    if (!files.length) return;
+    castMp3Files = files;
+    loadMp3Track(0, false);
+    if (castFaderVal === 0) {
+      setCastMsg('File MP3 siap. Geser sumber ke kanan untuk memancarkan MP3.');
+    }
+  });
+
+  castMp3PlayBtn.addEventListener('click', async () => {
+    if (!castMp3Files.length) return;
+    await ensureAudioGraph();
+    ensureMp3AudioNode();
+    if (!castMp3Audio.src) loadMp3Track(castMp3Idx, false);
+    if (castMp3Audio.paused || castMp3Audio.ended) {
+      castMp3Audio.play().catch(() => {
+        setCastMsg('Gagal memutar file audio tersebut.', true);
+      });
+    } else {
+      castMp3Audio.pause();
+    }
+    syncMp3Ui();
+  });
+
+  castMp3PrevBtn.addEventListener('click', () => {
+    if (castMp3Files.length < 2) return;
+    const wasPlaying = !!(castMp3Audio && !castMp3Audio.paused);
+    loadMp3Track(castMp3Idx - 1, wasPlaying);
+  });
+
+  castMp3NextBtn.addEventListener('click', () => {
+    if (castMp3Files.length < 2) return;
+    const wasPlaying = !!(castMp3Audio && !castMp3Audio.paused);
+    loadMp3Track(castMp3Idx + 1, wasPlaying);
+  });
+
+  castMp3MonBtn.addEventListener('click', () => {
+    castMp3Monitor = !castMp3Monitor;
+    if (castMp3MonGain) castMp3MonGain.gain.value = castMp3Monitor ? 1 : 0;
+    syncMp3Ui();
+  });
+
+  castMp3SeekInput.addEventListener('pointerdown', () => { castMp3Seeking = true; });
+  ['pointerup', 'pointercancel', 'change'].forEach(evt => {
+    castMp3SeekInput.addEventListener(evt, () => { castMp3Seeking = false; });
+  });
+  castMp3SeekInput.addEventListener('input', () => {
+    if (!castMp3Audio || !Number.isFinite(castMp3Audio.duration) || castMp3Audio.duration <= 0) return;
+    const pct = Number(castMp3SeekInput.value) || 0;
+    const target = (pct / 100) * castMp3Audio.duration;
+    castMp3Audio.currentTime = target;
+    castMp3TimeEl.textContent = `${formatMmSs(target)} / ${formatMmSs(castMp3Audio.duration)}`;
   });
 
   castPassEye.addEventListener('click', () => {
@@ -3082,14 +3372,17 @@ if (!SEMATAN) {
     }
 
     castConnecting = true;
-    setCastStatus('connecting', 'Menyiapkan mikrofon...');
+    setCastStatus('connecting', 'Menyiapkan audio...');
     syncCastUi();
 
+    await ensureAudioGraph();
+    if (castMp3Files.length) ensureMp3AudioNode();
+
     const micOk = await ensureMicrophone();
-    if (!micOk) {
+    if (!micOk && castFaderVal < 95 && !castMp3Files.length) {
       teardownWs(false);
       setCastStatus('error', 'Izin mikrofon ditolak');
-      setCastMsg('Izinkan akses mikrofon pada browser untuk memulai siaran.', true);
+      setCastMsg('Izinkan mikrofon atau pilih file MP3 dan geser sumber ke MP3.', true);
       return;
     }
 
