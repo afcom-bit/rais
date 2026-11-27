@@ -27,12 +27,40 @@ const AUTH_FILE = path.join(DATA_DIR, 'auth.json');
 
 const BASE32_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
+function defaultStationConfig() {
+  return {
+    host: STREAM_HOST,
+    port: STREAM_PORT,
+    user: BROADCAST_USER,
+    pass: '',
+    station: 'Radio Islam Sragen',
+    genre: 'Islamic',
+    bitrate: 48,
+  };
+}
+
+function normalizeStoredStation(raw) {
+  const def = defaultStationConfig();
+  if (!raw || typeof raw !== 'object') return def;
+  const portNum = Number(raw.port);
+  const brNum = Number(raw.bitrate);
+  return {
+    host: cleanHeaderValue(raw.host, def.host, 253).toLowerCase(),
+    port: Number.isInteger(portNum) && portNum >= 1 && portNum <= 65535 ? portNum : def.port,
+    user: cleanHeaderValue(raw.user, def.user, 64),
+    pass: typeof raw.pass === 'string' ? raw.pass.replace(/[\r\n\0]+/g, '').slice(0, 128) : '',
+    station: cleanHeaderValue(raw.station, def.station, 100),
+    genre: cleanHeaderValue(raw.genre, def.genre, 48),
+    bitrate: ALLOWED_BITRATES.has(brNum) ? brNum : def.bitrate,
+  };
+}
+
 function ensureAuthFile() {
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true, mode: 0o700 });
   }
   if (!fs.existsSync(AUTH_FILE)) {
-    const initial = { accounts: [] };
+    const initial = { accounts: [], station: defaultStationConfig() };
     fs.writeFileSync(AUTH_FILE, JSON.stringify(initial, null, 2), { mode: 0o600 });
     return initial;
   }
@@ -40,9 +68,10 @@ function ensureAuthFile() {
     const raw = fs.readFileSync(AUTH_FILE, 'utf8');
     const parsed = JSON.parse(raw);
     const list = Array.isArray(parsed.accounts) ? parsed.accounts : [];
-    return { accounts: list };
+    const station = normalizeStoredStation(parsed.station);
+    return { accounts: list, station };
   } catch {
-    return { accounts: [] };
+    return { accounts: [], station: defaultStationConfig() };
   }
 }
 
@@ -55,7 +84,7 @@ function saveAuthState() {
   const tmpFile = path.join(DATA_DIR, `.auth.${crypto.randomBytes(6).toString('hex')}.tmp`);
   fs.writeFileSync(
     tmpFile,
-    JSON.stringify({ accounts: authState.accounts }, null, 2),
+    JSON.stringify({ accounts: authState.accounts, station: authState.station }, null, 2),
     { mode: 0o600 }
   );
   fs.renameSync(tmpFile, AUTH_FILE);
@@ -422,6 +451,129 @@ app.delete('/api/admin/accounts/:id', (req, res) => {
   res.json({ ok: true });
 });
 
+function getEffectiveStationConfig() {
+  const s = authState.station || defaultStationConfig();
+  const savedPass = typeof s.pass === 'string' ? s.pass : '';
+  const envPass = typeof process.env.BROADCAST_PASS === 'string' ? process.env.BROADCAST_PASS : '';
+  return {
+    host: s.host || STREAM_HOST,
+    port: Number.isInteger(s.port) && s.port >= 1 && s.port <= 65535 ? s.port : STREAM_PORT,
+    user: s.user || BROADCAST_USER,
+    pass: savedPass || envPass || '',
+    hasSavedPass: savedPass.length > 0,
+    hasEnvPass: envPass.length > 0,
+    station: s.station || 'Radio Islam Sragen',
+    genre: s.genre || 'Islamic',
+    bitrate: ALLOWED_BITRATES.has(Number(s.bitrate)) ? Number(s.bitrate) : 48,
+  };
+}
+
+function publicStationPayload() {
+  const cfg = getEffectiveStationConfig();
+  return {
+    host: cfg.host,
+    port: cfg.port,
+    user: cfg.user,
+    station: cfg.station,
+    genre: cfg.genre,
+    bitrate: cfg.bitrate,
+    hasPass: Boolean(cfg.pass),
+    hasSavedPass: cfg.hasSavedPass,
+    hasEnvPass: cfg.hasEnvPass,
+  };
+}
+
+async function validateStationHostForSave(rawHost) {
+  const host = String(rawHost ?? '').trim().toLowerCase();
+  if (!host || host.length > 253) {
+    throw new Error('Alamat server siaran tidak valid.');
+  }
+  if (host === 'localhost' || host.endsWith('.local') || host.endsWith('.internal')) {
+    throw new Error('Alamat server lokal tidak diizinkan.');
+  }
+  if (!/^[a-z0-9.-]+$/.test(host)) {
+    throw new Error('Format alamat server tidak valid.');
+  }
+  if (net.isIP(host)) {
+    if (isDisallowedIp(host)) {
+      throw new Error('Alamat IP tujuan tidak diizinkan.');
+    }
+    return host;
+  }
+  try {
+    const records = await dns.lookup(host, { all: true });
+    if (records && records.length > 0 && !records.some((r) => !isDisallowedIp(r.address))) {
+      throw new Error('Alamat tujuan mengarah ke jaringan privat.');
+    }
+  } catch (err) {
+    if (err && err.message && err.message.includes('jaringan privat')) {
+      throw err;
+    }
+  }
+  return host;
+}
+
+app.get('/api/admin/station', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  res.json({ station: publicStationPayload() });
+});
+
+async function handleSaveStation(req, res) {
+  res.setHeader('Cache-Control', 'no-store');
+  const body = req.body && typeof req.body === 'object' ? req.body : {};
+
+  let host;
+  try {
+    host = await validateStationHostForSave(cleanHeaderValue(body.host, '', 253));
+  } catch (err) {
+    res.status(400).json({ error: err.message || 'Alamat server tidak valid.' });
+    return;
+  }
+
+  const port = Number(body.port);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    res.status(400).json({ error: 'Nomor port harus antara 1 sampai 65535.' });
+    return;
+  }
+
+  const user = cleanHeaderValue(body.user, '', 64);
+  if (!user) {
+    res.status(400).json({ error: 'User siaran wajib diisi.' });
+    return;
+  }
+
+  const bitrate = Number(body.bitrate);
+  if (!ALLOWED_BITRATES.has(bitrate)) {
+    res.status(400).json({ error: 'Pilihan bitrate tidak valid.' });
+    return;
+  }
+
+  const stationName = cleanHeaderValue(body.station, 'Radio Islam Sragen', 100);
+  const genre = cleanHeaderValue(body.genre, authState.station?.genre || 'Islamic', 48);
+
+  let nextPass = authState.station?.pass || '';
+  if (body.clearPass === true) {
+    nextPass = '';
+  } else if (typeof body.pass === 'string' && body.pass.length > 0) {
+    nextPass = body.pass.replace(/[\r\n\0]+/g, '').slice(0, 128);
+  }
+
+  authState.station = {
+    host,
+    port,
+    user,
+    pass: nextPass,
+    station: stationName,
+    genre,
+    bitrate,
+  };
+  saveAuthState();
+  res.json({ ok: true, station: publicStationPayload() });
+}
+
+app.put('/api/admin/station', handleSaveStation);
+app.post('/api/admin/station', handleSaveStation);
+
 /* ==================== API KONFIGURASI SIARAN (TANPA KODE) ==================== */
 
 app.get('/api/broadcast/session', (req, res) => {
@@ -435,13 +587,7 @@ app.get('/api/broadcast/session', (req, res) => {
 app.get('/api/broadcast/config', (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   res.json({
-    host: STREAM_HOST,
-    port: STREAM_PORT,
-    user: BROADCAST_USER,
-    hasPass: Boolean(process.env.BROADCAST_PASS && process.env.BROADCAST_PASS.length > 0),
-    station: 'Radio Islam Sragen',
-    genre: 'Islamic',
-    bitrate: 48,
+    ...publicStationPayload(),
     busy: Boolean(activeBroadcast),
   });
 });
@@ -775,29 +921,31 @@ wss.on('connection', (ws) => {
         return;
       }
 
-      const rawHost = cleanHeaderValue(msg.host, STREAM_HOST, 253);
-      const port = Number(msg.port);
-      const user = cleanHeaderValue(msg.user, BROADCAST_USER, 64);
+      const cfg = getEffectiveStationConfig();
+      const rawHost = cleanHeaderValue(msg.host, cfg.host, 253);
+      const hasPort = msg.port !== undefined && msg.port !== null && msg.port !== '';
+      const port = hasPort ? Number(msg.port) : cfg.port;
+      const user = cleanHeaderValue(msg.user, cfg.user, 64);
       const pass =
         typeof msg.pass === 'string' && msg.pass.length > 0
           ? msg.pass.replace(/[\r\n\0]+/g, '').slice(0, 128)
-          : (process.env.BROADCAST_PASS || '');
-      const bitrate = ALLOWED_BITRATES.has(Number(msg.bitrate)) ? Number(msg.bitrate) : 48;
+          : cfg.pass;
+      const bitrate = ALLOWED_BITRATES.has(Number(msg.bitrate)) ? Number(msg.bitrate) : cfg.bitrate;
       const rawRate = Math.round(Number(msg.sampleRate));
       const sampleRate = Number.isInteger(rawRate) && rawRate >= 8000 && rawRate <= 96000 ? rawRate : 44100;
-      const station = cleanHeaderValue(msg.station, 'Radio Islam Sragen', 100);
-      const genre = cleanHeaderValue(msg.genre, 'Islamic', 48);
+      const station = cleanHeaderValue(msg.station, cfg.station, 100);
+      const genre = cleanHeaderValue(msg.genre, cfg.genre, 48);
       const title = cleanHeaderValue(msg.title, '', 180);
       const mount = cleanHeaderValue(msg.mount, '/stream', 64);
 
       if (!Number.isInteger(port) || port < 1 || port > 65535) {
-        sendJson({ type: 'error', message: 'Nomor port tidak valid.' });
+        sendJson({ type: 'error', message: 'Nomor port stasiun tidak valid.' });
         return;
       }
       if (!pass) {
         sendJson({
           type: 'error',
-          message: 'Kata sandi stream belum diisi. Masukkan sandi atau atur BROADCAST_PASS di server.',
+          message: 'Kata sandi stream belum diatur. Isi kata sandi di menu Pengaturan Stasiun.',
         });
         return;
       }

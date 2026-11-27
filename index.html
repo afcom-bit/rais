@@ -1380,168 +1380,409 @@ html:not(.sematan)[data-tema="gelap"] #play .hold-ring circle { stroke: #5bc0ff;
 .app[hidden] { display: none !important; }
 
 .cast-view {
+  position: relative; z-index: 1;
   min-height: 100vh; min-height: 100dvh; width: 100%;
-  display: flex; flex-direction: column; align-items: center;
-  padding: max(12px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(18px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  display: flex; flex-direction: column;
+  padding:
+    max(12px, calc(env(safe-area-inset-top, 0px) + 10px))
+    max(14px, env(safe-area-inset-right, 0px))
+    max(16px, calc(env(safe-area-inset-bottom, 0px) + 12px))
+    max(14px, env(safe-area-inset-left, 0px));
   font-family: var(--font-ui);
   overflow-y: auto;
 }
 .cast-view[hidden] { display: none !important; }
 html:not(.sematan)[data-tema="terang"] .cast-view {
-  background: linear-gradient(180deg, #f4f8fc 0%, #eaf1f8 100%);
-  color: #162636;
+  background: transparent;
+  color: var(--ink);
 }
 html:not(.sematan)[data-tema="gelap"] .cast-view {
   background: #000;
-  color: #ebe6dc;
+  color: #bbb4a6;
 }
-.cast-shell {
-  width: 100%; max-width: 520px; flex: 1 1 auto;
-  display: flex; flex-direction: column; justify-content: space-between; gap: 16px;
-}
-.cast-topbar {
-  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(120, 140, 160, .2);
-}
-.cast-back {
-  min-height: 44px; padding: 0 12px 0 8px; border-radius: 12px;
-  border: 1px solid rgba(120, 145, 170, .26);
-  background: transparent; color: inherit;
-  display: inline-flex; align-items: center; gap: 6px;
-  font-size: .84rem; font-weight: 600; cursor: pointer; white-space: nowrap;
-}
-.cast-back:hover, .cast-back:focus-visible { background: rgba(120, 145, 170, .12); }
-.cast-back svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-.cast-head-title { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; min-width: 0; }
-.cast-head-title h2 { margin: 0; font-size: 1rem; font-weight: 700; line-height: 1.25; text-wrap: balance; }
-.cast-status {
-  font-size: .78rem; font-weight: 600; letter-spacing: .03em;
-  color: #556a80;
+/* ---------- Tampilan Siaran (menyerupai menu Radio) ---------- */
+.cast-app {
+  width: 100%; max-width: 720px; margin: 0 auto; flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-areas: "chead" "cscreen" "ctray" "cfoot";
+  gap: clamp(10px, 1.8dvh, 18px);
+  align-items: center;
 }
-html[data-tema="gelap"] .cast-status { color: #8b96a6; }
-.cast-status[data-s="live"] { color: #0c7c72; }
-html[data-tema="gelap"] .cast-status[data-s="live"] { color: #67c496; }
-.cast-status[data-s="connecting"] { color: #a4640e; }
-html[data-tema="gelap"] .cast-status[data-s="connecting"] { color: #cbb26c; }
-.cast-status[data-s="error"] { color: #c43232; }
-html[data-tema="gelap"] .cast-status[data-s="error"] { color: #e06c66; }
-
-.cast-theme-btn {
-  min-width: 44px; min-height: 44px; border-radius: 12px; border: 0;
-  display: grid; place-items: center; cursor: pointer;
-  background: transparent; color: inherit; opacity: .82;
+.cast-head {
+  grid-area: chead; width: 100%;
+  display: grid; grid-template-columns: 3rem minmax(0, 1fr) 3rem;
+  grid-template-areas: "cback cstatus ctheme";
+  align-items: center; gap: .5rem;
 }
-.cast-theme-btn:hover, .cast-theme-btn:focus-visible { opacity: 1; background: rgba(120, 145, 170, .14); }
-.cast-theme-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-
-.cast-body {
-  flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; gap: 16px;
+.cast-head-btn { grid-area: cback; justify-self: start; width: 2.8rem; height: 2.8rem; }
+.cast-head-theme { grid-area: ctheme; justify-self: end; width: 2.8rem; height: 2.8rem; }
+.cast-head .ico svg.i { width: 1.45rem; height: 1.45rem; }
+.cast-status-stack {
+  grid-area: cstatus; justify-self: center;
+  display: flex; flex-direction: column; align-items: center; gap: .38rem;
+  min-width: 0; text-align: center;
 }
-.cast-telemetry {
-  display: flex; flex-direction: column; align-items: center; gap: 12px;
-  padding: 20px 16px; border-radius: 18px;
-  background: rgba(120, 145, 170, .08);
-  border: 1px solid rgba(120, 145, 170, .18);
-  text-align: center;
+.cast-state-badge {
+  font-family: var(--font-lcd);
+  font-size: clamp(.86rem, 2.8vw, 1.04rem);
+  padding: .28em 1em;
 }
-.cast-timer {
-  font-family: var(--font-num); font-size: clamp(2.2rem, 10vw, 3.2rem);
-  font-weight: 700; letter-spacing: .04em; line-height: 1;
+.cast-stat-line {
+  font-family: var(--font-say);
+  font-size: clamp(.82rem, 2.6vw, 1rem);
+  font-weight: 400; line-height: 1.25;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
   font-variant-numeric: tabular-nums;
 }
-.cast-stats { font-size: .84rem; opacity: .82; font-variant-numeric: tabular-nums; }
-.cast-meter {
-  width: 100%; height: 10px; border-radius: 999px; overflow: hidden;
-  background: rgba(120, 145, 170, .2);
+
+.cast-screen {
+  grid-area: cscreen; width: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: clamp(8px, 1.6dvh, 18px);
+  padding: clamp(2px, .8dvh, 8px) clamp(4px, 2vw, 18px);
 }
-.cast-meter-fill {
-  width: 100%; height: 100%;
-  transform-origin: left center; transform: scaleX(0);
-  transition: transform .07s linear;
-  background: linear-gradient(90deg, #0c7c72 0%, #24a88e 75%, #d96b27 100%);
+.cast-station-title {
+  margin: 0; max-width: 100%; text-align: center;
+  font-family: var(--font-say); font-weight: 500;
+  font-size: clamp(1.32rem, 4.6vw, 2.05rem); line-height: 1.2;
+  color: rgba(124, 56, 52, .74);
+  text-shadow: 0 1px 0 rgba(255,255,255,.72);
+  text-wrap: balance; transition: color .35s ease;
 }
-html[data-tema="gelap"] .cast-meter-fill {
-  background: linear-gradient(90deg, #3a9ad9 0%, #58c996 75%, #e28246 100%);
+.cast-app[data-s="live"] .cast-station-title { color: rgba(25, 93, 56, .82); }
+.cast-app[data-s="connecting"] .cast-station-title { color: rgba(122, 78, 18, .82); }
+html:not(.sematan)[data-tema="gelap"] .cast-station-title {
+  color: #916966; text-shadow: 0 1px 4px rgba(0,0,0,.5);
+}
+html:not(.sematan)[data-tema="gelap"] .cast-app[data-s="live"] .cast-station-title { color: #7cb893; }
+html:not(.sematan)[data-tema="gelap"] .cast-app[data-s="connecting"] .cast-station-title { color: #baa872; }
+
+.cast-wave {
+  position: relative; width: 100%; max-width: min(100%, 340px);
+  height: clamp(66px, 13dvh, 132px);
+  border-radius: 14px; overflow: hidden;
+}
+.cast-wave canvas {
+  display: block; width: 100%; height: 100%;
+  --wave-bar: #258ee4; --wave-mid: rgba(37,142,228,.2); --wave-head: #105290;
+}
+html:not(.sematan)[data-tema="gelap"] .cast-wave canvas {
+  --wave-bar: #84c5f4; --wave-mid: rgba(209,240,255,.18); --wave-head: #d1f0ff;
+}
+
+.cast-timer {
+  font-size: clamp(2.5rem, 11vw, 4.1rem);
+  line-height: 1;
+}
+
+/* Studio Glass Tray (satu permukaan kaca tanpa tumpukan kotak) */
+.cast-tray {
+  grid-area: ctray; width: 100%; max-width: 520px; justify-self: center; align-self: center;
+  display: flex; flex-direction: column;
+  border-radius: 20px; overflow: hidden;
+  border: 1px solid rgba(114, 134, 156, .28);
+  background: linear-gradient(180deg, rgba(255,255,255,.72) 0%, rgba(240,247,253,.56) 100%);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.92), 0 10px 28px rgba(24, 62, 100, .1);
+}
+html:not(.sematan)[data-tema="gelap"] .cast-tray {
+  border-color: rgba(255,255,255,.15);
+  background: linear-gradient(180deg, rgba(26,30,38,.78) 0%, rgba(12,14,18,.88) 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 12px 30px rgba(0,0,0,.65);
+}
+.cast-tray-sec {
+  padding: 12px 16px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.cast-tray-sec + .cast-tray-sec {
+  border-top: 1px solid rgba(114, 134, 156, .18);
+}
+html:not(.sematan)[data-tema="gelap"] .cast-tray-sec + .cast-tray-sec {
+  border-top-color: rgba(255,255,255,.1);
 }
 
 .cast-mic-banner {
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  padding: 10px 12px; border-radius: 12px;
+  padding: 10px 14px;
   background: rgba(12, 124, 114, .1);
-  border: 1px solid rgba(12, 124, 114, .26);
-  font-size: .82rem;
+  border-bottom: 1px solid rgba(12, 124, 114, .22);
+  font-size: .82rem; font-weight: 500;
 }
-.cast-mic-banner[hidden] { display: none; }
+.cast-mic-banner[hidden] { display: none !important; }
 html[data-tema="gelap"] .cast-mic-banner {
   background: rgba(91, 192, 255, .1);
-  border-color: rgba(91, 192, 255, .28);
+  border-bottom-color: rgba(91, 192, 255, .24);
 }
 
-.cast-primary {
-  width: 100%; min-height: 52px; padding: 12px 18px; border-radius: 14px; border: 0;
-  font-size: 1rem; font-weight: 700; cursor: pointer; color: #fff;
-  background: #0c7c72;
-  transition: transform .1s ease, background-color .15s ease, opacity .15s ease;
-}
-.cast-primary:hover, .cast-primary:focus-visible { background: #09665e; }
-.cast-primary:active { transform: scale(.985); }
-.cast-primary[data-live="true"] { background: #c43232; }
-.cast-primary[data-live="true"]:hover, .cast-primary[data-live="true"]:focus-visible { background: #a52424; }
-.cast-primary:disabled { opacity: .6; cursor: wait; }
-
-.cast-controls-row {
-  display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 12px;
-}
-.cast-btn-sec {
-  min-height: 44px; padding: 0 14px; border-radius: 10px;
-  border: 1px solid rgba(120, 145, 170, .28);
-  background: transparent; color: inherit;
-  font-size: .84rem; font-weight: 600; cursor: pointer;
-  white-space: nowrap;
-}
-.cast-btn-sec:hover, .cast-btn-sec:focus-visible { background: rgba(120, 145, 170, .12); }
-.cast-btn-sec[aria-pressed="true"] {
-  border-color: #c43232; color: #c43232; background: rgba(196, 50, 50, .1);
-}
-html[data-tema="gelap"] .cast-btn-sec[aria-pressed="true"] {
-  border-color: #e06c66; color: #e06c66; background: rgba(224, 108, 102, .12);
-}
-
-.cast-gain-wrap { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.cast-gain-label {
-  display: flex; justify-content: space-between; font-size: .76rem; opacity: .82;
-  font-variant-numeric: tabular-nums;
-}
-.cast-gain-wrap input[type="range"] { width: 100%; accent-color: #0c7c72; cursor: pointer; }
-html[data-tema="gelap"] .cast-gain-wrap input[type="range"] { accent-color: #5bc0ff; }
-
-.cast-title-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.cast-title-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
 .cast-input {
-  width: 100%; min-height: 44px; padding: 8px 12px; border-radius: 10px;
+  width: 100%; min-height: 44px; padding: 8px 12px; border-radius: 12px;
   font-family: inherit; font-size: .88rem; color: inherit;
-  border: 1px solid rgba(120, 145, 170, .28);
-  background: rgba(120, 145, 170, .06);
+  border: 1px solid rgba(114, 134, 156, .28);
+  background: rgba(255, 255, 255, .55);
 }
-.cast-input:focus { outline: 2px solid #0c7c72; outline-offset: 1px; }
+html[data-tema="gelap"] .cast-input {
+  border-color: rgba(255,255,255,.16);
+  background: rgba(255,255,255,.05);
+}
+.cast-input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 html[data-tema="gelap"] .cast-input:focus { outline-color: #5bc0ff; }
+html[data-tema="gelap"] select.cast-input option { background: #14171d; color: #e2dfd7; }
 
-.cast-details {
-  border-top: 1px solid rgba(120, 145, 170, .2);
-  padding-top: 10px;
+.cast-btn-sec {
+  min-height: 44px; padding: 0 14px; border-radius: 12px;
+  border: 1px solid rgba(114, 134, 156, .34);
+  background: linear-gradient(180deg, rgba(255,255,255,.82), rgba(226,236,246,.68));
+  color: #163d63;
+  font-size: .84rem; font-weight: 600; cursor: pointer;
+  white-space: nowrap; flex-shrink: 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
 }
-.cast-details summary {
-  min-height: 40px; display: flex; align-items: center; justify-content: space-between;
-  font-size: .84rem; font-weight: 600; cursor: pointer; list-style: none; opacity: .86;
+.cast-btn-sec:hover, .cast-btn-sec:focus-visible {
+  background: linear-gradient(180deg, #fff, #dbe9f6);
 }
-.cast-details summary::-webkit-details-marker { display: none; }
-.cast-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;
+html[data-tema="gelap"] .cast-btn-sec {
+  border-color: rgba(255,255,255,.2);
+  background: linear-gradient(180deg, #2b313c, #181c24);
+  color: #b7d2e6;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16);
 }
+html[data-tema="gelap"] .cast-btn-sec:hover,
+html[data-tema="gelap"] .cast-btn-sec:focus-visible {
+  background: linear-gradient(180deg, #353c49, #202530); color: #e0effa;
+}
+
+.cast-fader-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 6px;
+  font-size: .8rem; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.cast-src-btn {
+  min-height: 44px; padding: 4px 10px; border-radius: 10px; border: 0;
+  background: transparent; color: inherit; cursor: pointer;
+  font: inherit; opacity: .72; white-space: nowrap;
+  transition: opacity .15s ease, background-color .15s ease, color .15s ease;
+}
+.cast-src-btn:hover, .cast-src-btn:focus-visible { opacity: 1; background: rgba(120, 145, 170, .14); }
+.cast-src-btn.active { opacity: 1; color: #0c7c72; }
+html[data-tema="gelap"] .cast-src-btn.active { color: #5bc0ff; }
+.cast-fader-mid { font-size: .72rem; opacity: .62; font-weight: 600; white-space: nowrap; }
+
+.cast-fader, .cast-range {
+  width: 100%; height: 28px; margin: 0; cursor: pointer;
+  accent-color: #1d7fd0;
+}
+html[data-tema="gelap"] .cast-fader,
+html[data-tema="gelap"] .cast-range { accent-color: #5bc0ff; }
+
+.cast-gain-row {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
+  font-size: .78rem; font-weight: 600; font-variant-numeric: tabular-nums;
+}
+.cast-gain-row label { opacity: .78; white-space: nowrap; }
+.cast-gain-val { min-width: 3.1em; text-align: right; opacity: .86; }
+
+.cast-mp3-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cast-mp3-name {
+  font-size: .86rem; font-weight: 600; min-width: 0; flex: 1 1 auto;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cast-mp3-row {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px;
+}
+.cast-mp3-btns { display: flex; align-items: center; gap: 6px; }
+.cast-mp3-icon {
+  min-width: 44px; min-height: 44px; padding: 0 12px; border-radius: 11px;
+  border: 1px solid rgba(114, 134, 156, .3);
+  background: rgba(255,255,255,.5); color: inherit;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-size: .82rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+html[data-tema="gelap"] .cast-mp3-icon {
+  border-color: rgba(255,255,255,.18); background: rgba(255,255,255,.06);
+}
+.cast-mp3-icon:hover:not(:disabled), .cast-mp3-icon:focus-visible:not(:disabled) {
+  background: rgba(29, 127, 208, .12);
+}
+.cast-mp3-icon:disabled { opacity: .4; cursor: default; }
+.cast-mp3-icon[aria-pressed="true"] {
+  border-color: #1d7fd0; color: #125696; background: rgba(29, 127, 208, .12);
+}
+html[data-tema="gelap"] .cast-mp3-icon[aria-pressed="true"] {
+  border-color: #5bc0ff; color: #5bc0ff; background: rgba(91, 192, 255, .14);
+}
+.cast-mp3-icon svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.cast-mp3-prog {
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px;
+  font-size: .76rem; opacity: .82; font-variant-numeric: tabular-nums;
+}
+.cast-mp3-prog input[type="range"] { width: 100%; accent-color: #1d7fd0; cursor: pointer; }
+html[data-tema="gelap"] .cast-mp3-prog input[type="range"] { accent-color: #5bc0ff; }
+
+/* Bilah kendali kapsul bawah Siaran (serupa bilah pemutar Radio) */
+.cast-foot {
+  grid-area: cfoot; width: 100%;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.cast-wmp { font-size: clamp(13.5px, 4.1vw, 22px); }
+.cast-orb {
+  position: relative; z-index: 3; display: grid; place-items: center;
+  width: 4.24em; height: 4.24em; padding: 0; border-radius: 50%; border: 1px solid #13467d;
+  color: #fff; cursor: pointer;
+  user-select: none; -webkit-user-select: none;
+}
+.cast-orb::before {
+  content: ""; position: absolute; left: 12%; right: 12%; top: 4%; height: 46%;
+  border-radius: 50% / 70% 70% 30% 30%; pointer-events: none;
+}
+.cast-orb::after {
+  content: ""; position: absolute; inset: -.36em; border-radius: 50%; pointer-events: none; z-index: -1;
+  border: .13em solid #7ce4ff; transition: border-color .35s ease, box-shadow .35s ease;
+}
+.cast-orb svg.glyph {
+  position: relative; width: 50%; height: 50%;
+  fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.cast-orb.live svg.glyph { fill: currentColor; stroke: none; }
+.cast-orb .spin { position: absolute; inset: -.54em; width: calc(100% + 1.08em); height: calc(100% + 1.08em); display: none; animation: spin 1.1s linear infinite; }
+.cast-orb.busy .spin { display: block; }
+.cast-orb:active { transform: scale(.96); }
+
+/* Terang: kapsul perak + orb & sayap merah saat standby, biru menyala saat ON AIR */
+html:not(.sematan)[data-tema="terang"] .cast-orb {
+  border-color: rgba(58, 78, 98, .68); color: #0c7c72;
+  background:
+    radial-gradient(58% 36% at 50% 92%, rgba(205, 224, 242, .55), transparent 70%),
+    radial-gradient(92% 85% at 50% 16%, #f8fbfe 0%, #e1eaf2 36%, #b2c3d4 66%, #8297ad 88%, #637990 100%);
+  box-shadow:
+    0 0 0 .09em rgba(42, 62, 82, .38),
+    0 .32em .62em rgba(18, 36, 56, .34),
+    inset 0 .12em .16em rgba(255, 255, 255, .94),
+    inset 0 -.2em .3em rgba(18, 36, 56, .46);
+}
+html:not(.sematan)[data-tema="terang"] .cast-orb::before {
+  background: linear-gradient(180deg, rgba(255, 255, 255, .92) 0%, rgba(255, 255, 255, .18) 65%, transparent 100%);
+}
+html:not(.sematan)[data-tema="terang"] .cast-wmp.off .cast-orb { color: #c43232; }
+html:not(.sematan)[data-tema="terang"] .cast-wmp.off .cast-orb::after {
+  border-color: #e4665e;
+  box-shadow: 0 0 .34em rgba(228, 102, 94, .65), 0 0 .74em rgba(210, 62, 54, .28), inset 0 0 .2em rgba(255, 200, 195, .75);
+}
+html:not(.sematan)[data-tema="terang"] .cast-wmp.live .cast-orb {
+  border-color: rgba(54, 92, 130, .72); color: #0a6b62;
+  background:
+    radial-gradient(58% 36% at 50% 92%, rgba(185, 226, 255, .65), transparent 70%),
+    radial-gradient(92% 85% at 50% 16%, #f7fbfe 0%, #dae8f5 36%, #a6bfd8 66%, #7493b2 88%, #537394 100%);
+}
+html:not(.sematan)[data-tema="terang"] .cast-wmp.live .cast-orb::after {
+  border-color: #2e96e8;
+  box-shadow: 0 0 .42em rgba(46, 150, 232, .76), 0 0 .92em rgba(29, 127, 208, .38), inset 0 0 .24em rgba(185, 232, 255, .88);
+}
+html:not(.sematan)[data-tema="terang"] #castFramePath {
+  fill: url(#castSilver); stroke: rgba(114, 134, 156, .48); stroke-width: 1.35;
+}
+html:not(.sematan)[data-tema="terang"] #castFrameShine {
+  stroke: rgba(255, 255, 255, .92); stroke-width: 1.15; opacity: .84;
+}
+html:not(.sematan)[data-tema="terang"] .cast-orb .spin circle { stroke: #258ee4; }
+html:not(.sematan)[data-tema="terang"] #castMuteBtn[aria-pressed="true"] { color: #c43232; }
+html:not(.sematan)[data-tema="terang"] #castMp3MonBtn[aria-pressed="true"] { color: #1d7fd0; }
+html:not(.sematan)[data-tema="terang"] .cast-wmp .cap-btn { color: #163d63; }
+html:not(.sematan)[data-tema="terang"] .cast-wmp .cap-btn.active { color: #0c7c72; }
+html:not(.sematan)[data-tema="terang"] .cast-wmp .cap-btn:not(.active) { opacity: .62; }
+
+/* Gelap: kapsul hitam pekat + orb gelap */
+html:not(.sematan)[data-tema="gelap"] #castFramePath { fill: #000; stroke: rgba(255,255,255,.22); }
+html:not(.sematan)[data-tema="gelap"] #castFrameShine { stroke: rgba(255,255,255,.16); }
+html:not(.sematan)[data-tema="gelap"] .cast-orb {
+  border-color: rgba(255,255,255,.28); color: #71a7c6;
+  background:
+    radial-gradient(58% 38% at 50% 90%, rgba(100,165,200,.22), transparent 72%),
+    radial-gradient(88% 82% at 50% 20%, #4d5563 0%, #2a303a 42%, #13161c 76%, #0b0d11 100%);
+  box-shadow:
+    0 0 0 .08em #07080b,
+    0 .24em .5em rgba(0,0,0,.92),
+    inset 0 .1em .14em rgba(255,255,255,.42),
+    inset 0 -.14em .22em rgba(0,0,0,.88);
+}
+html:not(.sematan)[data-tema="gelap"] .cast-orb::before {
+  background: linear-gradient(180deg, rgba(255,255,255,.32) 0%, rgba(255,255,255,.05) 65%, transparent 100%);
+}
+html:not(.sematan)[data-tema="gelap"] .cast-wmp.off .cast-orb { color: #e0534d; }
+html:not(.sematan)[data-tema="gelap"] .cast-wmp.off .cast-orb::after {
+  border-color: #e04f47;
+  box-shadow: 0 0 .38em rgba(224, 79, 71, .65), inset 0 0 .22em rgba(224, 79, 71, .45);
+}
+html:not(.sematan)[data-tema="gelap"] .cast-wmp.live .cast-orb::after {
+  border-color: #5bc0ff;
+  box-shadow: 0 0 .5em rgba(91, 192, 255, .75), 0 0 1em rgba(56, 157, 232, .4), inset 0 0 .25em rgba(91, 192, 255, .6);
+}
+html:not(.sematan)[data-tema="gelap"] #castMuteBtn[aria-pressed="true"] { color: #e06c66; }
+html:not(.sematan)[data-tema="gelap"] #castMp3MonBtn[aria-pressed="true"] { color: #5bc0ff; }
+html:not(.sematan)[data-tema="gelap"] .cast-wmp .cap-btn { color: #658ea7; }
+html:not(.sematan)[data-tema="gelap"] .cast-wmp .cap-btn.active { color: #8ec0dc; }
+html:not(.sematan)[data-tema="gelap"] .cast-wmp .cap-btn:not(.active) { opacity: .55; }
+
+.cast-msg {
+  margin: 0; min-height: 1.25em; font-size: .8rem; line-height: 1.35; text-align: center;
+  color: #4e657c;
+}
+html[data-tema="gelap"] .cast-msg { color: #9aa5b5; }
+.cast-msg.bad { color: #c43232; }
+html[data-tema="gelap"] .cast-msg.bad { color: #e27872; }
+
+/* Lanskap (Tablet / Desktop / HP mendatar) untuk Studio Siaran */
+@media (orientation: landscape) and (min-width: 640px) {
+  .cast-app {
+    max-width: 1080px;
+    grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "chead chead"
+      "cscreen ctray"
+      "cscreen cfoot";
+    column-gap: clamp(16px, 3vw, 40px);
+    row-gap: clamp(10px, 1.8dvh, 18px);
+    align-items: center;
+  }
+  .cast-screen { padding-inline: clamp(8px, 2vw, 24px); }
+  .cast-tray { max-width: 560px; }
+  .cast-wmp { font-size: clamp(13px, 1.65vw, 21px); }
+}
+
+/* ---------- Menu Pengaturan Stasiun & Akun Penyiar ---------- */
+.set-shell {
+  width: 100%; max-width: 960px; margin: 0 auto; flex: 1 1 auto;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.set-grid {
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start;
+}
+@media (min-width: 820px) {
+  .set-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+.cast-panel-stack { display: flex; flex-direction: column; gap: 14px; }
+.cast-card {
+  display: flex; flex-direction: column; gap: 12px;
+  padding: 18px; border-radius: 18px;
+  border: 1px solid rgba(114, 134, 156, .26);
+  background: linear-gradient(180deg, rgba(255,255,255,.72) 0%, rgba(240,247,253,.56) 100%);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 8px 24px rgba(24, 62, 100, .08);
+}
+html[data-tema="gelap"] .cast-card {
+  border-color: rgba(255,255,255,.15);
+  background: linear-gradient(180deg, rgba(24,28,35,.82) 0%, rgba(12,14,18,.9) 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 10px 28px rgba(0,0,0,.6);
+}
+.cast-card h3 { margin: 0; font-size: 1rem; font-weight: 700; }
+.cast-sub { margin: 0; font-size: .82rem; line-height: 1.45; opacity: .78; }
+.cast-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .cast-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .cast-field.full { grid-column: 1 / -1; }
-.cast-field label { font-size: .74rem; font-weight: 600; opacity: .78; }
+.cast-field label { font-size: .76rem; font-weight: 600; opacity: .8; }
 .cast-pass-wrap { position: relative; display: flex; align-items: center; }
 .cast-pass-wrap .cast-input { padding-right: 44px; }
 .cast-eye {
@@ -1552,99 +1793,25 @@ html[data-tema="gelap"] .cast-input:focus { outline-color: #5bc0ff; }
 .cast-eye:hover { opacity: 1; }
 .cast-eye svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; }
 
-.cast-mixer, .cast-mp3 {
-  display: flex; flex-direction: column; gap: 10px;
-  padding: 12px 14px; border-radius: 14px;
-  background: rgba(120, 145, 170, .08);
-  border: 1px solid rgba(120, 145, 170, .18);
+.cast-primary {
+  width: 100%; min-height: 48px; padding: 11px 18px; border-radius: 12px;
+  border: 1px solid rgba(19, 70, 125, .4);
+  font-size: .95rem; font-weight: 700; cursor: pointer; color: #fff;
+  background: linear-gradient(180deg, #56b9eb 0%, #1d7fd0 52%, #1562a8 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 4px 12px rgba(29,127,208,.24);
+  transition: transform .1s ease, opacity .15s ease;
 }
-.cast-fader-head {
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
-  font-size: .8rem; font-weight: 700; font-variant-numeric: tabular-nums;
+.cast-primary:hover, .cast-primary:focus-visible { filter: brightness(1.05); }
+.cast-primary:active { transform: scale(.985); }
+.cast-primary:disabled { opacity: .6; cursor: wait; }
+html[data-tema="gelap"] .cast-primary {
+  border-color: rgba(91,192,255,.35);
+  background: linear-gradient(180deg, #3274a8 0%, #1e5482 52%, #164066 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 4px 14px rgba(0,0,0,.5);
 }
-.cast-src-btn {
-  min-height: 36px; padding: 4px 8px; border-radius: 8px; border: 0;
-  background: transparent; color: inherit; cursor: pointer;
-  font: inherit; opacity: .78; transition: opacity .15s ease, background-color .15s ease;
-}
-.cast-src-btn:hover, .cast-src-btn:focus-visible { opacity: 1; background: rgba(120, 145, 170, .14); }
-.cast-src-btn.active { opacity: 1; color: #0c7c72; }
-html[data-tema="gelap"] .cast-src-btn.active { color: #5bc0ff; }
 
-.cast-fader {
-  width: 100%; height: 28px; margin: 0; cursor: pointer;
-  accent-color: #0c7c72;
-}
-html[data-tema="gelap"] .cast-fader { accent-color: #5bc0ff; }
-
-.cast-mp3-top {
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
-}
-.cast-mp3-name {
-  font-size: .86rem; font-weight: 600; min-width: 0; flex: 1 1 auto;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.cast-mp3-ctrls {
-  display: flex; align-items: center; gap: 8px;
-}
-.cast-mp3-icon {
-  min-width: 44px; min-height: 44px; padding: 0 10px; border-radius: 10px;
-  border: 1px solid rgba(120, 145, 170, .28); background: transparent; color: inherit;
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  font-size: .82rem; font-weight: 600; cursor: pointer; white-space: nowrap;
-}
-.cast-mp3-icon:hover:not(:disabled), .cast-mp3-icon:focus-visible:not(:disabled) { background: rgba(120, 145, 170, .12); }
-.cast-mp3-icon:disabled { opacity: .4; cursor: default; }
-.cast-mp3-icon[aria-pressed="true"] {
-  border-color: #0c7c72; color: #0c7c72; background: rgba(12, 124, 114, .1);
-}
-html[data-tema="gelap"] .cast-mp3-icon[aria-pressed="true"] {
-  border-color: #5bc0ff; color: #5bc0ff; background: rgba(91, 192, 255, .12);
-}
-.cast-mp3-icon svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.cast-mp3-prog {
-  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px;
-  font-size: .76rem; opacity: .82; font-variant-numeric: tabular-nums;
-}
-.cast-mp3-prog input[type="range"] { width: 100%; accent-color: #0c7c72; cursor: pointer; }
-html[data-tema="gelap"] .cast-mp3-prog input[type="range"] { accent-color: #5bc0ff; }
-
-.cast-msg {
-  margin: 0; min-height: 1.2em; font-size: .82rem; line-height: 1.4; text-align: center;
-  color: #4e657c;
-}
-html[data-tema="gelap"] .cast-msg { color: #9aa5b5; }
-.cast-msg.bad { color: #c43232; }
-html[data-tema="gelap"] .cast-msg.bad { color: #e27872; }
-
-.cast-panel-stack { display: flex; flex-direction: column; gap: 14px; }
-.cast-card {
-  display: flex; flex-direction: column; gap: 12px;
-  padding: 16px; border-radius: 16px;
-  background: rgba(120, 145, 170, .08);
-  border: 1px solid rgba(120, 145, 170, .18);
-}
-.cast-card h3 { margin: 0; font-size: .98rem; font-weight: 700; }
-.cast-sub { margin: 0; font-size: .82rem; line-height: 1.45; opacity: .8; }
-.cast-userbar {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  padding: 8px 12px; border-radius: 12px;
-  background: rgba(12, 124, 114, .09);
-  border: 1px solid rgba(12, 124, 114, .22);
-  font-size: .82rem;
-}
-html[data-tema="gelap"] .cast-userbar {
-  background: rgba(91, 192, 255, .1);
-  border-color: rgba(91, 192, 255, .24);
-}
-.cast-userbar-info { min-width: 0; flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
-.cast-code-input {
-  font-family: var(--font-num, monospace); font-size: 1.25rem; font-weight: 700;
-  letter-spacing: .28em; text-align: center;
-}
-.set-top-row {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-}
+.set-pass-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.set-top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .set-qr-box {
   display: flex; flex-direction: column; align-items: center; gap: 10px;
   padding: 16px; border-radius: 16px;
@@ -1670,24 +1837,25 @@ html[data-tema="gelap"] .set-qr-box {
 .set-acc-list { display: flex; flex-direction: column; gap: 10px; }
 .set-acc-item {
   display: flex; flex-direction: column; gap: 10px;
-  padding: 12px; border-radius: 12px;
-  background: rgba(120, 145, 170, .06);
-  border: 1px solid rgba(120, 145, 170, .18);
+  padding: 12px 0;
+}
+.set-acc-item + .set-acc-item {
+  border-top: 1px solid rgba(114, 134, 156, .2);
+}
+html[data-tema="gelap"] .set-acc-item + .set-acc-item {
+  border-top-color: rgba(255,255,255,.1);
 }
 .set-acc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
 .set-acc-meta { min-width: 0; flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px; }
 .set-acc-email { font-size: .88rem; font-weight: 700; word-break: break-word; }
 .set-acc-sub { font-size: .76rem; opacity: .74; }
-.set-badge {
-  flex: none; padding: 3px 9px; border-radius: 999px; font-size: .72rem; font-weight: 700;
-  background: rgba(12, 124, 114, .14); color: #0c7c72;
+.set-acc-status {
+  flex: none; font-size: .75rem; font-weight: 700;
+  color: #0c7c72; white-space: nowrap;
 }
-html[data-tema="gelap"] .set-badge { background: rgba(103, 196, 150, .16); color: #67c496; }
-.set-badge.role { background: rgba(29, 127, 208, .14); color: #165ba0; }
-html[data-tema="gelap"] .set-badge.role { background: rgba(91, 192, 255, .16); color: #5bc0ff; }
-.set-badge.off { background: rgba(196, 50, 50, .14); color: #c43232; }
-html[data-tema="gelap"] .set-badge.off { background: rgba(224, 108, 102, .16); color: #e06c66; }
-.set-badges { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+html[data-tema="gelap"] .set-acc-status { color: #67c496; }
+.set-acc-status.off { color: #c43232; }
+html[data-tema="gelap"] .set-acc-status.off { color: #e06c66; }
 .set-acc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .set-btn-danger { border-color: rgba(196, 50, 50, .4); color: #c43232; }
 html[data-tema="gelap"] .set-btn-danger { border-color: rgba(224, 108, 102, .45); color: #e06c66; }
@@ -1797,114 +1965,154 @@ html[data-tema="gelap"] .set-btn-danger { border-color: rgba(224, 108, 102, .45)
 </main>
 
 <section class="cast-view" id="castView" hidden aria-label="Studio siaran langsung">
-  <div class="cast-shell">
-    <header class="cast-topbar">
-      <button type="button" class="cast-back" id="castBackBtn" aria-label="Kembali ke tampilan radio">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-        <span>Radio</span>
+  <div class="cast-app" id="castApp" data-s="idle">
+    <header class="cast-head">
+      <button type="button" class="ico cast-head-btn" id="castBackBtn" aria-label="Kembali ke tampilan radio" title="Kembali ke Radio">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
       </button>
-      <div class="cast-head-title">
-        <h2 id="castHeading">Siaran Langsung</h2>
-        <span class="cast-status" id="castStateText" data-s="idle">Siap siaran</span>
+      <div class="cast-status-stack">
+        <span class="state cast-state-badge" id="castStateBadge" data-s="idle">STANDBY</span>
+        <span class="listeners cast-stat-line" id="castStat" data-s="idle">48 Kbps · 0 KB</span>
       </div>
-      <button type="button" class="cast-theme-btn" id="castThemeBtn" aria-label="Beralih tema" title="Beralih tema">
-        <svg id="castThemeIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <button type="button" class="ico cast-head-theme" id="castThemeBtn" aria-label="Beralih tema" title="Beralih tema">
+        <svg class="i" id="castThemeIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
     </header>
 
-    <div class="cast-body">
-      <div class="cast-panel-stack" id="castStudioPanel">
+    <section class="cast-screen" aria-label="Layar studio siaran">
+      <h2 class="cast-station-title" id="castStationTitle">Radio Islam Sragen</h2>
+      <div class="cast-wave" aria-hidden="true">
+        <canvas id="castWave"></canvas>
+      </div>
+      <div class="timer cast-timer" id="castTimer" role="timer" aria-label="Durasi siaran"><span class="dim">00:00:00</span></div>
+    </section>
 
-        <div class="cast-telemetry">
-          <div class="cast-timer" id="castTimer">00:00:00</div>
-          <div class="cast-meter" aria-hidden="true"><div class="cast-meter-fill" id="castMeter"></div></div>
-          <div class="cast-stats" id="castStat">48 Kbps · 0 KB · streamy1.radioislam.my.id:9210</div>
-        </div>
+    <div class="cast-tray" id="castStudioPanel">
+      <div class="cast-mic-banner" id="castMicBanner" hidden>
+        <span id="castMicHint">Izin mikrofon diperlukan untuk sumber Soundcard.</span>
+        <button type="button" class="cast-btn-sec" id="castMicBtn">Izinkan Mic</button>
+      </div>
 
-        <div class="cast-mic-banner" id="castMicBanner" hidden>
-          <span id="castMicHint">Izin mikrofon diperlukan untuk siaran.</span>
-          <button type="button" class="cast-btn-sec" id="castMicBtn">Izinkan Mic</button>
-        </div>
-
-        <button type="button" class="cast-primary" id="castToggleBtn" data-live="false">Mulai Siaran</button>
-
-        <div class="cast-mixer" aria-label="Penggeser sumber suara">
-          <div class="cast-fader-head">
-            <button type="button" class="cast-src-btn active" id="castSrcLeft">Soundcard 100%</button>
-            <span id="castFaderCenter" style="font-size:.72rem;opacity:.65">Geser Sumber</span>
-            <button type="button" class="cast-src-btn" id="castSrcRight">MP3 0%</button>
-          </div>
-          <input id="castFader" class="cast-fader" type="range" min="0" max="100" step="1" value="0" aria-label="Pilih sumber suara Soundcard di kiri atau MP3 di kanan">
-        </div>
-
-        <div class="cast-mp3" aria-label="Pemutar MP3 lokal">
-          <div class="cast-mp3-top">
-            <span class="cast-mp3-name" id="castMp3Name">Belum ada file MP3 dipilih</span>
-            <button type="button" class="cast-btn-sec" id="castMp3PickBtn">Pilih MP3</button>
-            <input id="castMp3Input" type="file" accept=".mp3,audio/mpeg,audio/*" multiple hidden>
-          </div>
-          <div class="cast-mp3-ctrls">
-            <button type="button" class="cast-mp3-icon" id="castMp3Prev" aria-label="Lagu sebelumnya" disabled>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 20L9 12l10-8v16zM5 19V5"/></svg>
-            </button>
-            <button type="button" class="cast-mp3-icon" id="castMp3PlayBtn" style="flex:1 1 auto" disabled>Putar MP3</button>
-            <button type="button" class="cast-mp3-icon" id="castMp3Next" aria-label="Lagu berikutnya" disabled>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4l10 8-10 8V4zM19 5v14"/></svg>
-            </button>
-            <button type="button" class="cast-mp3-icon" id="castMp3MonBtn" aria-pressed="true" title="Pantau suara MP3 di perangkat">Monitor</button>
-          </div>
-          <div class="cast-mp3-prog">
-            <input id="castMp3Seek" type="range" min="0" max="100" step="0.1" value="0" aria-label="Posisi pemutaran MP3" disabled>
-            <span id="castMp3Time">00:00 / 00:00</span>
-          </div>
-        </div>
-
-        <div class="cast-controls-row">
-          <button type="button" class="cast-btn-sec" id="castMuteBtn" aria-pressed="false">Mikrofon Aktif</button>
-          <div class="cast-gain-wrap">
-            <div class="cast-gain-label">
-              <label for="castGain">Penguat Mic</label>
-              <span id="castGainVal">100%</span>
-            </div>
-            <input id="castGain" type="range" min="50" max="200" step="5" value="100">
-          </div>
-        </div>
-
+      <div class="cast-tray-sec">
         <div class="cast-title-row">
           <input id="castTitle" class="cast-input" type="text" maxlength="160" placeholder="Judul kajian atau pemateri...">
-          <button type="button" class="cast-btn-sec" id="castMetaBtn">Kirim Judul</button>
+          <button type="button" class="cast-btn-sec" id="castMetaBtn">Kirim</button>
         </div>
+      </div>
 
-        <details class="cast-details" id="castDetails">
-          <summary>
-            <span>Pengaturan Server</span>
-            <span aria-hidden="true">▾</span>
-          </summary>
+      <div class="cast-tray-sec" aria-label="Penggeser sumber suara">
+        <div class="cast-fader-head">
+          <button type="button" class="cast-src-btn active" id="castSrcLeft">Soundcard 100%</button>
+          <span class="cast-fader-mid">Geser Sumber</span>
+          <button type="button" class="cast-src-btn" id="castSrcRight">MP3 0%</button>
+        </div>
+        <input id="castFader" class="cast-fader" type="range" min="0" max="100" step="1" value="0" aria-label="Pilih sumber suara Soundcard di kiri atau MP3 di kanan">
+        <div class="cast-gain-row">
+          <label for="castGain">Penguat Mic</label>
+          <input id="castGain" class="cast-range" type="range" min="50" max="200" step="5" value="100">
+          <span class="cast-gain-val" id="castGainVal">100%</span>
+        </div>
+      </div>
+
+      <div class="cast-tray-sec" aria-label="Pemutar MP3 lokal">
+        <div class="cast-mp3-top">
+          <span class="cast-mp3-name" id="castMp3Name">Belum ada file MP3 dipilih</span>
+          <button type="button" class="cast-btn-sec" id="castMp3PickBtn">Pilih MP3</button>
+          <input id="castMp3Input" type="file" accept=".mp3,audio/mpeg,audio/*" multiple hidden>
+        </div>
+        <div class="cast-mp3-row">
+          <button type="button" class="cast-mp3-icon" id="castMp3Prev" aria-label="Lagu sebelumnya" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 20L9 12l10-8v16zM5 19V5"/></svg>
+          </button>
+          <button type="button" class="cast-mp3-icon" id="castMp3PlayBtn" disabled>Putar MP3</button>
+          <button type="button" class="cast-mp3-icon" id="castMp3Next" aria-label="Lagu berikutnya" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4l10 8-10 8V4zM19 5v14"/></svg>
+          </button>
+        </div>
+        <div class="cast-mp3-prog">
+          <input id="castMp3Seek" type="range" min="0" max="100" step="0.1" value="0" aria-label="Posisi pemutaran MP3" disabled>
+          <span id="castMp3Time">00:00 / 00:00</span>
+        </div>
+      </div>
+    </div>
+
+    <footer class="cast-foot">
+      <div class="wmp cast-wmp off" id="castWmp" role="group" aria-label="Kendali siaran langsung">
+        <svg class="frame" id="castFrame" aria-hidden="true">
+          <defs>
+            <linearGradient id="castSilver" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#d5dee7"/><stop offset=".44" stop-color="#c6d1dc"/>
+              <stop offset=".52" stop-color="#bac7d4"/><stop offset="1" stop-color="#ccd6e0"/>
+            </linearGradient>
+          </defs>
+          <path id="castFramePath" fill="url(#castSilver)" stroke="#9fb0c1" stroke-width="1"/>
+          <path id="castFrameShine" fill="none" stroke="#ffffff" stroke-width="1" opacity=".9"/>
+        </svg>
+        <span class="capsule" aria-hidden="true"></span>
+        <span class="cap-ring" aria-hidden="true"></span>
+        <div class="side side-l">
+          <button class="tb" id="castMuteBtn" type="button" aria-pressed="false" aria-label="Mikrofon Aktif" title="Mikrofon Aktif / Bisu">
+            <svg class="i" id="castMuteIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3M8 22h8"/></svg>
+          </button>
+        </div>
+        <div class="center">
+          <button class="cap-btn cap-l active" id="castWingLeft" type="button" aria-label="Pilih sumber Soundcard" title="Sumber Soundcard 100%">
+            <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M19 11v1a7 7 0 0 1-14 0v-1"/></svg>
+          </button>
+          <button class="cast-orb" id="castToggleBtn" type="button" data-live="false" aria-label="Mulai siaran">
+            <svg class="glyph" viewBox="0 0 24 24" aria-hidden="true"><path id="castGlyph" d="M12 12a2 2 0 1 0 0.01 0zM8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7M5.5 5.5a9.5 9.5 0 0 0 0 13M18.5 5.5a9.5 9.5 0 0 1 0 13"/></svg>
+            <svg class="spin" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="47" fill="none" stroke="#3fb6ea" stroke-width="5" stroke-dasharray="50 250"/></svg>
+          </button>
+          <button class="cap-btn cap-r" id="castWingRight" type="button" aria-label="Pilih sumber MP3" title="Sumber MP3 100%">
+            <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l10-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg>
+          </button>
+        </div>
+        <div class="side side-r">
+          <button class="tb" id="castMp3MonBtn" type="button" aria-pressed="true" aria-label="Pantau suara MP3 aktif" title="Monitor MP3">
+            <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></svg>
+          </button>
+        </div>
+      </div>
+      <p class="cast-msg" id="castMsg" role="status"></p>
+    </footer>
+  </div>
+</section>
+
+<section class="cast-view" id="settingView" hidden aria-label="Pengaturan stasiun dan akun penyiar">
+  <div class="set-shell">
+    <header class="cast-head">
+      <button type="button" class="ico cast-head-btn" id="setBackBtn" aria-label="Kembali ke tampilan radio" title="Kembali ke Radio">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="cast-status-stack">
+        <span class="state cast-state-badge" id="setStateBadge" data-s="live">PENGATURAN</span>
+        <span class="listeners cast-stat-line" data-s="live">Stasiun &amp; Akun Penyiar</span>
+      </div>
+      <button type="button" class="ico cast-head-theme" id="setThemeBtn" aria-label="Beralih tema" title="Beralih tema">
+        <svg class="i" id="setThemeIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </header>
+
+    <div class="set-grid">
+      <div class="cast-panel-stack">
+        <form class="cast-card" id="setStationForm">
+          <h3>Pengaturan Stasiun</h3>
           <div class="cast-grid">
             <div class="cast-field full">
-              <label for="castHost">Address</label>
-              <input id="castHost" class="cast-input" type="text" value="streamy1.radioislam.my.id" autocomplete="off">
-            </div>
-            <div class="cast-field">
-              <label for="castPort">Port</label>
-              <input id="castPort" class="cast-input" type="number" min="1" max="65535" value="9210">
-            </div>
-            <div class="cast-field">
-              <label for="castUser">User</label>
-              <input id="castUser" class="cast-input" type="text" value="sragen" autocomplete="off">
+              <label for="setStation">Nama Radio</label>
+              <input id="setStation" class="cast-input" type="text" maxlength="100" required value="Radio Islam Sragen">
             </div>
             <div class="cast-field full">
-              <label for="castPass">Pass</label>
-              <div class="cast-pass-wrap">
-                <input id="castPass" class="cast-input" type="password" placeholder="Masukkan kata sandi stream" autocomplete="current-password">
-                <button type="button" class="cast-eye" id="castPassEye" aria-label="Tampilkan atau sembunyikan kata sandi">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></svg>
-                </button>
-              </div>
+              <label for="setHost">Address</label>
+              <input id="setHost" class="cast-input" type="text" maxlength="253" required value="streamy1.radioislam.my.id" autocomplete="off">
             </div>
             <div class="cast-field">
-              <label for="castBitrate">Bitrate</label>
-              <select id="castBitrate" class="cast-input">
+              <label for="setPort">Port</label>
+              <input id="setPort" class="cast-input" type="number" min="1" max="65535" required value="9210">
+            </div>
+            <div class="cast-field">
+              <label for="setBitrate">Bitrate</label>
+              <select id="setBitrate" class="cast-input">
                 <option value="24">24 Kbps</option>
                 <option value="32">32 Kbps</option>
                 <option value="48" selected>48 Kbps</option>
@@ -1913,44 +2121,34 @@ html[data-tema="gelap"] .set-btn-danger { border-color: rgba(224, 108, 102, .45)
                 <option value="128">128 Kbps</option>
               </select>
             </div>
-            <div class="cast-field">
-              <label for="castStation">Nama Radio</label>
-              <input id="castStation" class="cast-input" type="text" value="Radio Islam Sragen">
+            <div class="cast-field full">
+              <label for="setUser">User</label>
+              <input id="setUser" class="cast-input" type="text" maxlength="64" required value="sragen" autocomplete="off">
+            </div>
+            <div class="cast-field full">
+              <label for="setPass">Pass</label>
+              <div class="cast-pass-wrap">
+                <input id="setPass" class="cast-input" type="password" maxlength="128" placeholder="Masukkan kata sandi stream" autocomplete="new-password">
+                <button type="button" class="cast-eye" id="setPassEye" aria-label="Tampilkan atau sembunyikan kata sandi">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
             </div>
           </div>
-        </details>
+          <div class="set-pass-actions">
+            <span class="cast-sub" id="setPassHint">Memuat status kata sandi...</span>
+            <button type="button" class="cast-btn-sec set-btn-danger" id="setClearPassBtn" hidden>Hapus Sandi Tersimpan</button>
+          </div>
+          <button type="submit" class="cast-primary" id="setStationSaveBtn">Simpan Pengaturan Stasiun</button>
+        </form>
       </div>
-    </div>
 
-    <p class="cast-msg" id="castMsg" role="status"></p>
-  </div>
-</section>
-
-<section class="cast-view" id="settingView" hidden aria-label="Pengaturan akun siaran">
-  <div class="cast-shell">
-    <header class="cast-topbar">
-      <button type="button" class="cast-back" id="setBackBtn" aria-label="Kembali ke tampilan radio">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-        <span>Radio</span>
-      </button>
-      <div class="cast-head-title">
-        <h2>Pengaturan Akun</h2>
-        <span class="cast-status" id="setStateText" data-s="live">Tanpa Kode</span>
-      </div>
-      <button type="button" class="cast-theme-btn" id="setThemeBtn" aria-label="Beralih tema" title="Beralih tema">
-        <svg id="setThemeIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      </button>
-    </header>
-
-    <div class="cast-body">
       <div class="cast-panel-stack" id="setDashPanel">
-        <div class="set-top-row">
-          <span class="cast-sub" id="setAccCount">0 akun penyiar</span>
-          <span class="set-badge">Akses Terbuka</span>
-        </div>
-
         <form class="cast-card" id="setCreateForm">
-          <h3>Tambah Akun Penyiar</h3>
+          <div class="set-top-row">
+            <h3>Tambah Akun Penyiar</h3>
+            <span class="cast-sub" id="setAccCount">0 akun penyiar</span>
+          </div>
           <div class="cast-field">
             <label for="setNewEmail">Alamat Gmail Penyiar</label>
             <input id="setNewEmail" class="cast-input" type="email" required placeholder="contoh@gmail.com" autocomplete="off">
@@ -3119,29 +3317,32 @@ if (!SEMATAN) {
 
   const appMain = $('appMain');
   const castView = $('castView');
+  const castApp = $('castApp');
   const castBackBtn = $('castBackBtn');
   const castThemeBtn = $('castThemeBtn');
   const castThemeIcon = $('castThemeIcon');
-  const castStateText = $('castStateText');
+  const castStateBadge = $('castStateBadge');
+  const castStationTitle = $('castStationTitle');
+  const castWaveCanvas = $('castWave');
+  const castWctx = castWaveCanvas.getContext('2d');
   const castTimerEl = $('castTimer');
   const castStatEl = $('castStat');
-  const castMeterEl = $('castMeter');
+  const castWmp = $('castWmp');
+  const castFramePath = $('castFramePath');
+  const castFrameShine = $('castFrameShine');
   const castMicBanner = $('castMicBanner');
   const castMicHint = $('castMicHint');
   const castMicBtn = $('castMicBtn');
   const castToggleBtn = $('castToggleBtn');
+  const castGlyph = $('castGlyph');
+  const castWingLeftBtn = $('castWingLeft');
+  const castWingRightBtn = $('castWingRight');
   const castMuteBtn = $('castMuteBtn');
+  const castMuteIcon = $('castMuteIcon');
   const castGainInput = $('castGain');
   const castGainVal = $('castGainVal');
   const castTitleInput = $('castTitle');
   const castMetaBtn = $('castMetaBtn');
-  const castHostInput = $('castHost');
-  const castPortInput = $('castPort');
-  const castUserInput = $('castUser');
-  const castPassInput = $('castPass');
-  const castPassEye = $('castPassEye');
-  const castBitrateSelect = $('castBitrate');
-  const castStationInput = $('castStation');
   const castMsgEl = $('castMsg');
   const castFaderInput = $('castFader');
   const castSrcLeftBtn = $('castSrcLeft');
@@ -3156,6 +3357,11 @@ if (!SEMATAN) {
   const castMp3SeekInput = $('castMp3Seek');
   const castMp3TimeEl = $('castMp3Time');
 
+  const CAST_ORB_IDLE = 'M12 12a2 2 0 1 0 0.01 0zM8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7M5.5 5.5a9.5 9.5 0 0 0 0 13M18.5 5.5a9.5 9.5 0 0 1 0 13';
+  const CAST_ORB_STOP = 'M5 5h14v14H5z';
+  const CAST_MIC_ON = '<path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3M8 22h8"/>';
+  const CAST_MIC_OFF = '<path d="M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 5.12 2.12M15 9V6a3 3 0 0 0-3-3"/><path d="M19 10v2a7 7 0 0 1-10.7 5.95M5 10v2a7 7 0 0 0 7 7"/><path d="M12 19v3M8 22h8"/><line x1="3" y1="3" x2="21" y2="21"/>';
+
   let castWs = null, castStream = null, castCtx = null, castSource = null;
   let castGainNode = null, castMicCrossGain = null, castMp3Source = null, castMp3CrossGain = null, castMp3MonGain = null;
   let castMasterGain = null, castAnalyser = null, castProc = null, castMuteSink = null;
@@ -3163,17 +3369,47 @@ if (!SEMATAN) {
   let castFaderVal = 0, castMp3Monitor = true;
   let castMp3Audio = null, castMp3Files = [], castMp3Idx = 0, castMp3Url = '', castMp3Seeking = false;
   let castHasServerPass = false, castMeterRaf = 0, castClockTimer = 0, castStartedAt = 0;
+  let castStationCfg = { host: 'streamy1.radioislam.my.id', port: 9210, user: 'sragen', station: 'Radio Islam Sragen', genre: 'Islamic', bitrate: 48 };
+  const CAST_BANDS = 24;
+  let castBands = Array(CAST_BANDS).fill(0), castPeaks = Array(CAST_BANDS).fill(0);
+
+  function drawCastFrame() {
+    if (!castWmp || castView.hidden) return;
+    const W = castWmp.clientWidth, H = castWmp.clientHeight;
+    if (!W || !H) return;
+    const em = parseFloat(getComputedStyle(castWmp).fontSize);
+    const band = castWmp.querySelector('.side').offsetHeight, R = H / 2 - .5, cy = H / 2;
+    const y0 = cy - band / 2 + .5, y1 = cy + band / 2 - .5;
+    const center = castToggleBtn.getBoundingClientRect(), box = castWmp.getBoundingClientRect();
+    const cx = center.left + center.width / 2 - box.left, dx = Math.sqrt(Math.max(1, R * R - (band / 2 - .5) ** 2));
+    const f = .35 * em, r = band / 2 - .5;
+    const th = Math.atan2(y0 - cy, -dx) + f / R;
+    const qx = cx + R * Math.cos(th), qy = cy + R * Math.sin(th), qx2 = 2 * cx - qx, qyb = 2 * cy - qy;
+    const top = `M${r + .5},${y0} L${cx - dx - f},${y0} Q${cx - dx},${y0} ${qx},${qy} A${R},${R} 0 0 1 ${qx2},${qy} Q${cx + dx},${y0} ${cx + dx + f},${y0} L${W - r - .5},${y0}`;
+    const d = `${top} A${r},${r} 0 0 1 ${W - r - .5},${y1} L${cx + dx + f},${y1} Q${cx + dx},${y1} ${qx2},${qyb} A${R},${R} 0 0 1 ${qx},${qyb} Q${cx - dx},${y1} ${cx - dx - f},${y1} L${r + .5},${y1} A${r},${r} 0 0 1 ${r + .5},${y0} Z`;
+    castFramePath.setAttribute('d', d);
+    castFrameShine.setAttribute('d', top);
+    castFrameShine.setAttribute('transform', 'translate(0 1)');
+  }
 
   function syncCastThemeIcon() {
     const isDark = document.documentElement.dataset.tema === 'gelap';
     castThemeIcon.innerHTML = isDark ? THEME_ICONS.sun : THEME_ICONS.moon;
     castThemeBtn.setAttribute('aria-label', isDark ? 'Beralih ke mode terang' : 'Beralih ke mode gelap');
+    if (castFramePath) {
+      castFramePath.setAttribute('fill', isDark ? '#000' : 'url(#castSilver)');
+      castFramePath.setAttribute('stroke', isDark ? 'rgba(255,255,255,.22)' : 'rgba(114, 134, 156, .48)');
+    }
     const setIcon = $('setThemeIcon');
     const setBtn = $('setThemeBtn');
     if (setIcon && setBtn) {
       setIcon.innerHTML = isDark ? THEME_ICONS.sun : THEME_ICONS.moon;
       setBtn.setAttribute('aria-label', isDark ? 'Beralih ke mode terang' : 'Beralih ke mode gelap');
     }
+    requestAnimationFrame(() => {
+      drawCastFrame();
+      drawCastWave();
+    });
   }
 
   castThemeBtn.addEventListener('click', () => {
@@ -3188,8 +3424,25 @@ if (!SEMATAN) {
   }
 
   function setCastStatus(mode, text) {
-    castStateText.dataset.s = mode;
-    castStateText.textContent = text;
+    const s = mode === 'live' ? 'live' : (mode === 'connecting' ? 'connecting' : (mode === 'error' ? 'error' : 'idle'));
+    castApp.dataset.s = s;
+    castStateBadge.dataset.s = s;
+    castStatEl.dataset.s = s;
+    castStateBadge.textContent = text;
+  }
+
+  function renderCastTimer(sec) {
+    if (!sec || sec <= 0) {
+      castTimerEl.innerHTML = '<span class="dim">00:00:00</span>';
+      return;
+    }
+    const str = formatDuration(sec);
+    const firstNonZero = str.search(/[1-9]/);
+    if (firstNonZero <= 0) {
+      castTimerEl.textContent = str;
+      return;
+    }
+    castTimerEl.innerHTML = `<span class="dim">${str.slice(0, firstNonZero)}</span>${str.slice(firstNonZero)}`;
   }
 
   function formatDuration(sec) {
@@ -3219,13 +3472,13 @@ if (!SEMATAN) {
     castSrcRightBtn.textContent = `MP3 ${mp3Pct}%`;
     castSrcLeftBtn.classList.toggle('active', micPct >= mp3Pct);
     castSrcRightBtn.classList.toggle('active', mp3Pct >= micPct);
+    if (castWingLeftBtn) castWingLeftBtn.classList.toggle('active', micPct >= mp3Pct);
+    if (castWingRightBtn) castWingRightBtn.classList.toggle('active', mp3Pct >= micPct);
   }
 
   function updateStatLine(kb = 0) {
-    const br = Number(castBitrateSelect.value) || 48;
-    const h = castHostInput.value.trim() || 'streamy1.radioislam.my.id';
-    const p = castPortInput.value.trim() || '9210';
-    castStatEl.textContent = `${br} Kbps · ${kb.toLocaleString('id-ID')} KB · ${h}:${p}`;
+    const br = Number(castStationCfg.bitrate) || 48;
+    castStatEl.textContent = `${br} Kbps · ${kb.toLocaleString('id-ID')} KB`;
   }
 
   function syncMp3Ui() {
@@ -3238,17 +3491,23 @@ if (!SEMATAN) {
     castMp3PlayBtn.setAttribute('aria-pressed', playing ? 'true' : 'false');
     castMp3SeekInput.disabled = !hasFiles;
     castMp3MonBtn.setAttribute('aria-pressed', castMp3Monitor ? 'true' : 'false');
-    castMp3MonBtn.textContent = castMp3Monitor ? 'Monitor: ON' : 'Monitor: OFF';
+    castMp3MonBtn.setAttribute('aria-label', castMp3Monitor ? 'Monitor MP3 aktif' : 'Monitor MP3 mati');
+    castMp3MonBtn.title = castMp3Monitor ? 'Monitor MP3: Aktif' : 'Monitor MP3: Mati';
   }
 
   function syncCastUi() {
+    castWmp.classList.toggle('live', castLive);
+    castWmp.classList.toggle('off', !castLive);
+    castToggleBtn.classList.toggle('live', castLive);
+    castToggleBtn.classList.toggle('busy', castConnecting);
     castToggleBtn.dataset.live = castLive ? 'true' : 'false';
     castToggleBtn.disabled = castConnecting;
-    castToggleBtn.textContent = castConnecting
-      ? 'Menyambung ke server...'
-      : (castLive ? 'Hentikan Siaran' : 'Mulai Siaran');
+    castToggleBtn.setAttribute('aria-label', castConnecting ? 'Menyambung ke server' : (castLive ? 'Hentikan siaran' : 'Mulai siaran'));
+    if (castGlyph) castGlyph.setAttribute('d', castLive ? CAST_ORB_STOP : CAST_ORB_IDLE);
     castMuteBtn.setAttribute('aria-pressed', castMuted ? 'true' : 'false');
-    castMuteBtn.textContent = castMuted ? 'Mikrofon Bisu' : 'Mikrofon Aktif';
+    castMuteBtn.setAttribute('aria-label', castMuted ? 'Mikrofon bisu' : 'Mikrofon aktif');
+    castMuteBtn.title = castMuted ? 'Mikrofon Bisu' : 'Mikrofon Aktif';
+    if (castMuteIcon) castMuteIcon.innerHTML = castMuted ? CAST_MIC_OFF : CAST_MIC_ON;
     castBackBtn.disabled = castLive || castConnecting;
     syncMp3Ui();
   }
@@ -3258,17 +3517,16 @@ if (!SEMATAN) {
       const res = await fetch('/api/broadcast/config?t=' + Date.now(), { cache: 'no-store' });
       if (!res.ok) return;
       const cfg = await res.json();
-      if (cfg.host && !castHostInput.dataset.edited) castHostInput.value = cfg.host;
-      if (cfg.port && !castPortInput.dataset.edited) castPortInput.value = String(cfg.port);
-      if (cfg.user && !castUserInput.dataset.edited) castUserInput.value = cfg.user;
-      if (cfg.station && !castStationInput.dataset.edited) castStationInput.value = cfg.station;
-      if (cfg.bitrate && !castBitrateSelect.dataset.edited) castBitrateSelect.value = String(cfg.bitrate);
+      castStationCfg = {
+        host: cfg.host || 'streamy1.radioislam.my.id',
+        port: Number(cfg.port) || 9210,
+        user: cfg.user || 'sragen',
+        station: cfg.station || 'Radio Islam Sragen',
+        genre: cfg.genre || 'Islamic',
+        bitrate: Number(cfg.bitrate) || 48,
+      };
       castHasServerPass = !!cfg.hasPass;
-      if (castHasServerPass) {
-        castPassInput.placeholder = 'Tersimpan di server (kosongkan jika pakai bawaan)';
-      } else {
-        castPassInput.placeholder = 'Masukkan kata sandi stream';
-      }
+      if (castStationTitle) castStationTitle.textContent = castStationCfg.station;
       updateStatLine(0);
       if (cfg.busy && !castLive) {
         setCastMsg('Catatan: Ada sumber siaran aktif di server.');
@@ -3276,31 +3534,84 @@ if (!SEMATAN) {
     } catch {}
   }
 
-  [castHostInput, castPortInput, castUserInput, castStationInput, castBitrateSelect].forEach(el => {
-    el.addEventListener('input', () => {
-      el.dataset.edited = '1';
-      if (!castLive) updateStatLine(0);
-    });
-  });
+  function drawCastWave() {
+    if (!castWaveCanvas || castView.hidden) return;
+    const dpr = devicePixelRatio || 1;
+    const w = castWaveCanvas.clientWidth, h = castWaveCanvas.clientHeight;
+    if (!w || !h) return;
+    if (castWaveCanvas.width !== Math.round(w * dpr) || castWaveCanvas.height !== Math.round(h * dpr)) {
+      castWaveCanvas.width = Math.round(w * dpr);
+      castWaveCanvas.height = Math.round(h * dpr);
+    }
+    castWctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    castWctx.clearRect(0, 0, w, h);
+
+    const css = getComputedStyle(castWaveCanvas);
+    const cBar = css.getPropertyValue('--wave-bar').trim() || '#258ee4';
+    const cMid = css.getPropertyValue('--wave-mid').trim() || 'rgba(37,142,228,.2)';
+    const cHead = css.getPropertyValue('--wave-head').trim() || '#105290';
+
+    const padX = 6, bottom = h - 6, usableH = h - 14;
+    const count = Math.max(12, Math.min(CAST_BANDS, Math.floor((w - padX * 2) / 9)));
+    const step = (w - padX * 2) / count, bw = Math.max(3, Math.floor(step * .62));
+
+    castWctx.fillStyle = cMid;
+    castWctx.fillRect(padX, bottom, w - padX * 2, 1);
+
+    for (let i = 0; i < count; i++) {
+      const bi = Math.floor(i * CAST_BANDS / count);
+      const v = castBands[bi];
+      const p = castPeaks[bi];
+      const x = padX + i * step + (step - bw) / 2;
+      const bh = Math.max(3, v * usableH);
+      castWctx.globalAlpha = v > .03 ? .84 : .32;
+      castWctx.fillStyle = cBar;
+      castWctx.beginPath();
+      if (castWctx.roundRect) castWctx.roundRect(x, bottom - bh, bw, bh, 2);
+      else castWctx.rect(x, bottom - bh, bw, bh);
+      castWctx.fill();
+
+      if (p > .03) {
+        const py = Math.max(4, bottom - p * usableH - 3);
+        castWctx.globalAlpha = .95;
+        castWctx.fillStyle = cHead;
+        castWctx.beginPath();
+        if (castWctx.roundRect) castWctx.roundRect(x, py, bw, 2.5, 1);
+        else castWctx.rect(x, py, bw, 2.5);
+        castWctx.fill();
+      }
+    }
+    castWctx.globalAlpha = 1;
+  }
 
   function startMeterLoop() {
     cancelAnimationFrame(castMeterRaf);
-    const buf = castAnalyser ? new Uint8Array(castAnalyser.fftSize) : null;
+    const freqBuf = castAnalyser ? new Uint8Array(castAnalyser.frequencyBinCount) : null;
     const step = () => {
-      if (!castAnalyser || castView.hidden) {
-        castMeterEl.style.transform = 'scaleX(0)';
-        return;
-      }
-      if (buf) {
-        castAnalyser.getByteTimeDomainData(buf);
-        let peak = 0;
-        for (let i = 0; i < buf.length; i++) {
-          const v = Math.abs((buf[i] - 128) / 128);
-          if (v > peak) peak = v;
+      if (castView.hidden) return;
+      if (castAnalyser && freqBuf) {
+        castAnalyser.getByteFrequencyData(freqBuf);
+        const usableBins = Math.min(freqBuf.length, 96);
+        const stepSize = Math.max(1, Math.floor(usableBins / CAST_BANDS));
+        for (let i = 0; i < CAST_BANDS; i++) {
+          let sum = 0;
+          const start = i * stepSize;
+          for (let k = 0; k < stepSize; k++) {
+            sum += freqBuf[Math.min(freqBuf.length - 1, start + k)];
+          }
+          const avg = sum / (stepSize * 255);
+          const target = Math.min(1, avg * 1.45);
+          castBands[i] += (target - castBands[i]) * (target > castBands[i] ? .52 : .24);
+          if (castBands[i] >= castPeaks[i]) castPeaks[i] = castBands[i];
+          else castPeaks[i] = Math.max(0, castPeaks[i] - .018);
         }
-        const level = Math.min(1, peak * 1.85);
-        castMeterEl.style.transform = `scaleX(${level.toFixed(3)})`;
+      } else {
+        for (let i = 0; i < CAST_BANDS; i++) {
+          castBands[i] = Math.max(0, castBands[i] * .82);
+          castPeaks[i] = Math.max(0, castPeaks[i] - .018);
+        }
       }
+      drawCastWave();
       castMeterRaf = requestAnimationFrame(step);
     };
     castMeterRaf = requestAnimationFrame(step);
@@ -3452,7 +3763,9 @@ if (!SEMATAN) {
 
   function releaseAudioHardware() {
     cancelAnimationFrame(castMeterRaf);
-    castMeterEl.style.transform = 'scaleX(0)';
+    castBands.fill(0);
+    castPeaks.fill(0);
+    drawCastWave();
     if (castMp3Audio) {
       try { castMp3Audio.pause(); castMp3Audio.removeAttribute('src'); castMp3Audio.load(); } catch {}
       castMp3Audio = null;
@@ -3498,6 +3811,22 @@ if (!SEMATAN) {
     syncCastUi();
   }
 
+  if (window.ResizeObserver) {
+    new ResizeObserver(() => {
+      if (!castView.hidden) {
+        drawCastFrame();
+        drawCastWave();
+      }
+    }).observe(castView);
+  } else {
+    addEventListener('resize', () => {
+      if (!castView.hidden) {
+        drawCastFrame();
+        drawCastWave();
+      }
+    });
+  }
+
   async function openCastView() {
     if (wanted) stop();
     appMain.hidden = true;
@@ -3505,10 +3834,15 @@ if (!SEMATAN) {
     castView.hidden = false;
     syncCastThemeIcon();
     setCastMsg('');
-    setCastStatus(castLive ? 'live' : 'idle', castLive ? 'ON AIR · Siaran aktif' : 'Siap siaran');
-    loadBroadcastConfig();
+    setCastStatus(castLive ? 'live' : 'idle', castLive ? 'ON AIR' : 'STANDBY');
+    renderCastTimer(castLive && castStartedAt ? Math.floor((Date.now() - castStartedAt) / 1000) : 0);
+    await loadBroadcastConfig();
     applyCrossfader(castFaderVal);
     syncCastUi();
+    requestAnimationFrame(() => {
+      drawCastFrame();
+      drawCastWave();
+    });
     ensureMicrophone();
     setTimeout(() => castToggleBtn.focus(), 40);
   }
@@ -3540,6 +3874,8 @@ if (!SEMATAN) {
   castFaderInput.addEventListener('input', () => applyCrossfader(castFaderInput.value));
   castSrcLeftBtn.addEventListener('click', () => applyCrossfader(0));
   castSrcRightBtn.addEventListener('click', () => applyCrossfader(100));
+  if (castWingLeftBtn) castWingLeftBtn.addEventListener('click', () => applyCrossfader(0));
+  if (castWingRightBtn) castWingRightBtn.addEventListener('click', () => applyCrossfader(100));
 
   castMp3PickBtn.addEventListener('click', () => castMp3Input.click());
   castMp3Input.addEventListener('change', () => {
@@ -3597,10 +3933,6 @@ if (!SEMATAN) {
     castMp3TimeEl.textContent = `${formatMmSs(target)} / ${formatMmSs(castMp3Audio.duration)}`;
   });
 
-  castPassEye.addEventListener('click', () => {
-    castPassInput.type = castPassInput.type === 'password' ? 'text' : 'password';
-  });
-
   castMuteBtn.addEventListener('click', () => {
     castMuted = !castMuted;
     if (castGainNode) castGainNode.gain.value = castMuted ? 0 : castGain;
@@ -3619,27 +3951,19 @@ if (!SEMATAN) {
     if (wanted) stop();
     setCastMsg('');
 
-    const host = castHostInput.value.trim();
-    const port = Number(castPortInput.value);
-    const user = castUserInput.value.trim();
-    const pass = castPassInput.value;
-    const bitrate = Number(castBitrateSelect.value) || 48;
-    const station = castStationInput.value.trim() || 'Radio Islam Sragen';
-    const title = castTitleInput.value.trim();
+    await loadBroadcastConfig();
 
-    if (!host || !Number.isInteger(port) || port < 1 || port > 65535) {
-      setCastMsg('Periksa alamat dan nomor port server.', true);
+    if (!castStationCfg.host || !Number.isInteger(castStationCfg.port) || castStationCfg.port < 1 || castStationCfg.port > 65535) {
+      setCastMsg('Atur alamat dan port server terlebih dahulu di menu Pengaturan.', true);
       return;
     }
-    if (!pass && !castHasServerPass) {
-      setCastMsg('Masukkan kata sandi stream di Pengaturan Server terlebih dahulu.', true);
-      $('castDetails').open = true;
-      castPassInput.focus();
+    if (!castHasServerPass) {
+      setCastMsg('Kata sandi stream belum diatur. Buka Pengaturan (tahan Vol - & Vol + 5 detik) untuk mengisinya.', true);
       return;
     }
 
     castConnecting = true;
-    setCastStatus('connecting', 'Menyiapkan audio...');
+    setCastStatus('connecting', 'MENYAMBUNG');
     syncCastUi();
 
     await ensureAudioGraph();
@@ -3648,12 +3972,12 @@ if (!SEMATAN) {
     const micOk = await ensureMicrophone();
     if (!micOk && castFaderVal < 95 && !castMp3Files.length) {
       teardownWs(false);
-      setCastStatus('error', 'Izin mikrofon ditolak');
+      setCastStatus('error', 'OFF AIR');
       setCastMsg('Izinkan mikrofon atau pilih file MP3 dan geser sumber ke MP3.', true);
       return;
     }
 
-    setCastStatus('connecting', 'Menyambung ke server...');
+    const title = castTitleInput.value.trim();
     const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
     const ws = new WebSocket(`${proto}//${location.host}/ws/broadcast`);
     ws.binaryType = 'arraybuffer';
@@ -3662,14 +3986,7 @@ if (!SEMATAN) {
     ws.onopen = () => {
       ws.send(JSON.stringify({
         type: 'start',
-        host,
-        port,
-        user,
-        pass,
-        bitrate,
         sampleRate: castCtx ? castCtx.sampleRate : 44100,
-        station,
-        genre: 'Islamic',
         title,
       }));
     };
@@ -3683,14 +4000,14 @@ if (!SEMATAN) {
         castConnecting = false;
         castLive = true;
         castStartedAt = Date.now();
-        castTimerEl.textContent = '00:00:00';
+        renderCastTimer(0);
         updateStatLine(0);
-        setCastStatus('live', 'ON AIR · Siaran aktif');
+        setCastStatus('live', 'ON AIR');
         setCastMsg(`Terhubung ke ${msg.host}:${msg.port}.`);
         startMeterLoop();
         clearInterval(castClockTimer);
         castClockTimer = setInterval(() => {
-          if (castStartedAt) castTimerEl.textContent = formatDuration(Math.floor((Date.now() - castStartedAt) / 1000));
+          if (castStartedAt) renderCastTimer(Math.floor((Date.now() - castStartedAt) / 1000));
         }, 1000);
         syncCastUi();
       } else if (msg.type === 'stats') {
@@ -3701,12 +4018,13 @@ if (!SEMATAN) {
       } else if (msg.type === 'error') {
         const errText = msg.message || 'Gagal memulai siaran.';
         teardownWs(false);
-        setCastStatus('error', 'Gagal menyambung');
+        setCastStatus('error', 'OFF AIR');
         setCastMsg(errText, true);
       } else if (msg.type === 'stopped') {
         const stopText = msg.message || 'Siaran dihentikan.';
         teardownWs(false);
-        setCastStatus('idle', 'Siaran selesai');
+        renderCastTimer(0);
+        setCastStatus('idle', 'STANDBY');
         setCastMsg(stopText);
       }
     };
@@ -3714,7 +4032,8 @@ if (!SEMATAN) {
     ws.onerror = () => {
       if (castWs === ws) {
         teardownWs(false);
-        setCastStatus('error', 'Koneksi terputus');
+        renderCastTimer(0);
+        setCastStatus('error', 'OFF AIR');
         setCastMsg('Gagal terhubung ke layanan siaran.', true);
       }
     };
@@ -3724,7 +4043,8 @@ if (!SEMATAN) {
         const wasActive = castLive || castConnecting;
         teardownWs(false);
         if (wasActive) {
-          setCastStatus('idle', 'Terputus');
+          renderCastTimer(0);
+          setCastStatus('idle', 'STANDBY');
           setCastMsg('Sambungan siaran ditutup.');
         }
       }
@@ -3734,8 +4054,8 @@ if (!SEMATAN) {
   castToggleBtn.addEventListener('click', () => {
     if (castLive || castConnecting) {
       teardownWs(true);
-      castTimerEl.textContent = '00:00:00';
-      setCastStatus('idle', 'Siap siaran');
+      renderCastTimer(0);
+      setCastStatus('idle', 'STANDBY');
       setCastMsg('Siaran dihentikan.');
     } else {
       startBroadcast();
@@ -3755,10 +4075,21 @@ if (!SEMATAN) {
     castWs.send(JSON.stringify({ type: 'metadata', title }));
   });
 
-  /* ==================== MENU PENGATURAN AKUN (TANPA KODE) ==================== */
+  /* ==================== MENU PENGATURAN STASIUN & AKUN PENYIAR ==================== */
   const settingView = $('settingView');
   const setBackBtn = $('setBackBtn');
   const setThemeBtn = $('setThemeBtn');
+  const setStationForm = $('setStationForm');
+  const setStationInput = $('setStation');
+  const setHostInput = $('setHost');
+  const setPortInput = $('setPort');
+  const setUserInput = $('setUser');
+  const setPassInput = $('setPass');
+  const setPassEye = $('setPassEye');
+  const setPassHint = $('setPassHint');
+  const setClearPassBtn = $('setClearPassBtn');
+  const setBitrateSelect = $('setBitrate');
+  const setStationSaveBtn = $('setStationSaveBtn');
   const setAccCount = $('setAccCount');
   const setCreateForm = $('setCreateForm');
   const setNewEmail = $('setNewEmail');
@@ -3785,6 +4116,107 @@ if (!SEMATAN) {
     const cur = document.documentElement.dataset.tema === 'gelap' ? 'gelap' : 'terang';
     applyTheme(cur === 'gelap' ? 'terang' : 'gelap', true);
     syncCastThemeIcon();
+  });
+
+  setPassEye.addEventListener('click', () => {
+    setPassInput.type = setPassInput.type === 'password' ? 'text' : 'password';
+  });
+
+  function applyStationFormState(st) {
+    if (!st) return;
+    if (st.station) setStationInput.value = st.station;
+    if (st.host) setHostInput.value = st.host;
+    if (st.port) setPortInput.value = String(st.port);
+    if (st.user) setUserInput.value = st.user;
+    if (st.bitrate) setBitrateSelect.value = String(st.bitrate);
+    setPassInput.value = '';
+    setPassInput.type = 'password';
+    if (st.hasSavedPass) {
+      setPassInput.placeholder = 'Tersimpan (kosongkan jika tidak diubah)';
+      setPassHint.textContent = 'Kata sandi stream tersimpan di server.';
+      setClearPassBtn.hidden = false;
+    } else if (st.hasEnvPass) {
+      setPassInput.placeholder = 'Menggunakan sandi bawaan server';
+      setPassHint.textContent = 'Menggunakan kata sandi bawaan environment server.';
+      setClearPassBtn.hidden = true;
+    } else {
+      setPassInput.placeholder = 'Masukkan kata sandi stream';
+      setPassHint.textContent = 'Kata sandi stream belum diisi.';
+      setClearPassBtn.hidden = true;
+    }
+  }
+
+  async function loadAdminStation() {
+    try {
+      const res = await adminFetch('/api/admin/station?t=' + Date.now());
+      if (!res.ok) return;
+      const data = await res.json();
+      applyStationFormState(data.station);
+    } catch {
+      setAdminMsg('Gagal memuat pengaturan stasiun.', true);
+    }
+  }
+
+  setStationForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    setStationSaveBtn.disabled = true;
+    setAdminMsg('');
+    try {
+      const payload = {
+        station: setStationInput.value.trim(),
+        host: setHostInput.value.trim(),
+        port: Number(setPortInput.value),
+        user: setUserInput.value.trim(),
+        bitrate: Number(setBitrateSelect.value) || 48,
+      };
+      if (setPassInput.value.length > 0) {
+        payload.pass = setPassInput.value;
+      }
+      const res = await adminFetch('/api/admin/station', {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setAdminMsg(data.error || 'Gagal menyimpan pengaturan stasiun.', true);
+        return;
+      }
+      applyStationFormState(data.station);
+      setAdminMsg('Pengaturan stasiun berhasil disimpan.');
+    } catch {
+      setAdminMsg('Gagal menghubungi server.', true);
+    } finally {
+      setStationSaveBtn.disabled = false;
+    }
+  });
+
+  setClearPassBtn.addEventListener('click', async () => {
+    setClearPassBtn.disabled = true;
+    setAdminMsg('');
+    try {
+      const res = await adminFetch('/api/admin/station', {
+        method: 'PUT',
+        body: JSON.stringify({
+          station: setStationInput.value.trim(),
+          host: setHostInput.value.trim(),
+          port: Number(setPortInput.value),
+          user: setUserInput.value.trim(),
+          bitrate: Number(setBitrateSelect.value) || 48,
+          clearPass: true,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setAdminMsg(data.error || 'Gagal menghapus sandi tersimpan.', true);
+        return;
+      }
+      applyStationFormState(data.station);
+      setAdminMsg('Kata sandi tersimpan dihapus.');
+    } catch {
+      setAdminMsg('Gagal menghubungi server.', true);
+    } finally {
+      setClearPassBtn.disabled = false;
+    }
   });
 
   function showQrBanner(email, secret, qrDataUrl, isReset = false) {
@@ -3847,11 +4279,11 @@ if (!SEMATAN) {
       }
       meta.append(emailEl, subEl);
 
-      const statusBadge = document.createElement('span');
-      statusBadge.className = acc.enabled ? 'set-badge' : 'set-badge off';
-      statusBadge.textContent = acc.enabled ? 'Aktif' : 'Nonaktif';
+      const statusText = document.createElement('span');
+      statusText.className = acc.enabled ? 'set-acc-status' : 'set-acc-status off';
+      statusText.textContent = acc.enabled ? 'Aktif' : 'Nonaktif';
 
-      top.append(meta, statusBadge);
+      top.append(meta, statusText);
 
       const actions = document.createElement('div');
       actions.className = 'set-acc-actions';
@@ -3967,7 +4399,7 @@ if (!SEMATAN) {
     syncCastThemeIcon();
     setAdminMsg('');
     setQrBox.hidden = true;
-    await loadAdminAccounts();
+    await Promise.all([loadAdminStation(), loadAdminAccounts()]);
   }
 
   function closeSettingView() {
