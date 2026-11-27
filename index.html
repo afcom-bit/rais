@@ -1683,8 +1683,11 @@ html[data-tema="gelap"] .set-qr-box {
   background: rgba(12, 124, 114, .14); color: #0c7c72;
 }
 html[data-tema="gelap"] .set-badge { background: rgba(103, 196, 150, .16); color: #67c496; }
+.set-badge.role { background: rgba(29, 127, 208, .14); color: #165ba0; }
+html[data-tema="gelap"] .set-badge.role { background: rgba(91, 192, 255, .16); color: #5bc0ff; }
 .set-badge.off { background: rgba(196, 50, 50, .14); color: #c43232; }
 html[data-tema="gelap"] .set-badge.off { background: rgba(224, 108, 102, .16); color: #e06c66; }
+.set-badges { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
 .set-acc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .set-btn-danger { border-color: rgba(196, 50, 50, .4); color: #c43232; }
 html[data-tema="gelap"] .set-btn-danger { border-color: rgba(224, 108, 102, .45); color: #e06c66; }
@@ -1960,61 +1963,78 @@ html[data-tema="gelap"] .set-btn-danger { border-color: rgba(224, 108, 102, .45)
     </header>
 
     <div class="cast-body">
-      <form class="cast-card" id="setBootstrapPanel" hidden>
+      <div class="cast-card" id="setBootstrapPanel" hidden>
         <div class="cast-field">
-          <h3>Buat Sandi Admin</h3>
-          <p class="cast-sub">Atur sandi admin pertama kali untuk membuat dan mengelola akun siaran.</p>
+          <h3>Daftarkan Admin Pertama</h3>
+          <p class="cast-sub">Masukkan akun Gmail admin, pindai QR ke aplikasi Authenticator, lalu verifikasi kode 6 digit.</p>
         </div>
-        <div class="cast-field">
-          <label for="setBootPass">Sandi Admin Baru (minimal 6 karakter)</label>
-          <div class="cast-pass-wrap">
-            <input id="setBootPass" class="cast-input" type="password" minlength="6" maxlength="128" required autocomplete="new-password" placeholder="Masukkan sandi admin">
-            <button type="button" class="cast-eye" data-eye="setBootPass" aria-label="Tampilkan sandi">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
+        <form class="cast-panel-stack" id="setBootStartForm">
+          <div class="cast-field">
+            <label for="setBootEmail">Akun Gmail Admin</label>
+            <input id="setBootEmail" class="cast-input" type="email" required autocomplete="email" placeholder="contoh@gmail.com">
           </div>
-        </div>
-        <div class="cast-field">
-          <label for="setBootConfirm">Ulangi Sandi Admin</label>
-          <input id="setBootConfirm" class="cast-input" type="password" minlength="6" maxlength="128" required autocomplete="new-password" placeholder="Ketik ulang sandi">
-        </div>
-        <button type="submit" class="cast-primary" id="setBootBtn">Simpan Sandi & Masuk</button>
-      </form>
+          <div class="cast-field">
+            <label for="setBootName">Nama (opsional)</label>
+            <input id="setBootName" class="cast-input" type="text" maxlength="60" placeholder="Misal: Admin Studio" autocomplete="off">
+          </div>
+          <button type="submit" class="cast-primary" id="setBootStartBtn">Buat QR Authenticator</button>
+        </form>
+        <form class="cast-panel-stack" id="setBootVerifyForm" hidden>
+          <div class="set-qr-box" style="padding:12px">
+            <strong id="setBootQrEmail"></strong>
+            <img class="set-qr-img" id="setBootQrImg" alt="Kode QR Authenticator Admin">
+            <div class="set-qr-secret" id="setBootSecret"></div>
+            <button type="button" class="cast-btn-sec" id="setBootCopyBtn">Salin Kunci</button>
+          </div>
+          <div class="cast-field">
+            <label for="setBootCode">Kode Authenticator (6 digit)</label>
+            <input id="setBootCode" class="cast-input cast-code-input" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required autocomplete="one-time-code" placeholder="000000">
+          </div>
+          <button type="submit" class="cast-primary" id="setBootVerifyBtn">Verifikasi & Masuk</button>
+          <button type="button" class="cast-btn-sec" id="setBootBackBtn">Ganti Akun Gmail</button>
+        </form>
+      </div>
 
       <form class="cast-card" id="setLoginPanel" hidden>
         <div class="cast-field">
           <h3>Masuk Pengaturan</h3>
-          <p class="cast-sub">Masukkan sandi admin untuk mengelola akun Gmail penyiar dan kode Authenticator.</p>
+          <p class="cast-sub">Masukkan akun Gmail admin terdaftar dan kode 6 digit Authenticator.</p>
         </div>
         <div class="cast-field">
-          <label for="setAdminPass">Sandi Admin</label>
-          <div class="cast-pass-wrap">
-            <input id="setAdminPass" class="cast-input" type="password" required autocomplete="current-password" placeholder="Masukkan sandi admin">
-            <button type="button" class="cast-eye" data-eye="setAdminPass" aria-label="Tampilkan sandi">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-          </div>
+          <label for="setLoginEmail">Akun Gmail Admin</label>
+          <input id="setLoginEmail" class="cast-input" type="email" required autocomplete="email" placeholder="contoh@gmail.com">
         </div>
-        <button type="submit" class="cast-primary" id="setLoginBtn">Buka Pengaturan</button>
+        <div class="cast-field">
+          <label for="setLoginCode">Kode Authenticator (6 digit)</label>
+          <input id="setLoginCode" class="cast-input cast-code-input" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required autocomplete="one-time-code" placeholder="000000">
+        </div>
+        <button type="submit" class="cast-primary" id="setLoginBtn">Masuk Pengaturan</button>
       </form>
 
       <div class="cast-panel-stack" id="setDashPanel" hidden>
         <div class="set-top-row">
           <span class="cast-sub" id="setAccCount">0 akun terdaftar</span>
-          <button type="button" class="cast-btn-sec" id="setLogoutBtn" style="min-height:38px">Keluar Admin</button>
+          <button type="button" class="cast-btn-sec" id="setLogoutBtn" style="min-height:38px">Keluar</button>
         </div>
 
         <form class="cast-card" id="setCreateForm">
-          <h3>Tambah Akun Penyiar</h3>
+          <h3>Tambah Akun</h3>
           <div class="cast-field">
             <label for="setNewEmail">Alamat Gmail</label>
             <input id="setNewEmail" class="cast-input" type="email" required placeholder="contoh@gmail.com" autocomplete="off">
           </div>
           <div class="cast-field">
-            <label for="setNewName">Nama Penyiar (opsional)</label>
+            <label for="setNewName">Nama (opsional)</label>
             <input id="setNewName" class="cast-input" type="text" maxlength="60" placeholder="Misal: Operator Studio" autocomplete="off">
           </div>
-          <button type="submit" class="cast-primary" id="setCreateBtn">Buat Akun & Kode Authenticator</button>
+          <div class="cast-field">
+            <label for="setNewRole">Peran Akun</label>
+            <select id="setNewRole" class="cast-input">
+              <option value="broadcaster" selected>Penyiar (Siaran Langsung)</option>
+              <option value="admin">Admin (Kelola Akun &amp; Siaran)</option>
+            </select>
+          </div>
+          <button type="submit" class="cast-primary" id="setCreateBtn">Buat Akun &amp; Kode Authenticator</button>
         </form>
 
         <div class="set-qr-box" id="setQrBox" hidden>
@@ -2032,23 +2052,6 @@ html[data-tema="gelap"] .set-btn-danger { border-color: rgba(224, 108, 102, .45)
           <h3>Daftar Akun Terdaftar</h3>
           <div class="set-acc-list" id="setAccList"></div>
         </div>
-
-        <details class="cast-details" id="setPassDetails">
-          <summary>
-            <span>Ubah Sandi Admin</span>
-            <span aria-hidden="true">▾</span>
-          </summary>
-          <form class="cast-card" id="setPassForm" style="margin-top:10px">
-            <p class="cast-sub" id="setPassEnvHint" hidden>Sandi admin diatur melalui variabel environment server (ADMIN_PASSCODE).</p>
-            <div class="cast-field" id="setPassFields">
-              <label for="setCurPass">Sandi Saat Ini</label>
-              <input id="setCurPass" class="cast-input" type="password" required autocomplete="current-password">
-              <label for="setNextPass" style="margin-top:6px">Sandi Baru (minimal 6 karakter)</label>
-              <input id="setNextPass" class="cast-input" type="password" minlength="6" maxlength="128" required autocomplete="new-password">
-              <button type="submit" class="cast-btn-sec" id="setPassSaveBtn" style="margin-top:8px">Simpan Sandi Baru</button>
-            </div>
-          </form>
-        </details>
       </div>
     </div>
 
@@ -3946,17 +3949,27 @@ if (!SEMATAN) {
     castWs.send(JSON.stringify({ type: 'metadata', title }));
   });
 
-  /* ==================== MENU PENGATURAN AKUN (ADMIN) ==================== */
+  /* ==================== MENU PENGATURAN AKUN (ADMIN GMAIL + TOTP) ==================== */
   const settingView = $('settingView');
   const setBackBtn = $('setBackBtn');
   const setThemeBtn = $('setThemeBtn');
   const setStateText = $('setStateText');
   const setBootstrapPanel = $('setBootstrapPanel');
-  const setBootPass = $('setBootPass');
-  const setBootConfirm = $('setBootConfirm');
-  const setBootBtn = $('setBootBtn');
+  const setBootStartForm = $('setBootStartForm');
+  const setBootEmail = $('setBootEmail');
+  const setBootName = $('setBootName');
+  const setBootStartBtn = $('setBootStartBtn');
+  const setBootVerifyForm = $('setBootVerifyForm');
+  const setBootQrEmail = $('setBootQrEmail');
+  const setBootQrImg = $('setBootQrImg');
+  const setBootSecret = $('setBootSecret');
+  const setBootCopyBtn = $('setBootCopyBtn');
+  const setBootCode = $('setBootCode');
+  const setBootVerifyBtn = $('setBootVerifyBtn');
+  const setBootBackBtn = $('setBootBackBtn');
   const setLoginPanel = $('setLoginPanel');
-  const setAdminPass = $('setAdminPass');
+  const setLoginEmail = $('setLoginEmail');
+  const setLoginCode = $('setLoginCode');
   const setLoginBtn = $('setLoginBtn');
   const setDashPanel = $('setDashPanel');
   const setAccCount = $('setAccCount');
@@ -3964,6 +3977,7 @@ if (!SEMATAN) {
   const setCreateForm = $('setCreateForm');
   const setNewEmail = $('setNewEmail');
   const setNewName = $('setNewName');
+  const setNewRole = $('setNewRole');
   const setCreateBtn = $('setCreateBtn');
   const setQrBox = $('setQrBox');
   const setQrTitle = $('setQrTitle');
@@ -3973,26 +3987,14 @@ if (!SEMATAN) {
   const setQrCopyBtn = $('setQrCopyBtn');
   const setQrCloseBtn = $('setQrCloseBtn');
   const setAccList = $('setAccList');
-  const setPassForm = $('setPassForm');
-  const setPassEnvHint = $('setPassEnvHint');
-  const setPassFields = $('setPassFields');
-  const setCurPass = $('setCurPass');
-  const setNextPass = $('setNextPass');
   const setMsgEl = $('setMsg');
 
-  let adminToken = '', setEnvManaged = false, setDeleteConfirmId = '', setDeleteResetTimer = 0;
+  let adminToken = '', setBootSetupToken = '', setDeleteConfirmId = '', setDeleteResetTimer = 0;
 
   function setAdminMsg(text, bad = false) {
     setMsgEl.textContent = text || '';
     setMsgEl.classList.toggle('bad', !!bad);
   }
-
-  settingView.querySelectorAll('[data-eye]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const target = $(btn.dataset.eye);
-      if (target) target.type = target.type === 'password' ? 'text' : 'password';
-    });
-  });
 
   setThemeBtn.addEventListener('click', () => {
     const cur = document.documentElement.dataset.tema === 'gelap' ? 'gelap' : 'terang';
@@ -4005,9 +4007,7 @@ if (!SEMATAN) {
     setLoginPanel.hidden = mode !== 'login';
     setDashPanel.hidden = mode !== 'dash';
     setStateText.dataset.s = mode === 'dash' ? 'live' : 'idle';
-    setStateText.textContent = mode === 'bootstrap' ? 'Atur Sandi Awal' : (mode === 'dash' ? 'Terhubung' : 'Kunci Admin');
-    setPassEnvHint.hidden = !setEnvManaged;
-    setPassFields.hidden = setEnvManaged;
+    setStateText.textContent = mode === 'bootstrap' ? 'Daftar Admin Pertama' : (mode === 'dash' ? 'Terhubung' : 'Verifikasi Admin');
   }
 
   function showQrBanner(email, secret, qrDataUrl, isReset = false) {
@@ -4024,8 +4024,8 @@ if (!SEMATAN) {
     setQrSecret.textContent = '';
   });
 
-  setQrCopyBtn.addEventListener('click', async () => {
-    const key = setQrSecret.textContent.trim();
+  async function copySecretText(text) {
+    const key = (text || '').trim();
     if (!key) return;
     try {
       await navigator.clipboard.writeText(key);
@@ -4033,7 +4033,10 @@ if (!SEMATAN) {
     } catch {
       setAdminMsg('Salin kunci secara manual dari kotak di atas.');
     }
-  });
+  }
+
+  setQrCopyBtn.addEventListener('click', () => copySecretText(setQrSecret.textContent));
+  setBootCopyBtn.addEventListener('click', () => copySecretText(setBootSecret.textContent));
 
   function renderAccounts(accounts) {
     setAccCount.textContent = `${accounts.length} akun terdaftar`;
@@ -4041,7 +4044,7 @@ if (!SEMATAN) {
     if (!accounts.length) {
       const empty = document.createElement('p');
       empty.className = 'cast-sub';
-      empty.textContent = 'Belum ada akun penyiar terdaftar. Buat akun baru di atas.';
+      empty.textContent = 'Belum ada akun terdaftar. Buat akun baru di atas.';
       setAccList.append(empty);
       return;
     }
@@ -4066,15 +4069,23 @@ if (!SEMATAN) {
         const d = new Date(acc.lastLoginAt);
         subEl.textContent = `Masuk terakhir: ${Number.isNaN(d.getTime()) ? acc.lastLoginAt : d.toLocaleString('id-ID')}`;
       } else {
-        subEl.textContent = 'Belum pernah masuk siaran';
+        subEl.textContent = 'Belum pernah masuk';
       }
       meta.append(emailEl, subEl);
 
-      const badge = document.createElement('span');
-      badge.className = acc.enabled ? 'set-badge' : 'set-badge off';
-      badge.textContent = acc.enabled ? 'Aktif' : 'Nonaktif';
+      const badges = document.createElement('div');
+      badges.className = 'set-badges';
 
-      top.append(meta, badge);
+      const roleBadge = document.createElement('span');
+      roleBadge.className = acc.role === 'admin' ? 'set-badge role' : 'set-badge';
+      roleBadge.textContent = acc.role === 'admin' ? 'Admin' : 'Penyiar';
+
+      const statusBadge = document.createElement('span');
+      statusBadge.className = acc.enabled ? 'set-badge' : 'set-badge off';
+      statusBadge.textContent = acc.enabled ? 'Aktif' : 'Nonaktif';
+
+      badges.append(roleBadge, statusBadge);
+      top.append(meta, badges);
 
       const actions = document.createElement('div');
       actions.className = 'set-acc-actions';
@@ -4084,6 +4095,12 @@ if (!SEMATAN) {
       toggleBtn.className = 'cast-btn-sec';
       toggleBtn.textContent = acc.enabled ? 'Nonaktifkan' : 'Aktifkan';
       toggleBtn.addEventListener('click', () => toggleAccountEnabled(acc));
+
+      const roleBtn = document.createElement('button');
+      roleBtn.type = 'button';
+      roleBtn.className = 'cast-btn-sec';
+      roleBtn.textContent = acc.role === 'admin' ? 'Jadikan Penyiar' : 'Jadikan Admin';
+      roleBtn.addEventListener('click', () => toggleAccountRole(acc));
 
       const resetBtn = document.createElement('button');
       resetBtn.type = 'button';
@@ -4113,7 +4130,7 @@ if (!SEMATAN) {
         deleteAccount(acc);
       });
 
-      actions.append(toggleBtn, resetBtn, delBtn);
+      actions.append(toggleBtn, roleBtn, resetBtn, delBtn);
       item.append(top, actions);
       setAccList.append(item);
     }
@@ -4151,6 +4168,22 @@ if (!SEMATAN) {
       return;
     }
     setAdminMsg(`Akun ${acc.email} ${!acc.enabled ? 'diaktifkan' : 'dinonaktifkan'}.`);
+    loadAdminAccounts();
+  }
+
+  async function toggleAccountRole(acc) {
+    setAdminMsg('');
+    const nextRole = acc.role === 'admin' ? 'broadcaster' : 'admin';
+    const res = await adminFetch(`/api/admin/accounts/${encodeURIComponent(acc.id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ role: nextRole }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setAdminMsg(data.error || 'Gagal mengubah peran akun.', true);
+      return;
+    }
+    setAdminMsg(`Peran ${acc.email} diubah menjadi ${nextRole === 'admin' ? 'Admin' : 'Penyiar'}.`);
     loadAdminAccounts();
   }
 
@@ -4199,18 +4232,20 @@ if (!SEMATAN) {
         headers: adminToken ? { Authorization: `Bearer ${adminToken}` } : {},
       });
       const st = await res.json();
-      setEnvManaged = !!st.envManaged;
       if (st.needsSetup) {
         adminToken = '';
+        setBootSetupToken = '';
+        setBootStartForm.hidden = false;
+        setBootVerifyForm.hidden = true;
         showSetPanel('bootstrap');
-        setTimeout(() => setBootPass.focus(), 40);
+        setTimeout(() => setBootEmail.focus(), 40);
       } else if (st.authenticated && adminToken) {
         showSetPanel('dash');
         loadAdminAccounts();
       } else {
         adminToken = '';
         showSetPanel('login');
-        setTimeout(() => setAdminPass.focus(), 40);
+        setTimeout(() => setLoginEmail.focus(), 40);
       }
     } catch {
       showSetPanel('login');
@@ -4231,65 +4266,111 @@ if (!SEMATAN) {
 
   setBackBtn.addEventListener('click', closeSettingView);
 
-  setBootstrapPanel.addEventListener('submit', async (e) => {
+  setBootStartForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const pass = setBootPass.value;
-    const confirm = setBootConfirm.value;
-    if (pass.length < 6) {
-      setAdminMsg('Sandi admin minimal 6 karakter.', true);
-      return;
-    }
-    if (pass !== confirm) {
-      setAdminMsg('Konfirmasi sandi tidak cocok.', true);
-      return;
-    }
-    setBootBtn.disabled = true;
+    const email = setBootEmail.value.trim().toLowerCase();
+    const name = setBootName.value.trim();
+    if (!email) return;
+    setBootStartBtn.disabled = true;
     setAdminMsg('');
     try {
-      const res = await fetch('/api/admin/bootstrap', {
+      const res = await fetch('/api/admin/bootstrap/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pass }),
+        body: JSON.stringify({ email, name }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.token) {
-        setAdminMsg(data.error || 'Gagal menyimpan sandi admin.', true);
+      if (!res.ok || !data.setupToken) {
+        setAdminMsg(data.error || 'Gagal membuat QR Authenticator.', true);
         return;
       }
-      adminToken = data.token;
-      setEnvManaged = !!data.envManaged;
-      setBootPass.value = '';
-      setBootConfirm.value = '';
-      showSetPanel('dash');
-      loadAdminAccounts();
-      setAdminMsg('Sandi admin berhasil disimpan.');
+      setBootSetupToken = data.setupToken;
+      setBootQrEmail.textContent = data.email;
+      setBootQrImg.src = data.qrDataUrl;
+      setBootSecret.textContent = data.totpSecret;
+      setBootCode.value = '';
+      setBootStartForm.hidden = true;
+      setBootVerifyForm.hidden = false;
+      setAdminMsg('Pindai QR dengan aplikasi Authenticator, lalu masukkan kode 6 digitnya.');
+      setTimeout(() => setBootCode.focus(), 40);
     } catch {
       setAdminMsg('Gagal terhubung ke server.', true);
     } finally {
-      setBootBtn.disabled = false;
+      setBootStartBtn.disabled = false;
+    }
+  });
+
+  setBootBackBtn.addEventListener('click', () => {
+    setBootSetupToken = '';
+    setBootVerifyForm.hidden = true;
+    setBootStartForm.hidden = false;
+    setBootQrImg.removeAttribute('src');
+    setBootSecret.textContent = '';
+    setAdminMsg('');
+  });
+
+  setBootVerifyForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const code = setBootCode.value.replace(/\s+/g, '');
+    if (!/^\d{6}$/.test(code)) {
+      setAdminMsg('Masukkan kode 6 digit dari aplikasi Authenticator.', true);
+      return;
+    }
+    setBootVerifyBtn.disabled = true;
+    setAdminMsg('');
+    try {
+      const res = await fetch('/api/admin/bootstrap/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ setupToken: setBootSetupToken, code }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.token) {
+        setAdminMsg(data.error || 'Kode Authenticator salah.', true);
+        return;
+      }
+      adminToken = data.token;
+      setBootSetupToken = '';
+      setBootEmail.value = '';
+      setBootName.value = '';
+      setBootCode.value = '';
+      setBootQrImg.removeAttribute('src');
+      setBootSecret.textContent = '';
+      setBootStartForm.hidden = false;
+      setBootVerifyForm.hidden = true;
+      showSetPanel('dash');
+      loadAdminAccounts();
+      setAdminMsg(`Admin ${data.admin?.email || ''} berhasil didaftarkan.`);
+    } catch {
+      setAdminMsg('Gagal terhubung ke server.', true);
+    } finally {
+      setBootVerifyBtn.disabled = false;
     }
   });
 
   setLoginPanel.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const pass = setAdminPass.value;
-    if (!pass) return;
+    const email = setLoginEmail.value.trim().toLowerCase();
+    const code = setLoginCode.value.replace(/\s+/g, '');
+    if (!email || !/^\d{6}$/.test(code)) {
+      setAdminMsg('Masukkan akun Gmail admin dan kode Authenticator 6 digit.', true);
+      return;
+    }
     setLoginBtn.disabled = true;
     setAdminMsg('');
     try {
       const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pass }),
+        body: JSON.stringify({ email, code }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.token) {
-        setAdminMsg(data.error || 'Sandi admin salah.', true);
+        setAdminMsg(data.error || 'Akun atau kode Authenticator salah.', true);
         return;
       }
       adminToken = data.token;
-      setEnvManaged = !!data.envManaged;
-      setAdminPass.value = '';
+      setLoginCode.value = '';
       showSetPanel('dash');
       loadAdminAccounts();
     } catch {
@@ -4317,13 +4398,14 @@ if (!SEMATAN) {
     e.preventDefault();
     const email = setNewEmail.value.trim().toLowerCase();
     const name = setNewName.value.trim();
+    const role = setNewRole.value === 'admin' ? 'admin' : 'broadcaster';
     if (!email) return;
     setCreateBtn.disabled = true;
     setAdminMsg('');
     try {
       const res = await adminFetch('/api/admin/accounts', {
         method: 'POST',
-        body: JSON.stringify({ email, name }),
+        body: JSON.stringify({ email, name, role }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -4332,6 +4414,7 @@ if (!SEMATAN) {
       }
       setNewEmail.value = '';
       setNewName.value = '';
+      setNewRole.value = 'broadcaster';
       showQrBanner(data.account.email, data.totpSecret, data.qrDataUrl, false);
       setAdminMsg(`Akun ${data.account.email} dibuat. Pindai QR Authenticator di bawah.`);
       loadAdminAccounts();
@@ -4340,29 +4423,6 @@ if (!SEMATAN) {
     } finally {
       setCreateBtn.disabled = false;
     }
-  });
-
-  setPassForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const currentPass = setCurPass.value;
-    const newPass = setNextPass.value;
-    if (newPass.length < 6) {
-      setAdminMsg('Sandi baru minimal 6 karakter.', true);
-      return;
-    }
-    setAdminMsg('');
-    const res = await adminFetch('/api/admin/password', {
-      method: 'POST',
-      body: JSON.stringify({ currentPass, newPass }),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      setAdminMsg(data.error || 'Gagal mengubah sandi.', true);
-      return;
-    }
-    setCurPass.value = '';
-    setNextPass.value = '';
-    setAdminMsg('Sandi admin berhasil diperbarui.');
   });
 }
 </script>

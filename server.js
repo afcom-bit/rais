@@ -27,6 +27,7 @@ const AUTH_FILE = path.join(DATA_DIR, 'auth.json');
 
 const ADMIN_SESSION_TTL_MS = 2 * 60 * 60 * 1000;
 const BROADCAST_SESSION_TTL_MS = 12 * 60 * 60 * 1000;
+const PENDING_BOOTSTRAP_TTL_MS = 15 * 60 * 1000;
 const RATE_WINDOW_MS = 10 * 60 * 1000;
 const RATE_MAX_ATTEMPTS = 10;
 
@@ -37,59 +38,42 @@ function ensureAuthFile() {
     fs.mkdirSync(DATA_DIR, { recursive: true, mode: 0o700 });
   }
   if (!fs.existsSync(AUTH_FILE)) {
-    const initial = { adminPassHash: null, accounts: [] };
+    const initial = { accounts: [] };
     fs.writeFileSync(AUTH_FILE, JSON.stringify(initial, null, 2), { mode: 0o600 });
     return initial;
   }
   try {
     const raw = fs.readFileSync(AUTH_FILE, 'utf8');
     const parsed = JSON.parse(raw);
-    return {
-      adminPassHash: typeof parsed.adminPassHash === 'string' ? parsed.adminPassHash : null,
-      accounts: Array.isArray(parsed.accounts) ? parsed.accounts : [],
-    };
+    const list = Array.isArray(parsed.accounts) ? parsed.accounts : [];
+    const accounts = list.map((acc) => ({
+      ...acc,
+      role: acc.role === 'admin' ? 'admin' : 'broadcaster',
+    }));
+    return { accounts };
   } catch {
-    return { adminPassHash: null, accounts: [] };
+    return { accounts: [] };
   }
 }
 
 let authState = ensureAuthFile();
+let pendingAdminBootstrap = null;
 
 function saveAuthState() {
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true, mode: 0o700 });
   }
   const tmpFile = path.join(DATA_DIR, `.auth.${crypto.randomBytes(6).toString('hex')}.tmp`);
-  fs.writeFileSync(tmpFile, JSON.stringify(authState, null, 2), { mode: 0o600 });
+  fs.writeFileSync(tmpFile, JSON.stringify({ accounts: authState.accounts }, null, 2), { mode: 0o600 });
   fs.renameSync(tmpFile, AUTH_FILE);
 }
 
-function hashPassword(password) {
-  const salt = crypto.randomBytes(16).toString('hex');
-  const derived = crypto.scryptSync(password, salt, 64).toString('hex');
-  return `scrypt$${salt}$${derived}`;
+function hasActiveAdmin() {
+  return authState.accounts.some((a) => a.role === 'admin' && a.enabled);
 }
 
-function verifyPassword(password, storedHash) {
-  if (typeof password !== 'string' || typeof storedHash !== 'string') return false;
-  const parts = storedHash.split('$');
-  if (parts.length !== 3 || parts[0] !== 'scrypt') return false;
-  const [, salt, hex] = parts;
-  if (!salt || !hex) return false;
-  try {
-    const expected = Buffer.from(hex, 'hex');
-    const actual = crypto.scryptSync(password, salt, expected.length);
-    return expected.length === actual.length && crypto.timingSafeEqual(expected, actual);
-  } catch {
-    return false;
-  }
-}
-
-function verifyEnvPasscode(candidate, envPasscode) {
-  if (typeof candidate !== 'string' || typeof envPasscode !== 'string' || !envPasscode) return false;
-  const a = crypto.createHash('sha256').update(candidate).digest();
-  const b = crypto.createHash('sha256').update(envPasscode).digest();
-  return crypto.timingSafeEqual(a, b);
+function countActiveAdmins() {
+  return authState.accounts.filter((a) => a.role === 'admin' && a.enabled).length;
 }
 
 function base32Encode(buf) {
@@ -186,6 +170,7 @@ function sanitizeAccount(acc) {
     id: acc.id,
     email: acc.email,
     name: acc.name || '',
+    role: acc.role === 'admin' ? 'admin' : 'broadcaster',
     enabled: Boolean(acc.enabled),
     createdAt: acc.createdAt,
     lastLoginAt: acc.lastLoginAt || null,
@@ -234,6 +219,9 @@ setInterval(() => {
   for (const [k, v] of rateLimits) {
     if (now - v.windowStart > RATE_WINDOW_MS) rateLimits.delete(k);
   }
+  if (pendingAdminBootstrap && pendingAdminBootstrap.expiresAt <= now) {
+    pendingAdminBootstrap = null;
+  }
 }, 5 * 60 * 1000).unref();
 
 function extractBearerToken(req) {
@@ -251,14 +239,24 @@ function getAdminSession(req) {
     adminSessions.delete(token);
     return null;
   }
+  const acc = authState.accounts.find((a) => a.id === s.accountId && a.enabled && a.role === 'admin');
+  if (!acc) {
+    adminSessions.delete(token);
+    return null;
+  }
   s.expiresAt = Date.now() + ADMIN_SESSION_TTL_MS;
-  return { token, ...s };
+  return {
+    token,
+    accountId: acc.id,
+    email: acc.email,
+    name: acc.name || '',
+  };
 }
 
 function requireAdmin(req, res, next) {
   const sess = getAdminSession(req);
   if (!sess) {
-    res.status(401).json({ error: 'Sesi pengaturan tidak valid atau kedaluwarsa.' });
+    res.status(401).json({ error: 'Sesi pengaturan tidak valid atau kedaluwarsa. Masuk dengan Gmail admin dan Authenticator.' });
     return;
   }
   req.adminSession = sess;
@@ -304,6 +302,11 @@ function revokeAccountAccess(accountId, reason) {
   for (const [tok, sess] of broadcastSessions) {
     if (sess.accountId === accountId) {
       broadcastSessions.delete(tok);
+    }
+  }
+  for (const [tok, sess] of adminSessions) {
+    if (sess.accountId === accountId) {
+      adminSessions.delete(tok);
     }
   }
   if (activeBroadcast && activeBroadcast.accountId === accountId && typeof activeBroadcast.cleanup === 'function') {
@@ -450,100 +453,202 @@ async function resolvePublicHost(rawHost) {
   return { host, ip: publicRecord.address, family: publicRecord.family };
 }
 
-/* ==================== API PENGATURAN & AKUN ADMIN ==================== */
+/* ==================== API PENGATURAN & AKUN ADMIN (GMAIL + TOTP) ==================== */
 
 app.get('/api/admin/status', (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
-  const envPass = process.env.ADMIN_PASSCODE || '';
-  const hasPass = Boolean(envPass || authState.adminPassHash);
+  const sess = getAdminSession(req);
   res.json({
-    needsSetup: !hasPass,
-    envManaged: Boolean(envPass),
-    authenticated: Boolean(getAdminSession(req)),
+    needsSetup: !hasActiveAdmin(),
+    authenticated: Boolean(sess),
+    admin: sess ? { id: sess.accountId, email: sess.email, name: sess.name } : null,
   });
 });
 
-app.post('/api/admin/bootstrap', (req, res) => {
+app.post('/api/admin/bootstrap/start', async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
-  if (process.env.ADMIN_PASSCODE || authState.adminPassHash) {
-    res.status(409).json({ error: 'Sandi admin sudah diatur sebelumnya.' });
+  if (hasActiveAdmin()) {
+    res.status(409).json({ error: 'Akun admin sudah terdaftar.' });
     return;
   }
-  const pass = typeof req.body?.pass === 'string' ? req.body.pass : '';
-  if (pass.length < 6 || pass.length > 128) {
-    res.status(400).json({ error: 'Sandi admin minimal 6 karakter.' });
-    return;
-  }
-  authState.adminPassHash = hashPassword(pass);
-  saveAuthState();
 
-  const token = crypto.randomBytes(32).toString('base64url');
-  adminSessions.set(token, {
-    createdAt: Date.now(),
-    expiresAt: Date.now() + ADMIN_SESSION_TTL_MS,
+  const email = normalizeEmail(req.body?.email);
+  const name = cleanHeaderValue(req.body?.name, '', 60);
+  if (!isValidEmail(email)) {
+    res.status(400).json({ error: 'Masukkan alamat email Gmail yang valid.' });
+    return;
+  }
+
+  const totpSecret = generateTotpSecret();
+  const setupToken = crypto.randomBytes(24).toString('base64url');
+  pendingAdminBootstrap = {
+    setupToken,
+    email,
+    name,
+    totpSecret,
+    expiresAt: Date.now() + PENDING_BOOTSTRAP_TTL_MS,
+  };
+
+  const otpauthUri = buildOtpAuthUri(email, totpSecret);
+  const qrDataUrl = await QRCode.toDataURL(otpauthUri, {
+    width: 220,
+    margin: 1,
+    color: { dark: '#12324a', light: '#ffffff' },
   });
-  res.status(201).json({ token, envManaged: false, expiresInMs: ADMIN_SESSION_TTL_MS });
+
+  res.status(201).json({
+    setupToken,
+    email,
+    totpSecret,
+    qrDataUrl,
+  });
 });
 
-app.post('/api/admin/login', (req, res) => {
+app.post('/api/admin/bootstrap/verify', (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
-  const rateKey = `admin:${req.ip || 'unknown'}`;
+  if (hasActiveAdmin()) {
+    res.status(409).json({ error: 'Akun admin sudah terdaftar.' });
+    return;
+  }
+
+  const rateKey = `admin-boot:${req.ip || 'unknown'}`;
   const rl = checkRateLimit(rateKey);
   if (!rl.allowed) {
     res.status(429).json({ error: `Terlalu banyak percobaan. Coba lagi dalam ${rl.waitMin} menit.` });
     return;
   }
 
-  const envPass = process.env.ADMIN_PASSCODE || '';
-  if (!envPass && !authState.adminPassHash) {
-    res.status(409).json({ error: 'Sandi admin belum dibuat.' });
+  const setupToken = typeof req.body?.setupToken === 'string' ? req.body.setupToken : '';
+  const code = String(req.body?.code ?? '').replace(/\s+/g, '');
+
+  if (!pendingAdminBootstrap || pendingAdminBootstrap.expiresAt <= Date.now()) {
+    pendingAdminBootstrap = null;
+    res.status(409).json({ error: 'Sesi pendaftaran admin kedaluwarsa. Buat ulang QR Authenticator.' });
+    return;
+  }
+  if (!setupToken || setupToken !== pendingAdminBootstrap.setupToken) {
+    res.status(400).json({ error: 'Token persiapan admin tidak cocok.' });
     return;
   }
 
-  const pass = typeof req.body?.pass === 'string' ? req.body.pass : '';
-  const ok = envPass ? verifyEnvPasscode(pass, envPass) : verifyPassword(pass, authState.adminPassHash);
-  if (!ok) {
+  const check = verifyTotpCode(pendingAdminBootstrap.totpSecret, code, null);
+  if (!check.ok) {
     recordFailedAttempt(rateKey);
-    res.status(401).json({ error: 'Sandi pengaturan salah.' });
+    res.status(401).json({ error: 'Kode Authenticator salah. Periksa aplikasi Authenticator dan coba lagi.' });
     return;
   }
 
   clearRateLimit(rateKey);
+
+  const pending = pendingAdminBootstrap;
+  pendingAdminBootstrap = null;
+
+  const existing = authState.accounts.find((a) => a.email === pending.email);
+  let account;
+  if (existing) {
+    existing.role = 'admin';
+    existing.enabled = true;
+    existing.name = pending.name || existing.name;
+    existing.totpSecret = pending.totpSecret;
+    existing.lastUsedStep = check.step;
+    existing.lastLoginAt = new Date().toISOString();
+    account = existing;
+  } else {
+    account = {
+      id: crypto.randomUUID(),
+      email: pending.email,
+      name: pending.name,
+      role: 'admin',
+      totpSecret: pending.totpSecret,
+      enabled: true,
+      lastUsedStep: check.step,
+      createdAt: new Date().toISOString(),
+      lastLoginAt: new Date().toISOString(),
+    };
+    authState.accounts.push(account);
+  }
+  saveAuthState();
+
   const token = crypto.randomBytes(32).toString('base64url');
   adminSessions.set(token, {
+    accountId: account.id,
+    email: account.email,
     createdAt: Date.now(),
     expiresAt: Date.now() + ADMIN_SESSION_TTL_MS,
   });
-  res.json({ token, envManaged: Boolean(envPass), expiresInMs: ADMIN_SESSION_TTL_MS });
+
+  res.status(201).json({
+    token,
+    admin: { id: account.id, email: account.email, name: account.name || '' },
+  });
+});
+
+app.post('/api/admin/login', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const email = normalizeEmail(req.body?.email);
+  const code = String(req.body?.code ?? '').replace(/\s+/g, '');
+
+  const rateKeyIp = `admin-ip:${req.ip || 'unknown'}`;
+  const rateKeyMail = `admin-mail:${email || 'empty'}`;
+  const rlIp = checkRateLimit(rateKeyIp);
+  const rlMail = checkRateLimit(rateKeyMail);
+  if (!rlIp.allowed || !rlMail.allowed) {
+    const waitMin = Math.max(rlIp.waitMin || 1, rlMail.waitMin || 1);
+    res.status(429).json({ error: `Terlalu banyak percobaan login. Coba lagi dalam ${waitMin} menit.` });
+    return;
+  }
+
+  if (!hasActiveAdmin()) {
+    res.status(409).json({ error: 'Belum ada akun admin terdaftar.' });
+    return;
+  }
+
+  if (!isValidEmail(email) || !/^\d{6}$/.test(code)) {
+    recordFailedAttempt(rateKeyIp);
+    res.status(400).json({ error: 'Masukkan alamat Gmail admin dan kode Authenticator 6 digit.' });
+    return;
+  }
+
+  const acc = authState.accounts.find((a) => a.email === email && a.enabled && a.role === 'admin');
+  if (!acc) {
+    recordFailedAttempt(rateKeyIp);
+    recordFailedAttempt(rateKeyMail);
+    res.status(401).json({ error: 'Akun Gmail admin tidak terdaftar atau dinonaktifkan.' });
+    return;
+  }
+
+  const check = verifyTotpCode(acc.totpSecret, code, acc.lastUsedStep);
+  if (!check.ok) {
+    recordFailedAttempt(rateKeyIp);
+    recordFailedAttempt(rateKeyMail);
+    res.status(401).json({ error: 'Kode Authenticator salah atau sudah kedaluwarsa.' });
+    return;
+  }
+
+  clearRateLimit(rateKeyIp);
+  clearRateLimit(rateKeyMail);
+
+  acc.lastUsedStep = check.step;
+  acc.lastLoginAt = new Date().toISOString();
+  saveAuthState();
+
+  const token = crypto.randomBytes(32).toString('base64url');
+  adminSessions.set(token, {
+    accountId: acc.id,
+    email: acc.email,
+    createdAt: Date.now(),
+    expiresAt: Date.now() + ADMIN_SESSION_TTL_MS,
+  });
+
+  res.json({
+    token,
+    admin: { id: acc.id, email: acc.email, name: acc.name || '' },
+  });
 });
 
 app.post('/api/admin/logout', (req, res) => {
   const token = extractBearerToken(req);
   if (token) adminSessions.delete(token);
-  res.json({ ok: true });
-});
-
-app.post('/api/admin/password', requireAdmin, (req, res) => {
-  res.setHeader('Cache-Control', 'no-store');
-  if (process.env.ADMIN_PASSCODE) {
-    res.status(409).json({ error: 'Sandi admin dikelola oleh konfigurasi server (ADMIN_PASSCODE).' });
-    return;
-  }
-  const currentPass = typeof req.body?.currentPass === 'string' ? req.body.currentPass : '';
-  const newPass = typeof req.body?.newPass === 'string' ? req.body.newPass : '';
-  if (!verifyPassword(currentPass, authState.adminPassHash)) {
-    res.status(401).json({ error: 'Sandi saat ini salah.' });
-    return;
-  }
-  if (newPass.length < 6 || newPass.length > 128) {
-    res.status(400).json({ error: 'Sandi baru minimal 6 karakter.' });
-    return;
-  }
-  authState.adminPassHash = hashPassword(newPass);
-  saveAuthState();
-  for (const [tok] of adminSessions) {
-    if (tok !== req.adminSession.token) adminSessions.delete(tok);
-  }
   res.json({ ok: true });
 });
 
@@ -558,6 +663,7 @@ app.post('/api/admin/accounts', requireAdmin, async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   const email = normalizeEmail(req.body?.email);
   const name = cleanHeaderValue(req.body?.name, '', 60);
+  const role = req.body?.role === 'admin' ? 'admin' : 'broadcaster';
 
   if (!isValidEmail(email)) {
     res.status(400).json({ error: 'Masukkan alamat email Gmail yang valid.' });
@@ -573,6 +679,7 @@ app.post('/api/admin/accounts', requireAdmin, async (req, res) => {
     id: crypto.randomUUID(),
     email,
     name,
+    role,
     totpSecret,
     enabled: true,
     lastUsedStep: null,
@@ -605,15 +712,27 @@ app.patch('/api/admin/accounts/:id', requireAdmin, (req, res) => {
     res.status(404).json({ error: 'Akun tidak ditemukan.' });
     return;
   }
-  if (typeof req.body?.enabled === 'boolean') {
-    acc.enabled = req.body.enabled;
+
+  const nextEnabled = typeof req.body?.enabled === 'boolean' ? req.body.enabled : acc.enabled;
+  const nextRole = req.body?.role === 'admin' || req.body?.role === 'broadcaster' ? req.body.role : acc.role;
+
+  if (acc.role === 'admin' && acc.enabled && (!nextEnabled || nextRole !== 'admin') && countActiveAdmins() <= 1) {
+    res.status(409).json({ error: 'Tidak dapat menonaktifkan satu-satunya akun admin yang aktif.' });
+    return;
   }
+
+  acc.enabled = nextEnabled;
+  acc.role = nextRole;
   if (typeof req.body?.name === 'string') {
     acc.name = cleanHeaderValue(req.body.name, '', 60);
   }
   saveAuthState();
   if (!acc.enabled) {
-    revokeAccountAccess(acc.id, 'Akun siaran dinonaktifkan oleh admin.');
+    revokeAccountAccess(acc.id, 'Akun Anda dinonaktifkan oleh admin.');
+  } else if (acc.role !== 'admin') {
+    for (const [tok, sess] of adminSessions) {
+      if (sess.accountId === acc.id) adminSessions.delete(tok);
+    }
   }
   res.json({ account: sanitizeAccount(acc) });
 });
@@ -629,7 +748,16 @@ app.post('/api/admin/accounts/:id/reset-totp', requireAdmin, async (req, res) =>
   acc.totpSecret = generateTotpSecret();
   acc.lastUsedStep = null;
   saveAuthState();
-  revokeAccountAccess(acc.id, 'Kunci Authenticator akun telah direset oleh admin. Silakan masuk ulang.');
+
+  for (const [tok, sess] of broadcastSessions) {
+    if (sess.accountId === acc.id) broadcastSessions.delete(tok);
+  }
+  if (activeBroadcast && activeBroadcast.accountId === acc.id && typeof activeBroadcast.cleanup === 'function') {
+    activeBroadcast.cleanup('Kunci Authenticator akun telah direset oleh admin. Silakan masuk ulang.');
+  }
+  for (const [tok, sess] of adminSessions) {
+    if (sess.accountId === acc.id && tok !== req.adminSession.token) adminSessions.delete(tok);
+  }
 
   const otpauthUri = buildOtpAuthUri(acc.email, acc.totpSecret);
   const qrDataUrl = await QRCode.toDataURL(otpauthUri, {
@@ -654,9 +782,14 @@ app.delete('/api/admin/accounts/:id', requireAdmin, (req, res) => {
     res.status(404).json({ error: 'Akun tidak ditemukan.' });
     return;
   }
+  const acc = authState.accounts[idx];
+  if (acc.role === 'admin' && acc.enabled && countActiveAdmins() <= 1) {
+    res.status(409).json({ error: 'Tidak dapat menghapus satu-satunya akun admin yang aktif.' });
+    return;
+  }
   authState.accounts.splice(idx, 1);
   saveAuthState();
-  revokeAccountAccess(id, 'Akun siaran dihapus oleh admin.');
+  revokeAccountAccess(id, 'Akun dihapus oleh admin.');
   res.json({ ok: true });
 });
 
