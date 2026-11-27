@@ -1349,20 +1349,22 @@ html:not(.sematan)[data-tema="gelap"] .wmp.off #play::after {
   html:not(.sematan) .timer { font-size: clamp(1.45rem, 6.2dvh, 1.95rem); }
   html:not(.sematan) .now { --lh: 1.15; font-size: 1rem; height: calc(4 * var(--lh) * 1em); }
 }
-/* ===== Fitur Siaran & Pengaturan (tahan Play 15 detik saat off -> Siaran; tahan kapsul ON/OFF AIR 15 detik -> Setting) ===== */
+/* ===== Fitur Siaran & Pengaturan (tahan Play 15 detik saat off -> Siaran; tahan Vol - & Vol + bersamaan 5 detik saat off -> Setting) ===== */
 html:not(.sematan) #play,
-html:not(.sematan) .state {
+html:not(.sematan) #volDown,
+html:not(.sematan) #volUp {
   user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
   touch-action: manipulation;
 }
-html:not(.sematan) .state { cursor: pointer; }
-html:not(.sematan) .state::after {
-  content: ""; position: absolute; left: 10px; right: 10px; bottom: 2px; height: 2.5px;
+html:not(.sematan) #volDown::before,
+html:not(.sematan) #volUp::before {
+  content: ""; position: absolute; left: 10px; right: 10px; bottom: 3px; height: 2.5px;
   border-radius: 999px; background: currentColor; opacity: 0;
   transform-origin: left center; transform: scaleX(var(--hold-p, 0));
-  pointer-events: none; transition: opacity .2s ease;
+  pointer-events: none; transition: opacity .15s ease;
 }
-html:not(.sematan) .state.holding-setting::after { opacity: .82; }
+html:not(.sematan) #volDown.holding-setting::before,
+html:not(.sematan) #volUp.holding-setting::before { opacity: .88; }
 html:not(.sematan) #play .hold-ring {
   position: absolute; inset: -.54em; width: calc(100% + 1.08em); height: calc(100% + 1.08em);
   pointer-events: none; transform: rotate(-90deg); opacity: 0; transition: opacity .25s ease;
@@ -2374,8 +2376,15 @@ function setVolume(v) {
   audio.volume = volume / 100;
   store.set('vol', volume);
 }
-$('volDown').addEventListener('click', () => setVolume(volume - 10));
-$('volUp').addEventListener('click', () => setVolume(volume + 10));
+let suppressVolDownClick = false, suppressVolUpClick = false;
+$('volDown').addEventListener('click', e => {
+  if (suppressVolDownClick) { suppressVolDownClick = false; e.preventDefault(); return; }
+  setVolume(volume - 10);
+});
+$('volUp').addEventListener('click', e => {
+  if (suppressVolUpClick) { suppressVolUpClick = false; e.preventDefault(); return; }
+  setVolume(volume + 10);
+});
 /* iPhone mengatur suara hanya lewat tombol fisik, jadi tombol volume disembunyikan. */
 audio.volume = .5;
 const canSetVolume = audio.volume === .5;
@@ -3011,7 +3020,7 @@ if (SEMATAN) {
 pollNowPlaying();
 (async () => { await wait(1200); for (;;) for (const t of CONFIG.texts) await scene(t); })();
 
-/* ---------- Fitur Siaran & Pengaturan (tahan Play 15 detik saat off -> Siaran; tahan kapsul ON/OFF AIR 15 detik -> Setting) ---------- */
+/* ---------- Fitur Siaran & Pengaturan (tahan Play 15 detik saat off -> Siaran; tahan Vol - & Vol + bersamaan 5 detik saat off -> Setting) ---------- */
 if (!SEMATAN) {
   const HOLD_MS = 15000;
   const HOLD_VISUAL_DELAY_MS = 1500;
@@ -3076,53 +3085,109 @@ if (!SEMATAN) {
   playBtn.addEventListener('pointerup', endPlayHold);
   playBtn.addEventListener('pointercancel', endPlayHold);
 
-  /* Tahan kapsul ON/OFF AIR selama 15 detik untuk membuka menu Setting */
-  let setHoldStartAt = 0, setHoldTimer = 0, setHoldRaf = 0, setHoldPt = null, setHoldPtr = null;
-  const resetSettingHold = () => {
-    clearTimeout(setHoldTimer);
-    cancelAnimationFrame(setHoldRaf);
-    setHoldStartAt = 0;
-    setHoldPt = null;
-    setHoldPtr = null;
-    stateEl.classList.remove('holding-setting');
-    stateEl.style.removeProperty('--hold-p');
+  /* Tahan tombol Volume - dan Volume + bersamaan selama 5 detik saat posisi off untuk membuka menu Setting */
+  const SETTING_HOLD_MS = 5000;
+  const SETTING_VISUAL_DELAY_MS = 500;
+  const volDownBtn = $('volDown');
+  const volUpBtn = $('volUp');
+  const volDownPtrs = new Map();
+  const volUpPtrs = new Map();
+  let bothHoldStartAt = 0, bothHoldTimer = 0, bothHoldRaf = 0;
+
+  const resetBothVolHold = () => {
+    clearTimeout(bothHoldTimer);
+    cancelAnimationFrame(bothHoldRaf);
+    bothHoldStartAt = 0;
+    volDownBtn.classList.remove('holding-setting');
+    volUpBtn.classList.remove('holding-setting');
+    volDownBtn.style.removeProperty('--hold-p');
+    volUpBtn.style.removeProperty('--hold-p');
   };
-  const tickSettingHold = () => {
-    if (!setHoldStartAt) return;
-    const elapsed = Date.now() - setHoldStartAt;
-    if (elapsed >= HOLD_VISUAL_DELAY_MS) {
-      stateEl.classList.add('holding-setting');
-      const frac = Math.min(1, (elapsed - HOLD_VISUAL_DELAY_MS) / (HOLD_MS - HOLD_VISUAL_DELAY_MS));
-      stateEl.style.setProperty('--hold-p', frac.toFixed(3));
+
+  const tickBothVolHold = () => {
+    if (!bothHoldStartAt) return;
+    const elapsed = Date.now() - bothHoldStartAt;
+    if (elapsed >= SETTING_VISUAL_DELAY_MS) {
+      volDownBtn.classList.add('holding-setting');
+      volUpBtn.classList.add('holding-setting');
+      const frac = Math.min(1, (elapsed - SETTING_VISUAL_DELAY_MS) / (SETTING_HOLD_MS - SETTING_VISUAL_DELAY_MS));
+      const val = frac.toFixed(3);
+      volDownBtn.style.setProperty('--hold-p', val);
+      volUpBtn.style.setProperty('--hold-p', val);
     }
-    if (elapsed < HOLD_MS) setHoldRaf = requestAnimationFrame(tickSettingHold);
+    if (elapsed < SETTING_HOLD_MS) bothHoldRaf = requestAnimationFrame(tickBothVolHold);
   };
-  stateEl.addEventListener('contextmenu', e => e.preventDefault());
-  stateEl.addEventListener('pointerdown', e => {
+
+  const syncBothVolHold = () => {
+    const isOff = !wanted && (state === 'idle' || state === 'error');
+    const bothDown = volDownPtrs.size > 0 && volUpPtrs.size > 0 && isOff;
+    if (bothDown) {
+      if (!bothHoldStartAt) {
+        bothHoldStartAt = Date.now();
+        bothHoldRaf = requestAnimationFrame(tickBothVolHold);
+        bothHoldTimer = setTimeout(() => {
+          suppressVolDownClick = true;
+          suppressVolUpClick = true;
+          volDownPtrs.clear();
+          volUpPtrs.clear();
+          resetBothVolHold();
+          try { if (navigator.vibrate) navigator.vibrate(40); } catch {}
+          openSettingView();
+        }, SETTING_HOLD_MS);
+      }
+    } else if (bothHoldStartAt) {
+      if (Date.now() - bothHoldStartAt >= 450) {
+        suppressVolDownClick = true;
+        suppressVolUpClick = true;
+      }
+      resetBothVolHold();
+    }
+  };
+
+  [volDownBtn, volUpBtn].forEach(btn => {
+    btn.addEventListener('contextmenu', e => {
+      if (!wanted) e.preventDefault();
+    });
+  });
+
+  volDownBtn.addEventListener('pointerdown', e => {
     if (e.button && e.button !== 0) return;
-    resetSettingHold();
-    setHoldStartAt = Date.now();
-    setHoldPt = { x: e.clientX, y: e.clientY };
-    setHoldPtr = e.pointerId;
-    setHoldRaf = requestAnimationFrame(tickSettingHold);
-    setHoldTimer = setTimeout(() => {
-      resetSettingHold();
-      try { if (navigator.vibrate) navigator.vibrate(40); } catch {}
-      openSettingView();
-    }, HOLD_MS);
+    if (wanted || (state !== 'idle' && state !== 'error')) return;
+    suppressVolDownClick = false;
+    volDownPtrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    syncBothVolHold();
   });
-  stateEl.addEventListener('pointermove', e => {
-    if (!setHoldStartAt || e.pointerId !== setHoldPtr || !setHoldPt) return;
-    if (Math.hypot(e.clientX - setHoldPt.x, e.clientY - setHoldPt.y) > 26) {
-      resetSettingHold();
+
+  volUpBtn.addEventListener('pointerdown', e => {
+    if (e.button && e.button !== 0) return;
+    if (wanted || (state !== 'idle' && state !== 'error')) return;
+    suppressVolUpClick = false;
+    volUpPtrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    syncBothVolHold();
+  });
+
+  window.addEventListener('pointermove', e => {
+    let changed = false;
+    const dStart = volDownPtrs.get(e.pointerId);
+    if (dStart && Math.hypot(e.clientX - dStart.x, e.clientY - dStart.y) > 30) {
+      volDownPtrs.delete(e.pointerId);
+      changed = true;
     }
+    const uStart = volUpPtrs.get(e.pointerId);
+    if (uStart && Math.hypot(e.clientX - uStart.x, e.clientY - uStart.y) > 30) {
+      volUpPtrs.delete(e.pointerId);
+      changed = true;
+    }
+    if (changed) syncBothVolHold();
   });
-  const endSettingHold = e => {
-    if (!setHoldStartAt || (e.pointerId !== undefined && e.pointerId !== setHoldPtr)) return;
-    resetSettingHold();
+
+  const endVolPtr = e => {
+    const hadD = volDownPtrs.delete(e.pointerId);
+    const hadU = volUpPtrs.delete(e.pointerId);
+    if (hadD || hadU) syncBothVolHold();
   };
-  stateEl.addEventListener('pointerup', endSettingHold);
-  stateEl.addEventListener('pointercancel', endSettingHold);
+  window.addEventListener('pointerup', endVolPtr);
+  window.addEventListener('pointercancel', endVolPtr);
 
   const appMain = $('appMain');
   const castView = $('castView');
