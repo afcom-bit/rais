@@ -39,15 +39,26 @@ function defaultStationConfig() {
   };
 }
 
+function normalizeHostInput(raw) {
+  let s = String(raw ?? '').trim().toLowerCase();
+  s = s.replace(/^https?:\/\//i, '');
+  s = s.split('/')[0].split('?')[0].split('#')[0];
+  if (s.includes(':') && !s.startsWith('[') && net.isIP(s) === 0) {
+    s = s.split(':')[0];
+  }
+  return s.replace(/[\r\n\0\s]+/g, '').slice(0, 253);
+}
+
 function normalizeStoredStation(raw) {
   const def = defaultStationConfig();
   if (!raw || typeof raw !== 'object') return def;
   const portNum = Number(raw.port);
   const brNum = Number(raw.bitrate);
+  const rawUser = raw.user === undefined || raw.user === null ? def.user : String(raw.user).replace(/[\r\n\0]+/g, ' ').trim().slice(0, 64);
   return {
-    host: cleanHeaderValue(raw.host, def.host, 253).toLowerCase(),
+    host: normalizeHostInput(raw.host) || def.host,
     port: Number.isInteger(portNum) && portNum >= 1 && portNum <= 65535 ? portNum : def.port,
-    user: cleanHeaderValue(raw.user, def.user, 64),
+    user: rawUser,
     pass: typeof raw.pass === 'string' ? raw.pass.replace(/[\r\n\0]+/g, '').slice(0, 128) : '',
     station: cleanHeaderValue(raw.station, def.station, 100),
     genre: cleanHeaderValue(raw.genre, def.genre, 48),
@@ -455,10 +466,11 @@ function getEffectiveStationConfig() {
   const s = authState.station || defaultStationConfig();
   const savedPass = typeof s.pass === 'string' ? s.pass : '';
   const envPass = typeof process.env.BROADCAST_PASS === 'string' ? process.env.BROADCAST_PASS : '';
+  const hasExplicitUser = typeof s.user === 'string';
   return {
     host: s.host || STREAM_HOST,
     port: Number.isInteger(s.port) && s.port >= 1 && s.port <= 65535 ? s.port : STREAM_PORT,
-    user: s.user || BROADCAST_USER,
+    user: hasExplicitUser ? s.user : BROADCAST_USER,
     pass: savedPass || envPass || '',
     hasSavedPass: savedPass.length > 0,
     hasEnvPass: envPass.length > 0,
@@ -484,7 +496,7 @@ function publicStationPayload() {
 }
 
 async function validateStationHostForSave(rawHost) {
-  const host = String(rawHost ?? '').trim().toLowerCase();
+  const host = normalizeHostInput(rawHost);
   if (!host || host.length > 253) {
     throw new Error('Alamat server siaran tidak valid.');
   }
@@ -524,7 +536,7 @@ async function handleSaveStation(req, res) {
 
   let host;
   try {
-    host = await validateStationHostForSave(cleanHeaderValue(body.host, '', 253));
+    host = await validateStationHostForSave(body.host);
   } catch (err) {
     res.status(400).json({ error: err.message || 'Alamat server tidak valid.' });
     return;
@@ -537,10 +549,6 @@ async function handleSaveStation(req, res) {
   }
 
   const user = cleanHeaderValue(body.user, '', 64);
-  if (!user) {
-    res.status(400).json({ error: 'User siaran wajib diisi.' });
-    return;
-  }
 
   const bitrate = Number(body.bitrate);
   if (!ALLOWED_BITRATES.has(bitrate)) {
@@ -592,6 +600,181 @@ app.get('/api/broadcast/config', (req, res) => {
   });
 });
 
+function fetchHttpJson({ ip, host, port, reqPath }) {
+  return new Promise((resolve, reject) => {
+    const req = http.request(
+      {
+        host: ip,
+        port,
+        path: reqPath,
+        method: 'GET',
+        headers: {
+          Host: `${host}:${port}`,
+          'User-Agent': 'RAIS-Caster/1.0',
+          Accept: 'application/json,*/*',
+        },
+        timeout: 3500,
+      },
+      (res) => {
+        let body = '';
+        res.on('data', (chunk) => {
+          if (body.length < 65536) body += chunk.toString('utf8');
+        });
+        res.on('end', () => {
+          if (res.statusCode < 200 || res.statusCode >= 300) {
+            reject(new Error(`HTTP ${res.statusCode}`));
+            return;
+          }
+          try {
+            resolve(JSON.parse(body));
+          } catch {
+            reject(new Error('Invalid JSON'));
+          }
+        });
+      }
+    );
+    req.on('timeout', () => req.destroy(new Error('Timeout')));
+    req.on('error', (err) => reject(err));
+    req.end();
+  });
+}
+
+app.get('/api/broadcast/status', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const cfg = getEffectiveStationConfig();
+  const byThisApp = Boolean(activeBroadcast);
+
+  let statsTargetHost = cfg.host || STREAM_HOST;
+  let statsPorts = [];
+  if (statsTargetHost === STREAM_HOST) {
+    statsPorts = [STREAM_PORT];
+    if (cfg.port && cfg.port !== STREAM_PORT) statsPorts.unshift(cfg.port);
+  } else {
+    statsPorts = [cfg.port || STREAM_PORT];
+  }
+
+  let resolved;
+  try {
+    resolved = await resolvePublicHost(statsTargetHost);
+  } catch {
+    res.json({
+      ok: false,
+      online: byThisApp,
+      sourceType: byThisApp ? 'live' : 'unknown',
+      sourceLabel: byThisApp ? 'Siaran Langsung (Studio Ini)' : 'Status server tidak diketahui',
+      byThisApp,
+      songTitle: '',
+      nextTitle: '',
+      bitrate: byThisApp ? cfg.bitrate : null,
+      listeners: null,
+    });
+    return;
+  }
+
+  let scStats = null;
+  let iceStats = null;
+  for (const p of [...new Set(statsPorts)]) {
+    if (!Number.isInteger(p) || p < 1 || p > 65535) continue;
+    try {
+      const data = await fetchHttpJson({
+        ip: resolved.ip,
+        host: resolved.host,
+        port: p,
+        reqPath: '/stats?sid=1&json=1',
+      });
+      if (data && typeof data === 'object' && 'streamstatus' in data) {
+        scStats = data;
+        break;
+      }
+    } catch {}
+    try {
+      const ice = await fetchHttpJson({
+        ip: resolved.ip,
+        host: resolved.host,
+        port: p,
+        reqPath: '/status-json.xsl',
+      });
+      if (ice && ice.icestats) {
+        iceStats = ice.icestats;
+        break;
+      }
+    } catch {}
+  }
+
+  if (scStats) {
+    const online = Number(scStats.streamstatus) === 1 || byThisApp;
+    const songTitle = String(scStats.songtitle || '').trim();
+    const nextTitle = String(scStats.nexttitle || '').trim();
+    const serverUrl = String(scStats.serverurl || '').trim().toLowerCase();
+    const bitrate = Number(scStats.bitrate) > 0 ? Math.round(Number(scStats.bitrate)) : null;
+    const listeners = Number.isFinite(Number(scStats.currentlisteners)) ? Number(scStats.currentlisteners) : null;
+
+    let sourceType = 'offline';
+    let sourceLabel = 'Off Air';
+    if (byThisApp) {
+      sourceType = 'live';
+      sourceLabel = 'Siaran Langsung (Studio Ini)';
+    } else if (online) {
+      if (nextTitle.length > 0 || serverUrl.includes('streamy.local') || serverUrl.includes('autodj')) {
+        sourceType = 'autodj';
+        sourceLabel = 'AutoDJ';
+      } else {
+        sourceType = 'live';
+        sourceLabel = 'Siaran Langsung';
+      }
+    }
+
+    res.json({
+      ok: true,
+      online,
+      sourceType,
+      sourceLabel,
+      byThisApp,
+      songTitle,
+      nextTitle,
+      serverUrl,
+      bitrate,
+      listeners,
+      version: String(scStats.version || ''),
+    });
+    return;
+  }
+
+  if (iceStats) {
+    let src = iceStats.source;
+    if (Array.isArray(src)) src = src[0];
+    const online = Boolean(src) || byThisApp;
+    const songTitle = src ? String(src.title ? (src.artist ? `${src.artist} - ${src.title}` : src.title) : (src.yp_currently_playing || '')).trim() : '';
+    const listeners = src && Number.isFinite(Number(src.listeners)) ? Number(src.listeners) : null;
+    const bitrate = src && Number(src.bitrate ?? src['ice-bitrate']) > 0 ? Math.round(Number(src.bitrate ?? src['ice-bitrate'])) : null;
+    res.json({
+      ok: true,
+      online,
+      sourceType: byThisApp ? 'live' : (online ? 'live' : 'offline'),
+      sourceLabel: byThisApp ? 'Siaran Langsung (Studio Ini)' : (online ? 'Siaran Langsung' : 'Off Air'),
+      byThisApp,
+      songTitle,
+      nextTitle: '',
+      bitrate,
+      listeners,
+      version: 'Icecast',
+    });
+    return;
+  }
+
+  res.json({
+    ok: false,
+    online: byThisApp,
+    sourceType: byThisApp ? 'live' : 'unknown',
+    sourceLabel: byThisApp ? 'Siaran Langsung (Studio Ini)' : 'Status sumber tidak terbaca',
+    byThisApp,
+    songTitle: '',
+    nextTitle: '',
+    bitrate: byThisApp ? cfg.bitrate : null,
+    listeners: null,
+  });
+});
+
 const BLOCKED_STATIC_PATHS = new Set([
   '/server.js',
   '/package.json',
@@ -633,7 +816,12 @@ function isOriginAllowed(req) {
   try {
     const parsed = new URL(origin);
     const expectedHost = String(hostHeader).split(',')[0].trim().toLowerCase();
-    return parsed.host.toLowerCase() === expectedHost;
+    if (parsed.host.toLowerCase() === expectedHost) return true;
+    const rawHost = String(req.headers.host || '').split(',')[0].trim().toLowerCase();
+    if (!forwardedHost && (rawHost.startsWith('127.0.0.1') || rawHost.startsWith('localhost') || rawHost.startsWith('[::1]'))) {
+      return parsed.protocol === 'https:' || parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1';
+    }
+    return false;
   } catch {
     return false;
   }
@@ -655,14 +843,19 @@ server.on('upgrade', (req, socket, head) => {
   });
 });
 
-function connectShoutcastV1({ ip, family, port, user, pass, station, genre, bitrate }) {
+function makeConnError(message, kind = 'protocol') {
+  const err = new Error(message);
+  err.kind = kind;
+  return err;
+}
+
+function tryShoutcastSocket({ ip, family, targetPort, authLine, station, genre, bitrate }) {
   return new Promise((resolve, reject) => {
-    const sourcePort = port + 1;
-    if (sourcePort > 65535) {
-      reject(new Error('Port sumber Shoutcast di luar batas.'));
+    if (!Number.isInteger(targetPort) || targetPort < 1 || targetPort > 65535) {
+      reject(makeConnError('Port sumber Shoutcast di luar batas.', 'protocol'));
       return;
     }
-    const sock = net.connect({ host: ip, port: sourcePort, family });
+    const sock = net.connect({ host: ip, port: targetPort, family });
     let settled = false;
     let respBuf = '';
 
@@ -673,16 +866,16 @@ function connectShoutcastV1({ ip, family, port, user, pass, station, genre, bitr
       reject(err);
     };
 
-    sock.setTimeout(8000, () => {
-      fail(new Error('Waktu sambung ke port siaran habis.'));
+    sock.setTimeout(6500, () => {
+      fail(makeConnError(`Waktu sambung ke port ${targetPort} habis.`, 'network'));
     });
 
     sock.on('error', (err) => {
-      fail(err);
+      const e = makeConnError(err.message || 'Gagal menyambung port siaran.', 'network');
+      fail(e);
     });
 
     sock.on('connect', () => {
-      const authLine = user ? `${user}:${pass}` : pass;
       sock.write(`${authLine}\r\n`);
     });
 
@@ -690,21 +883,26 @@ function connectShoutcastV1({ ip, family, port, user, pass, station, genre, bitr
       if (settled) return;
       respBuf += chunk.toString('utf8');
       if (respBuf.length > 2048) {
-        fail(new Error('Respon server siaran tidak dikenal.'));
+        fail(makeConnError('Respon server siaran tidak dikenal.', 'protocol'));
         return;
       }
       if (!respBuf.includes('\n')) return;
 
-      const lower = respBuf.toLowerCase();
+      const trimmed = respBuf.replace(/^[\r\n\s]+/, '');
+      const lower = trimmed.toLowerCase();
+      if (lower.startsWith('http/')) {
+        fail(makeConnError('Port tersebut menerima HTTP, bukan protokol sumber Shoutcast.', 'http'));
+        return;
+      }
       if (lower.includes('invalid password') || lower.includes('invalid')) {
-        fail(new Error('User atau kata sandi siaran salah.'));
+        fail(makeConnError('User atau kata sandi siaran salah.', 'auth'));
         return;
       }
       if (lower.includes('already in use')) {
-        fail(new Error('Siaran sedang digunakan oleh penyiar lain.'));
+        fail(makeConnError('Slot siaran pada port tersebut sedang digunakan.', 'busy'));
         return;
       }
-      if (respBuf.startsWith('OK2') || respBuf.startsWith('OK')) {
+      if (trimmed.startsWith('OK2') || trimmed.startsWith('OK')) {
         settled = true;
         sock.setTimeout(0);
         sock.removeAllListeners('data');
@@ -720,22 +918,22 @@ function connectShoutcastV1({ ip, family, port, user, pass, station, genre, bitr
           '',
         ].join('\r\n');
         sock.write(headers);
-        resolve({ socket: sock, mode: 'shoutcast' });
+        resolve({ socket: sock, mode: 'shoutcast', connectedPort: targetPort });
         return;
       }
-      fail(new Error(`Server menolak sambungan: ${respBuf.trim()}`));
+      fail(makeConnError(`Server menolak sambungan: ${trimmed.trim()}`, 'protocol'));
     });
 
     sock.on('close', () => {
-      if (!settled) fail(new Error('Sambungan ditutup oleh server siaran.'));
+      if (!settled) fail(makeConnError(`Sambungan port ${targetPort} ditutup oleh server.`, 'protocol'));
     });
   });
 }
 
-function connectIcecastSource({ ip, family, host, port, user, pass, mount, station, genre, bitrate }) {
+function tryIcecastSocket({ ip, family, host, targetPort, user, pass, mount, station, genre, bitrate }) {
   return new Promise((resolve, reject) => {
     const cleanMount = '/' + String(mount || 'stream').replace(/^\/+/, '').replace(/[\r\n\0\s]+/g, '');
-    const sock = net.connect({ host: ip, port, family });
+    const sock = net.connect({ host: ip, port: targetPort, family });
     let settled = false;
     let respBuf = '';
 
@@ -746,14 +944,14 @@ function connectIcecastSource({ ip, family, host, port, user, pass, mount, stati
       reject(err);
     };
 
-    sock.setTimeout(8000, () => fail(new Error('Waktu sambung Icecast habis.')));
-    sock.on('error', (err) => fail(err));
+    sock.setTimeout(6500, () => fail(makeConnError('Waktu sambung Icecast habis.', 'network')));
+    sock.on('error', (err) => fail(makeConnError(err.message || 'Gagal menyambung Icecast.', 'network')));
 
     sock.on('connect', () => {
       const auth = Buffer.from(`${user || 'source'}:${pass}`).toString('base64');
       const reqHeaders = [
         `SOURCE ${cleanMount} HTTP/1.0`,
-        `Host: ${host}:${port}`,
+        `Host: ${host}:${targetPort}`,
         `Authorization: Basic ${auth}`,
         'User-Agent: RAIS-Caster/1.0',
         'Content-Type: audio/mpeg',
@@ -771,7 +969,7 @@ function connectIcecastSource({ ip, family, host, port, user, pass, mount, stati
       if (settled) return;
       respBuf += chunk.toString('utf8');
       if (respBuf.length > 4096) {
-        fail(new Error('Respon Icecast tidak dikenal.'));
+        fail(makeConnError('Respon Icecast tidak dikenal.', 'protocol'));
         return;
       }
       if (!respBuf.includes('\r\n\r\n') && !respBuf.includes('\n\n') && !respBuf.includes('\n')) return;
@@ -780,20 +978,155 @@ function connectIcecastSource({ ip, family, host, port, user, pass, mount, stati
         settled = true;
         sock.setTimeout(0);
         sock.removeAllListeners('data');
-        resolve({ socket: sock, mode: 'icecast', mount: cleanMount });
+        resolve({ socket: sock, mode: 'icecast', mount: cleanMount, connectedPort: targetPort });
         return;
       }
       if (/401|403/.test(firstLine)) {
-        fail(new Error('User atau kata sandi Icecast salah.'));
+        fail(makeConnError('User atau kata sandi Icecast salah.', 'auth'));
         return;
       }
-      fail(new Error(`Server Icecast menolak: ${firstLine || respBuf.trim()}`));
+      if (/404/.test(firstLine)) {
+        fail(makeConnError('Mountpoint tidak ditemukan.', 'notfound'));
+        return;
+      }
+      fail(makeConnError(`Server menolak: ${firstLine || respBuf.trim()}`, 'protocol'));
     });
 
     sock.on('close', () => {
-      if (!settled) fail(new Error('Sambungan Icecast ditutup.'));
+      if (!settled) fail(makeConnError('Sambungan Icecast ditutup.', 'protocol'));
     });
   });
+}
+
+async function connectBroadcastUpstream({ ip, family, host, port, user, pass, mount, station, genre, bitrate }) {
+  const cleanUser = String(user || '').trim();
+  const authCandidates = [];
+  if (cleanUser) authCandidates.push(`${cleanUser}:${pass}`);
+  authCandidates.push(pass);
+  authCandidates.push(`1:${pass}`);
+  const uniqueAuthLines = [...new Set(authCandidates)];
+
+  let sawBusy = false;
+  let sawAuthFail = false;
+  let lastNetworkErr = null;
+
+  // 1. Shoutcast v1/v2 standar & Liquidsoap Harbor ICY pada port + 1
+  if (port + 1 <= 65535) {
+    for (const authLine of uniqueAuthLines) {
+      try {
+        return await tryShoutcastSocket({
+          ip,
+          family,
+          targetPort: port + 1,
+          authLine,
+          station,
+          genre,
+          bitrate,
+        });
+      } catch (err) {
+        if (err.kind === 'busy') {
+          sawBusy = true;
+          break;
+        }
+        if (err.kind === 'auth') {
+          sawAuthFail = true;
+          continue;
+        }
+        if (err.kind === 'network') {
+          lastNetworkErr = err;
+          break;
+        }
+        break;
+      }
+    }
+  }
+
+  // 2. Icecast / Liquidsoap Harbor HTTP SOURCE pada port langsung
+  const iceUsers = [...new Set([cleanUser || 'source', 'source'])];
+  const iceMounts = [...new Set([mount || '/stream', '/'])];
+  let portSpokeHttp = false;
+
+  for (const iceUser of iceUsers) {
+    let abortIceUser = false;
+    for (const iceMount of iceMounts) {
+      try {
+        return await tryIcecastSocket({
+          ip,
+          family,
+          host,
+          targetPort: port,
+          user: iceUser,
+          pass,
+          mount: iceMount,
+          station,
+          genre,
+          bitrate,
+        });
+      } catch (err) {
+        if (err.kind === 'auth') {
+          portSpokeHttp = true;
+          sawAuthFail = true;
+          break;
+        }
+        if (err.kind === 'notfound') {
+          portSpokeHttp = true;
+          continue;
+        }
+        if (err.kind === 'network') {
+          lastNetworkErr = err;
+          abortIceUser = true;
+          break;
+        }
+        abortIceUser = true;
+        break;
+      }
+    }
+    if (abortIceUser) break;
+  }
+
+  // 3. Jika user memasukkan port Shoutcast / DJ port secara langsung pada kolom Port
+  if (!portSpokeHttp) {
+    for (const authLine of uniqueAuthLines) {
+      try {
+        return await tryShoutcastSocket({
+          ip,
+          family,
+          targetPort: port,
+          authLine,
+          station,
+          genre,
+          bitrate,
+        });
+      } catch (err) {
+        if (err.kind === 'busy') {
+          sawBusy = true;
+          break;
+        }
+        if (err.kind === 'auth') {
+          sawAuthFail = true;
+          continue;
+        }
+        if (err.kind === 'network') {
+          lastNetworkErr = err;
+          break;
+        }
+        break;
+      }
+    }
+  }
+
+  if (sawBusy) {
+    throw new Error(
+      'Slot siaran utama sedang digunakan (kemungkinan AutoDJ aktif). Jika server memakai Port DJ khusus (mis. Streamy Panel user "dj"), isi Port DJ tersebut di Pengaturan.'
+    );
+  }
+  if (sawAuthFail) {
+    throw new Error('User atau kata sandi stream salah. Periksa Port, User, dan Kata Sandi di Pengaturan.');
+  }
+  if (lastNetworkErr) {
+    throw new Error(`Tidak dapat menjangkau server siaran pada port ${port} atau ${port + 1}. Periksa alamat dan port.`);
+  }
+  throw new Error('Gagal tersambung ke server siaran. Periksa pengaturan stasiun.');
 }
 
 function updateUpstreamMetadata({ ip, host, port, user, pass, title, mode, mount }) {
@@ -896,7 +1229,7 @@ wss.on('connection', (ws) => {
         const ok = await updateUpstreamMetadata({
           ip: session.ip,
           host: session.host,
-          port: session.port,
+          port: session.httpPort,
           user: session.user,
           pass: session.pass,
           title: nextTitle,
@@ -922,10 +1255,10 @@ wss.on('connection', (ws) => {
       }
 
       const cfg = getEffectiveStationConfig();
-      const rawHost = cleanHeaderValue(msg.host, cfg.host, 253);
+      const rawHost = normalizeHostInput(msg.host) || cfg.host;
       const hasPort = msg.port !== undefined && msg.port !== null && msg.port !== '';
       const port = hasPort ? Number(msg.port) : cfg.port;
-      const user = cleanHeaderValue(msg.user, cfg.user, 64);
+      const user = msg.user !== undefined ? cleanHeaderValue(msg.user, '', 64) : cfg.user;
       const pass =
         typeof msg.pass === 'string' && msg.pass.length > 0
           ? msg.pass.replace(/[\r\n\0]+/g, '').slice(0, 128)
@@ -933,6 +1266,7 @@ wss.on('connection', (ws) => {
       const bitrate = ALLOWED_BITRATES.has(Number(msg.bitrate)) ? Number(msg.bitrate) : cfg.bitrate;
       const rawRate = Math.round(Number(msg.sampleRate));
       const sampleRate = Number.isInteger(rawRate) && rawRate >= 8000 && rawRate <= 96000 ? rawRate : 44100;
+      const outSampleRate = bitrate <= 24 ? 22050 : 44100;
       const station = cleanHeaderValue(msg.station, cfg.station, 100);
       const genre = cleanHeaderValue(msg.genre, cfg.genre, 48);
       const title = cleanHeaderValue(msg.title, '', 180);
@@ -945,7 +1279,7 @@ wss.on('connection', (ws) => {
       if (!pass) {
         sendJson({
           type: 'error',
-          message: 'Kata sandi stream belum diatur. Isi kata sandi di menu Pengaturan Stasiun.',
+          message: 'Kata sandi stream belum diatur. Isi kata sandi di menu Pengaturan.',
         });
         return;
       }
@@ -962,35 +1296,18 @@ wss.on('connection', (ws) => {
 
       let upstreamInfo;
       try {
-        try {
-          upstreamInfo = await connectShoutcastV1({
-            ip: resolved.ip,
-            family: resolved.family,
-            port,
-            user,
-            pass,
-            station,
-            genre,
-            bitrate,
-          });
-        } catch (scErr) {
-          const msgLower = String(scErr.message || '').toLowerCase();
-          if (msgLower.includes('salah') || msgLower.includes('digunakan')) {
-            throw scErr;
-          }
-          upstreamInfo = await connectIcecastSource({
-            ip: resolved.ip,
-            family: resolved.family,
-            host: resolved.host,
-            port,
-            user,
-            pass,
-            mount,
-            station,
-            genre,
-            bitrate,
-          });
-        }
+        upstreamInfo = await connectBroadcastUpstream({
+          ip: resolved.ip,
+          family: resolved.family,
+          host: resolved.host,
+          port,
+          user,
+          pass,
+          mount,
+          station,
+          genre,
+          bitrate,
+        });
       } catch (err) {
         sendJson({ type: 'error', message: err.message || 'Gagal tersambung ke server siaran.' });
         return;
@@ -1023,7 +1340,7 @@ wss.on('connection', (ws) => {
           '-b:a',
           `${bitrate}k`,
           '-ar',
-          '44100',
+          String(outSampleRate),
           '-ac',
           '1',
           '-f',
@@ -1034,6 +1351,7 @@ wss.on('connection', (ws) => {
       );
 
       let bytesSent = 0;
+      let ffErrBuf = '';
       const startedAt = Date.now();
 
       session = {
@@ -1044,7 +1362,8 @@ wss.on('connection', (ws) => {
         mount: upstreamInfo.mount || '/stream',
         ip: resolved.ip,
         host: resolved.host,
-        port,
+        port: upstreamInfo.connectedPort || port,
+        httpPort: upstreamInfo.mode === 'shoutcast' && upstreamInfo.connectedPort === port + 1 ? port : (upstreamInfo.connectedPort || port),
         user,
         pass,
         statsTimer: setInterval(() => {
@@ -1063,14 +1382,19 @@ wss.on('connection', (ws) => {
         session.upstream.write(mp3Chunk);
       });
 
-      ff.stderr.on('data', () => {});
+      ff.stderr.on('data', (chunk) => {
+        if (ffErrBuf.length < 400) ffErrBuf += chunk.toString('utf8');
+      });
 
       ff.on('error', () => {
         cleanupSession('Encoder audio bermasalah.');
       });
 
-      ff.on('close', () => {
-        if (session) cleanupSession('Siaran berakhir.');
+      ff.on('close', (code) => {
+        if (session) {
+          const detail = code && ffErrBuf.trim() ? ` (${ffErrBuf.trim().slice(0, 120)})` : '';
+          cleanupSession(`Siaran berakhir${detail}.`);
+        }
       });
 
       upstreamInfo.socket.on('error', () => {
@@ -1084,7 +1408,7 @@ wss.on('connection', (ws) => {
       sendJson({
         type: 'live',
         host: resolved.host,
-        port,
+        port: upstreamInfo.connectedPort || port,
         bitrate,
         mode: upstreamInfo.mode,
       });
@@ -1093,7 +1417,7 @@ wss.on('connection', (ws) => {
         updateUpstreamMetadata({
           ip: resolved.ip,
           host: resolved.host,
-          port,
+          port: session.httpPort,
           user,
           pass,
           title,
