@@ -319,27 +319,19 @@ async function resolvePublicHost(rawHost) {
   if (!host || host.length > 253) {
     throw new Error('Alamat server siaran tidak valid.');
   }
-  if (host === 'localhost' || host.endsWith('.local') || host.endsWith('.internal')) {
-    throw new Error('Alamat server lokal tidak diizinkan.');
-  }
-  if (!/^[a-z0-9.-]+$/.test(host)) {
-    throw new Error('Format alamat server tidak valid.');
-  }
   if (net.isIP(host)) {
-    if (isDisallowedIp(host)) {
-      throw new Error('Alamat IP tujuan tidak diizinkan.');
-    }
     return { host, ip: host, family: net.isIP(host) };
   }
-  const records = await dns.lookup(host, { all: true });
-  if (!records || records.length === 0) {
-    throw new Error('Alamat server tidak ditemukan.');
-  }
-  const publicRecord = records.find((r) => !isDisallowedIp(r.address));
-  if (!publicRecord) {
-    throw new Error('Alamat tujuan mengarah ke jaringan privat.');
-  }
-  return { host, ip: publicRecord.address, family: publicRecord.family };
+  try {
+    const records = await dns.lookup(host, { all: true });
+    if (records && records.length > 0) {
+      const publicRecord = records.find((r) => !isDisallowedIp(r.address)) || records[0];
+      if (publicRecord) {
+        return { host, ip: publicRecord.address, family: publicRecord.family };
+      }
+    }
+  } catch {}
+  return { host, ip: host, family: 4 };
 }
 
 /* ==================== API PENGATURAN & AKUN PENYIAR (TANPA KODE) ==================== */
@@ -499,28 +491,6 @@ async function validateStationHostForSave(rawHost) {
   const host = normalizeHostInput(rawHost);
   if (!host || host.length > 253) {
     throw new Error('Alamat server siaran tidak valid.');
-  }
-  if (host === 'localhost' || host.endsWith('.local') || host.endsWith('.internal')) {
-    throw new Error('Alamat server lokal tidak diizinkan.');
-  }
-  if (!/^[a-z0-9.-]+$/.test(host)) {
-    throw new Error('Format alamat server tidak valid.');
-  }
-  if (net.isIP(host)) {
-    if (isDisallowedIp(host)) {
-      throw new Error('Alamat IP tujuan tidak diizinkan.');
-    }
-    return host;
-  }
-  try {
-    const records = await dns.lookup(host, { all: true });
-    if (records && records.length > 0 && !records.some((r) => !isDisallowedIp(r.address))) {
-      throw new Error('Alamat tujuan mengarah ke jaringan privat.');
-    }
-  } catch (err) {
-    if (err && err.message && err.message.includes('jaringan privat')) {
-      throw err;
-    }
   }
   return host;
 }
