@@ -2439,7 +2439,7 @@ function updateClock() {
     el.setAttribute('aria-label', 'Durasi rekam MP3');
     showClock(sec);
     if (noteEl) {
-      noteEl.innerHTML = '<span class="blink-text">🔴 SEDANG MEREKAM MP3...</span>';
+      noteEl.innerHTML = '<span class="blink-text">🔴 SEDANG MEREKAM</span>';
     }
     return;
   }
@@ -2545,6 +2545,30 @@ function toggleRecording() {
   }
 }
 
+let raisDirHandle = null;
+async function getRaisRecDirectory() {
+  if (raisDirHandle) {
+    try {
+      if ((await raisDirHandle.queryPermission({ mode: 'readwrite' })) === 'granted') return raisDirHandle;
+      if ((await raisDirHandle.requestPermission({ mode: 'readwrite' })) === 'granted') return raisDirHandle;
+    } catch {}
+  }
+  if (window.showDirectoryPicker) {
+    try {
+      alert('Silakan izinkan atau buat/pilih folder penyimpanan lokal (direkomendasikan buat folder bernama RAIS_REC).');
+      raisDirHandle = await window.showDirectoryPicker({
+        id: 'rais-rec-dir',
+        mode: 'readwrite',
+        startIn: 'music'
+      });
+      return raisDirHandle;
+    } catch (err) {
+      console.warn('Directory picker cancelled', err);
+    }
+  }
+  return null;
+}
+
 function startMp3Recording() {
   try {
     if (!recAudioCtx) {
@@ -2571,18 +2595,36 @@ function startMp3Recording() {
     }
     mediaRecorder = new MediaRecorder(stream, options);
     mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) recordedAudioChunks.push(e.data); };
-    mediaRecorder.onstop = () => {
+    mediaRecorder.onstop = async () => {
       const blob = new Blob(recordedAudioChunks, { type: 'audio/mp3' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
       const d = new Date();
       const fname = `rais-rekaman-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}.mp3`;
-      a.download = fname;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      
+      let savedLocally = false;
+      try {
+        const dirHandle = await getRaisRecDirectory();
+        if (dirHandle) {
+          const fileHandle = await dirHandle.getFileHandle(fname, { create: true });
+          const writable = await fileHandle.createWritable();
+          await writable.write(blob);
+          await writable.close();
+          savedLocally = true;
+          alert(`Rekaman berhasil disimpan di folder lokal (${dirHandle.name}/${fname}).`);
+        }
+      } catch (err) {
+        console.error('Local save error:', err);
+      }
+
+      if (!savedLocally) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fname;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+      }
     };
     mediaRecorder.start(1000);
     isRecording = true;
