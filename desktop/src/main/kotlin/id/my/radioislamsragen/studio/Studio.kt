@@ -51,7 +51,7 @@ object Studio {
     fun init() {
         val d = StationConfig()
         val cfg = StationConfig(
-            host = ps("host", d.host), port = prefs.getInt("port", d.port), user = ps("user", d.user), pass = ps("pass", ""),
+            host = d.host, port = d.port, user = d.user, pass = ps("pass", ""),
             station = ps("station", d.station), genre = d.genre, bitrate = prefs.getInt("bitrate", 64),
             crossfadeSec = prefs.getInt("crossfade", d.crossfadeSec), micBoost = pf("micBoost", 1.0f), codec = "mp3",
         )
@@ -72,6 +72,11 @@ object Studio {
     fun refreshDevices() {
         inputs.value = try { Devices.inputs() } catch (_: Exception) { emptyList() }
         outputs.value = try { Devices.outputs() } catch (_: Exception) { emptyList() }
+    }
+
+    fun openRecFolder() {
+        val dir = File(System.getProperty("user.home"), "Music" + File.separator + "RaisStream").apply { mkdirs() }
+        try { java.awt.Desktop.getDesktop().open(dir) } catch (e: Exception) { msg("Folder rekaman: ${dir.absolutePath}") }
     }
 
     fun shutdown() {
@@ -103,7 +108,7 @@ object Studio {
     fun setOutDevice(n: String) { outDevice.value = n; prefs.put("outDevice", n); post { closeSpeaker() } }
 
     fun saveConfig(c: StationConfig) {
-        prefs.put("host", c.host); prefs.putInt("port", c.port); prefs.put("user", c.user); prefs.put("pass", c.pass)
+        prefs.put("pass", c.pass)
         prefs.put("station", c.station); prefs.putInt("bitrate", c.bitrate); prefs.putInt("crossfade", c.crossfadeSec); prefs.putFloat("micBoost", c.micBoost)
         update { it.copy(config = c) }
         msg(if (airActive) "Pengaturan disimpan. Berlaku saat siaran berikutnya." else "Pengaturan disimpan.")

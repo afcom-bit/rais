@@ -97,7 +97,6 @@ private fun App(s: UiState, owner: Frame?) {
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text("Rais Stream", color = p.text, fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
-                        Text(s.config.station, color = p.sub, fontSize = 13.sp)
                     }
                     HeadBtn(if (p.dark) Icons.Filled.LightMode else Icons.Filled.DarkMode, "Ganti tema") { Studio.setDark(!s.dark) }
                     Spacer(Modifier.width(8.dp))
@@ -323,9 +322,6 @@ private fun Choices(items: List<String>, selected: String, labelOf: (String) -> 
 private fun SettingsScreen(s: UiState, onBack: () -> Unit, onSave: (StationConfig) -> Unit) {
     val p = LocalPal.current
     val cfg = s.config
-    var host by remember { mutableStateOf(cfg.host) }
-    var port by remember { mutableStateOf(cfg.port.toString()) }
-    var user by remember { mutableStateOf(cfg.user) }
     var pass by remember { mutableStateOf(cfg.pass) }
     var showPass by remember { mutableStateOf(false) }
     var station by remember { mutableStateOf(cfg.station) }
@@ -344,8 +340,7 @@ private fun SettingsScreen(s: UiState, onBack: () -> Unit, onSave: (StationConfi
             Text("Pengaturan", color = p.text, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, modifier = Modifier.weight(1f))
             Button(
                 onClick = {
-                    onSave(cfg.copy(host = host.ifBlank { cfg.host }, port = port.toIntOrNull()?.coerceIn(1, 65534) ?: cfg.port,
-                        user = user, pass = pass, station = station.ifBlank { cfg.station }, bitrate = bitrate,
+                    onSave(cfg.copy(pass = pass, station = station.ifBlank { cfg.station }, bitrate = bitrate,
                         crossfadeSec = xf.toInt(), micBoost = boost))
                 },
                 shape = RoundedCornerShape(22.dp), colors = ButtonDefaults.buttonColors(containerColor = p.accent, contentColor = p.onAccent),
@@ -354,9 +349,6 @@ private fun SettingsScreen(s: UiState, onBack: () -> Unit, onSave: (StationConfi
         Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(18.dp)) {
                 Section("SERVER") {
-                    Field("Address", host) { host = it.trim() }
-                    Field("Port", port, KeyboardType.Number) { port = it.filter(Char::isDigit).take(5) }
-                    Field("User", user) { user = it.trim() }
                     OutlinedTextField(
                         value = pass, onValueChange = { pass = it }, label = { Text("Pass") }, singleLine = true,
                         visualTransformation = if (showPass) VisualTransformation.None else PasswordVisualTransformation(),
@@ -409,7 +401,10 @@ private fun SettingsScreen(s: UiState, onBack: () -> Unit, onSave: (StationConfi
                     Slider(xf, { xf = it }, valueRange = 0f..10f, steps = 9, colors = sliderColors())
                     ToggleRow("Judul otomatis", "Nama file jadi judul di pendengar", s.autoTitle, Studio::setAutoTitle)
                 }
-                Text("Rekaman tersimpan di folder Musik\\RaisStream (format MP3).", color = p.faint, fontSize = 12.sp)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Rekaman tersimpan di folder Musik\\RaisStream (MP3).", color = p.faint, fontSize = 12.sp, modifier = Modifier.weight(1f))
+                    TextButton(onClick = { Studio.openRecFolder() }) { Text("Buka folder rekaman", color = p.accent) }
+                }
             }
         }
     }

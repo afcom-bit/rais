@@ -6,7 +6,7 @@ data class Track(val uri: String, val name: String)
 
 data class StationConfig(
     val host: String = "streamy1.radioislam.my.id",
-    val port: Int = 9210,
+    val port: Int = 9215,
     val user: String = "sragen",
     val pass: String = "",
     val station: String = "Radio Islam Sragen",
