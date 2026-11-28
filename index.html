@@ -254,28 +254,15 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
 .timer.sleep-on { color: #dc2626; }
 .timer.sleep-on .dim { color: rgba(220,38,38,.32); }
 
-@keyframes recBlink {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: .3; transform: scale(.94); }
-}
-.tb.rec-btn.recording svg {
-  color: #dc2626 !important;
-  animation: recBlink 1s ease-in-out infinite;
-  filter: drop-shadow(0 0 8px rgba(220,38,38,.85));
-}
-.blink-text {
-  animation: recBlink 1s ease-in-out infinite;
-  color: #dc2626 !important;
-  font-weight: 700;
-}
+
 
 
 /* Pita bawah: bilah kaca perak berujung bulat. Garis bingkai naik-turun
    melingkari tombol putar di tengah (digambar dengan SVG agar lengkungnya menyatu). */
 .foot { grid-area: foot; display: flex; flex-direction: column; align-items: center; gap: .9rem; padding-left: var(--gutter); padding-right: var(--gutter-r); }
 .wmp {
-  --band: 3.7em;  /* tinggi bilah */
-  --bump: 6.0em;  /* garis tengah lengkung di sekitar tombol putar */
+  --band: 3.9em;  /* tinggi bilah */
+  --bump: 6.2em;  /* garis tengah lengkung di sekitar tombol putar */
   position: relative; isolation: isolate;
   display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
   width: fit-content; height: var(--bump); margin: 0 auto;
@@ -293,14 +280,14 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
 .center { position: relative; display: flex; align-items: center; height: var(--bump); z-index: 2; }
 .capsule {
   position: absolute; left: .62em; right: .62em; top: 50%; transform: translateY(-50%);
-  height: 2.48em; border-radius: 999px; pointer-events: none; z-index: 0;
+  height: 2.75em; border-radius: 999px; pointer-events: none; z-index: 0;
   background: #dbe6f1;
   border: 1px solid #5d7893;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.78), 0 2px 5px rgba(20,60,100,.2);
 }
 .cap-ring {
   position: absolute; left: .39em; right: .39em; top: 50%; transform: translateY(-50%);
-  height: 2.94em; border-radius: 999px; pointer-events: none; z-index: 2;
+  height: 3.25em; border-radius: 999px; pointer-events: none; z-index: 2;
   border: .12em solid rgba(176, 198, 220, .58);
   box-shadow:
     0 0 .3em rgba(176, 200, 224, .35),
@@ -312,7 +299,7 @@ svg.i { width: 1.35em; height: 1.35em; fill: none; stroke: currentColor; stroke-
 }
 .tb, .cap-btn {
   position: relative; z-index: 1; display: grid; place-items: center; flex: none;
-  height: 2.48em; padding: 0; border: 0; background: transparent; color: #163d63;
+  height: 2.75em; padding: 0; border: 0; background: transparent; color: #163d63;
 }
 .tb { width: 3.55em; }
 .side-l .tb { padding-left: .18em; border-radius: 999px .35em .35em 999px; border-right: 1px solid rgba(93,120,147,.32); }
@@ -709,7 +696,7 @@ html:not(.sematan)[data-tema="terang"] body {
   color: var(--ink);
 }
 html:not(.sematan)[data-tema="terang"] body::before { display: block; }
-html:not(.sematan)[data-tema="terang"] .ico { color: #1e5f9c; }
+html:not(.sematan)[data-tema="terang"] .ico { color: #0d9488; }
 html:not(.sematan)[data-tema="terang"] .ico svg.i { filter: drop-shadow(0 1px 0 #fff); }
 html:not(.sematan)[data-tema="terang"] .ico:hover,
 html:not(.sematan)[data-tema="terang"] .ico:focus-visible { background: rgba(255,255,255,.65); }
@@ -853,12 +840,12 @@ html:not(.sematan)[data-tema="terang"] .cap-ring {
   box-shadow: 0 0 .22em rgba(40, 62, 88, .18), inset 0 0 .14em rgba(255, 255, 255, .7);
 }
 html:not(.sematan)[data-tema="terang"] .wmp.live .cap-ring {
-  border-color: #e4665e;
-  box-shadow: 0 0 .34em rgba(228, 102, 94, .65), inset 0 0 .2em rgba(255, 200, 195, .75);
+  border-color: rgba(132, 150, 170, .42);
+  box-shadow: 0 0 .22em rgba(40, 62, 88, .18), inset 0 0 .14em rgba(255, 255, 255, .7);
 }
 html:not(.sematan)[data-tema="terang"] .tb,
 html:not(.sematan)[data-tema="terang"] .cap-btn {
-  color: #158075;
+  color: #0d9488;
   border: 1px solid rgba(90, 110, 132, .56);
   background: linear-gradient(180deg, #f7fafd 0%, #e5ecf3 42%, #c5d2e0 56%, #9fb2c6 88%, #8297ad 100%);
   box-shadow:
@@ -1312,7 +1299,8 @@ html:not(.sematan)[data-tema="gelap"] .wmp.off #play::after {
   html:not(.sematan) .now { --lh: 1.15; font-size: 1rem; height: calc(4 * var(--lh) * 1em); }
 }
 /* ===== Fitur Siaran (tahan Play 15 detik saat off -> Siaran) ===== */
-html:not(.sematan) #play {
+html:not(.sematan) #play,
+html:not(.sematan) #volUp {
   user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
   touch-action: manipulation;
 }
@@ -2433,16 +2421,6 @@ function showClock(sec) {
 }
 function updateClock() {
   const el = $('clock');
-  if (isRecording) {
-    const sec = Math.floor((Date.now() - recordingStartAt) / 1000);
-    el.classList.add('sleep-on');
-    el.setAttribute('aria-label', 'Durasi rekam MP3');
-    showClock(sec);
-    if (noteEl) {
-      noteEl.innerHTML = '<span class="blink-text">🔴 SEDANG MEREKAM</span>';
-    }
-    return;
-  }
   el.classList.toggle('sleep-on', !!sleepAt);
   if (sleepAt) {
     const leftSec = Math.max(0, Math.ceil((sleepAt - Date.now()) / 1000));
@@ -2454,8 +2432,10 @@ function updateClock() {
   }
 }
 function showSleep(mins) {
-  $('sleep').setAttribute('aria-pressed', mins ? 'true' : 'false');
-  $('sleep').setAttribute('aria-label', mins ? `Timer tidur: ${mins} menit lagi` : 'Timer tidur: mati');
+  const el = $('sleep');
+  if (!el) return;
+  el.setAttribute('aria-pressed', mins ? 'true' : 'false');
+  el.setAttribute('aria-label', mins ? `Timer tidur: ${mins} menit lagi` : 'Timer tidur: mati');
 }
 function setSleep(step) {
   sleepStep = step;
@@ -2486,163 +2466,51 @@ function setVolume(v) {
   audio.volume = volume / 100;
   store.set('vol', volume);
 }
-$('volDown').addEventListener('click', () => setVolume(volume - 10));
-$('volUp').addEventListener('click', () => setVolume(volume + 10));
+let openCastView = () => {};
 
-/* ---------- Fitur Rekam MP3 (tekan Volume + selama 3 detik) ---------- */
-let recordModeActive = false;
-let isRecording = false;
-let recordingStartAt = 0;
-let mediaRecorder = null;
-let recordedAudioChunks = [];
-let recAudioCtx = null, recDest = null;
+let suppressNextVolUpClick = false;
 let volUpHoldTimer = 0;
-
+let volUpStartPt = null;
 const volUpEl = $('volUp');
 if (volUpEl) {
+  volUpEl.addEventListener('contextmenu', e => {
+    if (!wanted) e.preventDefault();
+  });
   volUpEl.addEventListener('pointerdown', e => {
+    if (e.button && e.button !== 0) return;
+    if (wanted) return; // Hanya saat mati (!wanted)
+    clearTimeout(volUpHoldTimer);
+    volUpStartPt = { x: e.clientX, y: e.clientY };
     volUpHoldTimer = setTimeout(() => {
-      recordModeActive = !recordModeActive;
-      syncRecordMode();
-    }, 3000);
+      suppressNextVolUpClick = true;
+      try { if (navigator.vibrate) navigator.vibrate(40); } catch {}
+      if (typeof openCastView === 'function') openCastView();
+    }, 5000);
+  });
+  volUpEl.addEventListener('pointermove', e => {
+    if (!volUpHoldTimer || !volUpStartPt) return;
+    if (Math.hypot(e.clientX - volUpStartPt.x, e.clientY - volUpStartPt.y) > 26) {
+      clearTimeout(volUpHoldTimer);
+      volUpHoldTimer = 0;
+    }
   });
   ['pointerup', 'pointercancel', 'mouseleave'].forEach(ev => {
     volUpEl.addEventListener(ev, () => {
       clearTimeout(volUpHoldTimer);
+      volUpHoldTimer = 0;
+      volUpStartPt = null;
     });
   });
 }
 
-function syncRecordMode() {
-  const sideL = document.querySelector('.side-l');
-  if (!sideL) return;
-  if (recordModeActive) {
-    sideL.innerHTML = `
-      <button class="tb rec-btn ${isRecording ? 'recording' : ''}" id="recBtn" type="button" aria-label="${isRecording ? 'Hentikan Rekam MP3' : 'Mulai Rekam MP3'}" title="${isRecording ? 'Hentikan Rekam' : 'Mulai Rekam'}">
-        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7" fill="currentColor"/></svg>
-      </button>`;
-    const recBtn = $('recBtn');
-    if (recBtn) recBtn.addEventListener('click', toggleRecording);
-  } else {
-    if (isRecording) stopMp3Recording();
-    sideL.innerHTML = `
-      <button class="tb" id="sleep" type="button" aria-pressed="false" aria-label="Timer tidur: mati">
-        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></svg>
-      </button>`;
-    const sleepBtn = $('sleep');
-    if (sleepBtn) sleepBtn.addEventListener('click', () => setSleep((sleepStep + 1) % CONFIG.sleepOptions.length));
-    showSleep(CONFIG.sleepOptions[sleepStep]);
-    syncHeaderSlot();
+$('volDown').addEventListener('click', () => setVolume(volume - 10));
+$('volUp').addEventListener('click', () => {
+  if (suppressNextVolUpClick) {
+    suppressNextVolUpClick = false;
+    return;
   }
-  updateClock();
-}
-
-function toggleRecording() {
-  if (!isRecording) {
-    startMp3Recording();
-  } else {
-    stopMp3Recording();
-  }
-}
-
-let raisDirHandle = null;
-async function getRaisRecDirectory() {
-  if (raisDirHandle) {
-    try {
-      if ((await raisDirHandle.queryPermission({ mode: 'readwrite' })) === 'granted') return raisDirHandle;
-      if ((await raisDirHandle.requestPermission({ mode: 'readwrite' })) === 'granted') return raisDirHandle;
-    } catch {}
-  }
-  if (window.showDirectoryPicker) {
-    try {
-      alert('Silakan izinkan atau buat/pilih folder penyimpanan lokal (direkomendasikan buat folder bernama RAIS_REC).');
-      raisDirHandle = await window.showDirectoryPicker({
-        id: 'rais-rec-dir',
-        mode: 'readwrite',
-        startIn: 'music'
-      });
-      return raisDirHandle;
-    } catch (err) {
-      console.warn('Directory picker cancelled', err);
-    }
-  }
-  return null;
-}
-
-function startMp3Recording() {
-  try {
-    if (!recAudioCtx) {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      recAudioCtx = new AudioCtx();
-      if (!audio._mediaSourceNode) {
-        audio._mediaSourceNode = recAudioCtx.createMediaElementSource(audio);
-        recDest = recAudioCtx.createMediaDestination();
-        audio._mediaSourceNode.connect(recDest);
-        audio._mediaSourceNode.connect(recAudioCtx.destination);
-      }
-    }
-    if (recAudioCtx.state === 'suspended') recAudioCtx.resume();
-    const stream = recDest ? recDest.stream : (audio.captureStream ? audio.captureStream() : null);
-    if (!stream) {
-      alert('Perekaman audio tidak didukung oleh peramban ini.');
-      return;
-    }
-
-    recordedAudioChunks = [];
-    const options = { mimeType: 'audio/webm;codecs=opus' };
-    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-      options.mimeType = 'audio/webm';
-    }
-    mediaRecorder = new MediaRecorder(stream, options);
-    mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) recordedAudioChunks.push(e.data); };
-    mediaRecorder.onstop = async () => {
-      const blob = new Blob(recordedAudioChunks, { type: 'audio/mp3' });
-      const d = new Date();
-      const fname = `rais-rekaman-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}.mp3`;
-      
-      let savedLocally = false;
-      try {
-        const dirHandle = await getRaisRecDirectory();
-        if (dirHandle) {
-          const fileHandle = await dirHandle.getFileHandle(fname, { create: true });
-          const writable = await fileHandle.createWritable();
-          await writable.write(blob);
-          await writable.close();
-          savedLocally = true;
-          alert(`Rekaman berhasil disimpan di folder lokal (${dirHandle.name}/${fname}).`);
-        }
-      } catch (err) {
-        console.error('Local save error:', err);
-      }
-
-      if (!savedLocally) {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fname;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(url), 10000);
-      }
-    };
-    mediaRecorder.start(1000);
-    isRecording = true;
-    recordingStartAt = Date.now();
-    syncRecordMode();
-  } catch (err) {
-    console.error('Record start error:', err);
-    alert('Gagal memulai perekaman.');
-  }
-}
-
-function stopMp3Recording() {
-  isRecording = false;
-  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-    try { mediaRecorder.stop(); } catch {}
-  }
-  syncRecordMode();
-}
+  setVolume(volume + 10);
+});
 /* iPhone mengatur suara hanya lewat tombol fisik, jadi tombol volume disembunyikan. */
 audio.volume = .5;
 const canSetVolume = audio.volume === .5;
@@ -3889,7 +3757,7 @@ if (!SEMATAN) {
     });
   }
 
-  async function openCastView() {
+  openCastView = async function openCastView() {
     if (wanted) stop();
     appMain.hidden = true;
     settingView.hidden = true;
@@ -3910,7 +3778,8 @@ if (!SEMATAN) {
     });
     ensureMicrophone();
     setTimeout(() => castToggleBtn.focus(), 40);
-  }
+  };
+  window.openCastView = openCastView;
 
   function closeCastView() {
     if (castLive || castConnecting) {
