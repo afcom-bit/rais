@@ -32,7 +32,8 @@ object Studio {
     private lateinit var app: Context
     private lateinit var prefs: Prefs
     val ui = MutableStateFlow(UiState())
-    val levels = MutableStateFlow(floatArrayOf(0f, 0f))
+    const val WAVE = 150
+    val wave = MutableStateFlow(FloatArray(WAVE))
 
     private val cmds = ConcurrentLinkedQueue<() -> Unit>()
     private val main = Handler(Looper.getMainLooper())
@@ -63,6 +64,8 @@ object Studio {
             repeat = prefs.bool("repeat", true),
             monitor = prefs.bool("monitor", true),
             autoTitle = prefs.bool("autoTitle", true),
+            speakerVol = prefs.float("speakerVol", 0.6f),
+            dark = prefs.bool("dark", true),
         )
         player = Player()
         thread(name = "rais-engine", isDaemon = true, priority = Thread.MAX_PRIORITY) { engine() }
@@ -83,6 +86,8 @@ object Studio {
     fun setRepeat(v: Boolean) { update { it.copy(repeat = v) }; prefs.putBool("repeat", v) }
     fun setMonitor(v: Boolean) { update { it.copy(monitor = v) }; prefs.putBool("monitor", v) }
     fun setAutoTitle(v: Boolean) { update { it.copy(autoTitle = v) }; prefs.putBool("autoTitle", v) }
+    fun setSpeakerVol(v: Float) { update { it.copy(speakerVol = v) }; prefs.putFloat("speakerVol", v) }
+    fun setDark(v: Boolean) { update { it.copy(dark = v) }; prefs.putBool("dark", v) }
     fun toggleMic() = update { it.copy(micOn = !it.micOn) }
     fun setListeners(n: Int?) = update { it.copy(listeners = n) }
 
@@ -204,6 +209,8 @@ object Studio {
         var nextTick = System.nanoTime()
         var lastUi = 0L
         var lastLv = 0L
+        val ring = FloatArray(WAVE)
+        var head = 0
         while (true) {
             try {
                 while (true) { val c = cmds.poll() ?: break; c() }
@@ -211,7 +218,7 @@ object Studio {
                 val s = ui.value
                 if (!airActive && !player.isPlaying) {
                     closeTrack()
-                    if (levels.value[0] != 0f || levels.value[1] != 0f) levels.value = floatArrayOf(0f, 0f)
+                    if (ring.any { it != 0f }) { ring.fill(0f); wave.value = FloatArray(WAVE) }
                     Thread.sleep(40)
                     nextTick = System.nanoTime()
                     continue
@@ -245,20 +252,29 @@ object Studio {
                 mg *= duck
 
                 // Campur
-                var pl = 0f; var pr = 0f
+                var pa = 0f; var pb = 0f
+                val sv = s.speakerVol
                 for (i in 0 until FRAME) {
                     val m = if (micOk) micS[i] / 32768f * cg else 0f
                     val ml = music[i * 2] * mg
                     val mr = music[i * 2 + 1] * mg
                     val l = (ml + m).coerceIn(-1f, 1f)
                     val r = (mr + m).coerceIn(-1f, 1f)
-                    pl = max(pl, abs(l)); pr = max(pr, abs(r))
+                    val pk = max(abs(l), abs(r))
+                    if (i < FRAME / 2) pa = max(pa, pk) else pb = max(pb, pk)
                     encS[i * 2] = (l * 32767).toInt().toShort()
                     encS[i * 2 + 1] = (r * 32767).toInt().toShort()
-                    monS[i * 2] = (ml.coerceIn(-1f, 1f) * 32767).toInt().toShort()
-                    monS[i * 2 + 1] = (mr.coerceIn(-1f, 1f) * 32767).toInt().toShort()
+                    monS[i * 2] = ((ml * sv).coerceIn(-1f, 1f) * 32767).toInt().toShort()
+                    monS[i * 2 + 1] = ((mr * sv).coerceIn(-1f, 1f) * 32767).toInt().toShort()
                 }
-                if (now - lastLv > 40) { lastLv = now; levels.value = floatArrayOf(pl, pr) }
+                ring[head] = pa; head = (head + 1) % WAVE
+                ring[head] = pb; head = (head + 1) % WAVE
+                if (now - lastLv > 40) {
+                    lastLv = now
+                    val w = FloatArray(WAVE)
+                    for (k in 0 until WAVE) w[k] = ring[(head + k) % WAVE]
+                    wave.value = w
+                }
 
                 // Pantau musik di HP (tanpa suara mic agar tidak berdengung)
                 if (s.monitor && hasMusic) {

@@ -15,6 +15,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,6 +29,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
+import androidx.compose.material.icons.automirrored.filled.QueueMusic
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -35,17 +39,18 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,75 +59,88 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlin.math.sqrt
 
-private object C {
-    val bg = Color(0xFF0B1410)
-    val card = Color(0xFF101D16)
-    val card2 = Color(0xFF0F1A14)
-    val border = Color(0xFF23402F)
-    val border2 = Color(0xFF1D3527)
-    val text = Color(0xFFE8F1EC)
-    val sub = Color(0xFF9FB5A8)
-    val dim = Color(0xFF7EA08D)
-    val green = Color(0xFF3DDC84)
-    val red = Color(0xFFE5484D)
-    val amber = Color(0xFFF5B84A)
-    val hl = Color(0xFF17301F)
-    val off = Color(0xFF1B2C22)
-}
+/** Palet warna; gelap dan terang. */
+data class Pal(
+    val dark: Boolean,
+    val bg: Color, val surface: Color, val line: Color, val text: Color, val sub: Color, val faint: Color,
+    val accent: Color, val accentSoft: Color, val onAccent: Color,
+    val lcd: Color, val lcdLine: Color, val inkHi: Color, val inkDim: Color, val onAir: Color, val wave: Color,
+)
+
+private val Gelap = Pal(
+    true, Color(0xFF111416), Color(0xFF191D20), Color(0xFF262B2F), Color(0xFFE6E9EA), Color(0xFF8E979C), Color(0xFF656E73),
+    Color(0xFF2BB3A8), Color(0xFF15292A), Color(0xFF0B1C1B),
+    Color(0xFF0C2422), Color(0xFF1D3D3A), Color(0xFFC6FFF6), Color(0xFF6FD3C5), Color(0xFFFF6B6F), Color(0xFF3CC4B6),
+)
+private val Terang = Pal(
+    false, Color(0xFFF3F5F5), Color(0xFFFFFFFF), Color(0xFFE2E7E8), Color(0xFF1B2326), Color(0xFF5F6B70), Color(0xFF7D888C),
+    Color(0xFF0F8A81), Color(0xFFE1F3F1), Color(0xFFFFFFFF),
+    Color(0xFFDCEBE6), Color(0xFFBCD3CC), Color(0xFF0E3833), Color(0xFF3F6D66), Color(0xFFC62F35), Color(0xFF16968C),
+)
+private val Red = Color(0xFFE5484D)
+private val LocalPal = staticCompositionLocalOf { Gelap }
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Studio.init(this)
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
-            navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
-        )
         setContent {
-            MaterialTheme(colorScheme = darkColorScheme(primary = C.green, background = C.bg, surface = C.card)) {
-                StudioApp()
+            val s by Studio.ui.collectAsStateWithLifecycle()
+            val p = if (s.dark) Gelap else Terang
+            LaunchedEffect(s.dark) {
+                val bar = if (s.dark) SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+                else SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT)
+                enableEdgeToEdge(statusBarStyle = bar, navigationBarStyle = bar)
+            }
+            val scheme = if (s.dark) darkColorScheme(primary = p.accent, background = p.bg, surface = p.surface)
+            else lightColorScheme(primary = p.accent, background = p.bg, surface = p.surface)
+            MaterialTheme(colorScheme = scheme) {
+                CompositionLocalProvider(LocalPal provides p) { StudioApp(s) }
             }
         }
     }
 }
 
 @Composable
-private fun StudioApp() {
-    val s by Studio.ui.collectAsStateWithLifecycle()
+private fun StudioApp(s: UiState) {
+    val p = LocalPal.current
     val ctx = LocalContext.current
     var settings by rememberSaveable { mutableStateOf(false) }
+    var playlist by rememberSaveable { mutableStateOf(false) }
 
     val perm = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { res ->
         if (res[Manifest.permission.RECORD_AUDIO] == true) Studio.goOnAir()
         else Studio.msg("Izin mikrofon ditolak. Siaran butuh mikrofon.", true)
     }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
-        val tracks = uris.mapNotNull { u ->
+        val tracks = uris.map { u ->
             try { ctx.contentResolver.takePersistableUriPermission(u, Intent.FLAG_GRANT_READ_URI_PERMISSION) } catch (_: Exception) {}
             Track(u.toString(), displayName(ctx, u))
         }
         if (tracks.isNotEmpty()) Studio.addTracks(tracks)
     }
+    val pick: () -> Unit = { picker.launch(arrayOf("audio/*")) }
 
     LaunchedEffect(s.config.host, s.config.port) {
         while (true) {
             val cfg = Studio.ui.value.config
-            val n = withContext(Dispatchers.IO) { Caster.listeners(cfg) }
-            Studio.setListeners(n)
+            Studio.setListeners(withContext(Dispatchers.IO) { Caster.listeners(cfg) })
             delay(15_000)
         }
     }
 
-    Box(Modifier.fillMaxSize().background(C.bg).safeDrawingPadding()) {
+    Box(Modifier.fillMaxSize().background(p.bg).safeDrawingPadding()) {
         if (settings) {
             BackHandler { settings = false }
-            SettingsScreen(s.config, onBack = { settings = false }, onSave = { Studio.saveConfig(it); settings = false })
+            SettingsScreen(s, onBack = { settings = false }, onSave = { Studio.saveConfig(it); settings = false })
         } else {
             StudioScreen(
                 s,
                 openSettings = { settings = true },
-                pick = { picker.launch(arrayOf("audio/*")) },
+                openPlaylist = { playlist = true },
+                pick = pick,
                 airClick = {
                     if (s.status == AirStatus.STANDBY) {
                         if (s.config.pass.isBlank()) {
@@ -130,14 +148,15 @@ private fun StudioApp() {
                         } else if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
                             Studio.goOnAir()
                         } else {
-                            val p = mutableListOf(Manifest.permission.RECORD_AUDIO)
-                            if (Build.VERSION.SDK_INT >= 33) p += Manifest.permission.POST_NOTIFICATIONS
-                            perm.launch(p.toTypedArray())
+                            val l = mutableListOf(Manifest.permission.RECORD_AUDIO)
+                            if (Build.VERSION.SDK_INT >= 33) l += Manifest.permission.POST_NOTIFICATIONS
+                            perm.launch(l.toTypedArray())
                         }
                     } else Studio.endAir()
                 },
             )
         }
+        if (playlist) PlaylistSheet(s, pick) { playlist = false }
     }
 }
 
@@ -150,286 +169,312 @@ private fun displayName(ctx: android.content.Context, u: Uri): String {
     return u.lastPathSegment ?: "Audio"
 }
 
-private val cardShape = RoundedCornerShape(18.dp)
-private fun Modifier.card(bg: Color = C.card, bd: Color = C.border) =
-    this.clip(cardShape).background(bg).border(1.dp, bd, cardShape)
-
-private fun fmt(ms: Long): String {
-    val t = ms / 1000
-    return "%02d:%02d".format(t / 60, t % 60)
-}
+private fun fmt(ms: Long): String { val t = ms / 1000; return "%02d:%02d".format(t / 60, t % 60) }
+private fun clean(name: String) = name.substringBeforeLast('.')
 
 @Composable
-private fun StudioScreen(s: UiState, openSettings: () -> Unit, pick: () -> Unit, airClick: () -> Unit) {
-    Column(Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        // Kepala
+private fun StudioScreen(s: UiState, openSettings: () -> Unit, openPlaylist: () -> Unit, pick: () -> Unit, airClick: () -> Unit) {
+    val p = LocalPal.current
+    Column(Modifier.fillMaxSize().padding(horizontal = 18.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+      Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(38.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFF13261C))
-                .border(1.dp, C.border, RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
-                Text("RAIS", color = C.green, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-            }
+            Image(painterResource(if (p.dark) R.drawable.logo_gelap else R.drawable.logo_terang), "Logo Rais Streaming", Modifier.size(44.dp))
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
-                Text("Studio Siaran", color = C.text, fontWeight = FontWeight.Bold, fontSize = 17.sp)
-                Text(s.config.station, color = C.sub, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text("Studio RAIS", color = p.text, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                Text(s.config.station, color = p.sub, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
-            IconButton(onClick = openSettings) { Icon(Icons.Filled.Settings, "Pengaturan", tint = C.text) }
+            HeadBtn(if (p.dark) Icons.Filled.LightMode else Icons.Filled.DarkMode, "Ganti tema") { Studio.setDark(!s.dark) }
+            Spacer(Modifier.width(8.dp))
+            HeadBtn(Icons.Filled.Tune, "Pengaturan", openSettings)
         }
 
-        StatusCard(s)
-        NowCard(s)
-        Mixer(s)
-        PlaylistCard(s, pick, Modifier.weight(1f))
+        Lcd(s)
+        TitleRow(s)
+        PlayerCard(s, openPlaylist, pick)
+        Faders(s)
+      }
 
-        // Tombol bawah
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            val micOn = s.micOn
-            Button(
-                onClick = { Studio.toggleMic() },
-                modifier = Modifier.weight(1f).height(60.dp),
-                shape = RoundedCornerShape(18.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, if (micOn) C.green else C.border),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF13261C), contentColor = if (micOn) C.green else C.sub),
-            ) {
-                Icon(if (micOn) Icons.Filled.Mic else Icons.Filled.MicOff, null)
-                Spacer(Modifier.width(6.dp))
-                Text(if (micOn) "Mic Aktif" else "Mic Mati", fontWeight = FontWeight.Bold)
-            }
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            val on = s.micOn
+            Box(
+                Modifier.size(58.dp).clip(CircleShape).background(if (on) p.accentSoft else p.surface)
+                    .border(1.5.dp, if (on) p.accent else p.line, CircleShape).clickable { Studio.toggleMic() },
+                contentAlignment = Alignment.Center,
+            ) { Icon(if (on) Icons.Filled.Mic else Icons.Filled.MicOff, if (on) "Matikan mic" else "Nyalakan mic", tint = if (on) p.accent else p.sub) }
             val (label, bg, fg) = when (s.status) {
-                AirStatus.STANDBY -> Triple("Mulai Siaran", C.green, C.bg)
-                AirStatus.CONNECTING -> Triple("Batal", C.amber, C.bg)
-                else -> Triple("Akhiri Siaran", C.red, Color.White)
+                AirStatus.STANDBY -> Triple("Mulai Siaran", p.accent, p.onAccent)
+                AirStatus.CONNECTING -> Triple("Batal", Color(0xFFE0A93B), Color(0xFF1B1405))
+                else -> Triple("Akhiri Siaran", Red, Color.White)
             }
-            Button(
-                onClick = airClick,
-                modifier = Modifier.weight(1f).height(60.dp),
-                shape = RoundedCornerShape(18.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = bg, contentColor = fg),
-            ) {
-                Icon(if (s.status == AirStatus.STANDBY) Icons.Filled.Radio else Icons.Filled.Stop, null)
-                Spacer(Modifier.width(6.dp))
-                Text(label, fontWeight = FontWeight.Bold)
+            Button(onClick = airClick, modifier = Modifier.weight(1f).height(58.dp), shape = RoundedCornerShape(29.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = bg, contentColor = fg)) {
+                Text(label, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
             }
         }
         if (s.message.isNotEmpty()) {
-            Text(s.message, color = if (s.messageError) Color(0xFFF3A6A9) else C.sub, fontSize = 12.sp,
-                maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(s.message, color = if (s.messageError) Red else p.sub, fontSize = 12.sp, maxLines = 2,
+                overflow = TextOverflow.Ellipsis, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
         }
     }
 }
 
 @Composable
-private fun StatusCard(s: UiState) {
-    val now by produceState(System.currentTimeMillis(), s.onAirSince) {
-        while (true) { value = System.currentTimeMillis(); delay(500) }
+private fun HeadBtn(icon: ImageVector, desc: String, click: () -> Unit) {
+    val p = LocalPal.current
+    Box(Modifier.size(44.dp).clip(RoundedCornerShape(14.dp)).background(p.surface).clickable(onClick = click), contentAlignment = Alignment.Center) {
+        Icon(icon, desc, tint = p.sub, modifier = Modifier.size(20.dp))
     }
+}
+
+@Composable
+private fun Lcd(s: UiState) {
+    val p = LocalPal.current
+    val now by produceState(System.currentTimeMillis(), s.onAirSince) { while (true) { value = System.currentTimeMillis(); delay(500) } }
     val secs = if (s.onAirSince > 0) (now - s.onAirSince) / 1000 else 0
-    val timer = "%02d:%02d:%02d".format(secs / 3600, secs / 60 % 60, secs % 60)
-    val (badge, badgeBg, badgeFg) = when (s.status) {
-        AirStatus.STANDBY -> Triple("STANDBY", Color(0xFF2A4234), C.sub)
-        AirStatus.CONNECTING -> Triple("MENYAMBUNG", C.amber, C.bg)
-        AirStatus.ON_AIR -> Triple("ON AIR", C.red, Color.White)
-        AirStatus.RECONNECTING -> Triple("TERPUTUS", C.amber, C.bg)
+    val (state, stateC) = when (s.status) {
+        AirStatus.STANDBY -> "STANDBY" to p.inkDim
+        AirStatus.CONNECTING -> "MENYAMBUNG" to p.inkHi
+        AirStatus.ON_AIR -> "ON AIR" to p.onAir
+        AirStatus.RECONNECTING -> "TERPUTUS" to p.onAir
     }
-    val (srv, srvC) = when (s.status) {
-        AirStatus.STANDBY -> "Siaga" to C.sub
-        AirStatus.CONNECTING -> "Menyambung" to C.amber
-        AirStatus.ON_AIR -> "Tersambung" to C.green
-        AirStatus.RECONNECTING -> "Menyambung ulang" to C.amber
+    val server = when (s.status) {
+        AirStatus.STANDBY -> "SIAGA"
+        AirStatus.CONNECTING -> "MENYAMBUNG"
+        AirStatus.ON_AIR -> "SERVER OK"
+        AirStatus.RECONNECTING -> "ULANG..."
     }
-    Column(Modifier.fillMaxWidth().card().padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    val shape = RoundedCornerShape(18.dp)
+    val mono = FontFamily.Monospace
+    Column(Modifier.fillMaxWidth().clip(shape).background(p.lcd).border(1.dp, p.lcdLine, shape).padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Row(Modifier.clip(CircleShape).background(badgeBg).padding(horizontal = 12.dp, vertical = 5.dp),
-                verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(8.dp).clip(CircleShape).background(badgeFg))
-                Spacer(Modifier.width(7.dp))
-                Text(badge, color = badgeFg, fontWeight = FontWeight.Bold, fontSize = 12.sp, letterSpacing = 1.5.sp)
-            }
-            Spacer(Modifier.weight(1f))
-            Text(timer, color = Color.White, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 24.sp)
+            Box(Modifier.size(9.dp).clip(CircleShape).background(stateC))
+            Spacer(Modifier.width(8.dp))
+            Text(state, color = stateC, fontFamily = mono, fontSize = 15.sp, letterSpacing = 2.sp, modifier = Modifier.weight(1f))
+            Text("%02d:%02d:%02d".format(secs / 3600, secs / 60 % 60, secs % 60), color = p.inkHi, fontFamily = mono, fontSize = 28.sp)
         }
-        Row {
-            Stat("Pendengar", s.listeners?.toString() ?: "–", C.text, Modifier.weight(1f))
-            Stat("Bitrate", "${s.config.bitrate} kbps", C.text, Modifier.weight(1f))
-            Stat("Server", srv, srvC, Modifier.weight(1.2f))
+        Text(s.title.ifBlank { "Belum ada judul" }, color = if (s.title.isBlank()) p.inkDim else p.inkHi, fontFamily = mono,
+            fontSize = 19.sp, lineHeight = 24.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        Waveform()
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("${s.listeners ?: "–"} PENDENGAR", color = p.inkDim, fontFamily = mono, fontSize = 13.sp)
+            Text("${s.config.bitrate} KBPS", color = p.inkDim, fontFamily = mono, fontSize = 13.sp)
+            Text(server, color = p.inkDim, fontFamily = mono, fontSize = 13.sp)
+        }
+    }
+}
+
+/** Gelombang suara bergulir seperti WavePad (cermin atas-bawah). */
+@Composable
+private fun Waveform() {
+    val p = LocalPal.current
+    val w by Studio.wave.collectAsStateWithLifecycle()
+    Canvas(Modifier.fillMaxWidth().height(62.dp)) {
+        val mid = size.height / 2
+        drawLine(p.lcdLine, Offset(0f, mid), Offset(size.width, mid), 1.dp.toPx())
+        val n = w.size
+        val step = size.width / n
+        val sw = maxOf(1f, step * 0.7f)
+        for (i in 0 until n) {
+            val a = sqrt(w[i].coerceIn(0f, 1f))
+            val h = maxOf(1f, a * (mid - 2))
+            val x = i * step + step / 2
+            drawLine(p.wave, Offset(x, mid - h), Offset(x, mid + h), sw, StrokeCap.Butt)
         }
     }
 }
 
 @Composable
-private fun Stat(label: String, value: String, color: Color, modifier: Modifier) {
-    Column(modifier) {
-        Text(label, color = C.sub, fontSize = 12.sp)
-        Text(value, color = color, fontWeight = FontWeight.Bold, fontSize = 15.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-    }
-}
-
-@Composable
-private fun NowCard(s: UiState) {
+private fun TitleRow(s: UiState) {
+    val p = LocalPal.current
     var draft by remember(s.title) { mutableStateOf(s.title) }
-    Column(Modifier.fillMaxWidth().card(C.card2, C.border2).padding(horizontal = 14.dp, vertical = 10.dp),
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedTextField(
+            value = draft, onValueChange = { draft = it }, singleLine = true,
+            placeholder = { Text("Judul kajian atau pemateri", fontSize = 14.sp) },
+            textStyle = LocalTextStyle.current.copy(fontSize = 14.sp),
+            shape = RoundedCornerShape(12.dp), modifier = Modifier.weight(1f), colors = fieldColors(),
+        )
+        Button(onClick = { Studio.sendTitle(draft) }, shape = RoundedCornerShape(12.dp), modifier = Modifier.height(52.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = p.accentSoft, contentColor = p.accent)) {
+            Text("Kirim", fontWeight = FontWeight.SemiBold)
+        }
+    }
+}
+
+@Composable
+private fun PlayerCard(s: UiState, openPlaylist: () -> Unit, pick: () -> Unit) {
+    val p = LocalPal.current
+    val cur = s.playlist.getOrNull(s.currentIndex)
+    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(p.surface).padding(horizontal = 14.dp, vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("JUDUL DI PENDENGAR", color = C.dim, fontSize = 11.sp, letterSpacing = 1.2.sp, modifier = Modifier.weight(1f))
-            Text("Otomatis", color = C.sub, fontSize = 11.sp)
-            Spacer(Modifier.width(4.dp))
-            Switch(s.autoTitle, Studio::setAutoTitle, Modifier.height(24.dp), colors = switchColors())
-        }
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedTextField(
-                value = draft, onValueChange = { draft = it }, singleLine = true,
-                placeholder = { Text("Judul kajian atau pemateri", fontSize = 14.sp) },
-                textStyle = LocalTextStyle.current.copy(fontSize = 14.sp, color = C.text),
-                modifier = Modifier.weight(1f),
-                colors = fieldColors(),
-            )
-            Button(onClick = { Studio.sendTitle(draft) }, shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = C.hl, contentColor = C.green)) { Text("Kirim") }
-        }
-        VuMeter()
-    }
-}
-
-@Composable
-private fun VuMeter() {
-    val lv by Studio.levels.collectAsStateWithLifecycle()
-    Canvas(Modifier.fillMaxWidth().height(26.dp)) {
-        val segs = 20
-        val gap = 3.dp.toPx()
-        val rowH = (size.height - gap) / 2
-        val w = (size.width - gap * (segs - 1)) / segs
-        for (row in 0..1) {
-            val on = (lv.getOrElse(row) { 0f } * segs * 1.4f).toInt()
-            for (k in 0 until segs) {
-                val c = when {
-                    k >= on -> C.off
-                    k >= 17 -> C.red
-                    k >= 13 -> C.amber
-                    else -> C.green
-                }
-                drawRoundRect(c, Offset(k * (w + gap), row * (rowH + gap)), Size(w, rowH), CornerRadius(2.dp.toPx()))
+            Box(Modifier.size(38.dp).clip(RoundedCornerShape(10.dp)).background(p.accentSoft), contentAlignment = Alignment.Center) {
+                Icon(Icons.Filled.MusicNote, null, tint = p.accent, modifier = Modifier.size(20.dp))
             }
-        }
-    }
-}
-
-@Composable
-private fun switchColors() = SwitchDefaults.colors(
-    checkedTrackColor = C.green, checkedThumbColor = Color.White,
-    uncheckedTrackColor = Color(0xFF2A4234), uncheckedThumbColor = C.sub, uncheckedBorderColor = Color.Transparent,
-)
-
-@Composable
-private fun sliderColors() = SliderDefaults.colors(thumbColor = C.green, activeTrackColor = C.green, inactiveTrackColor = Color(0xFF2A4234))
-
-@Composable
-private fun fieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedBorderColor = C.green, unfocusedBorderColor = C.border, cursorColor = C.green,
-    focusedTextColor = C.text, unfocusedTextColor = C.text,
-    focusedPlaceholderColor = C.dim, unfocusedPlaceholderColor = C.dim,
-    focusedLabelColor = C.green, unfocusedLabelColor = C.sub,
-)
-
-@Composable
-private fun Mixer(s: UiState) {
-    Column(Modifier.padding(horizontal = 4.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Mode 1 penggeser (MP3 ⟷ Mic)", color = C.text, fontSize = 13.sp, modifier = Modifier.weight(1f))
-            Switch(s.oneFader, Studio::setOneFader, colors = switchColors())
-        }
-        if (s.oneFader) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("MP3", color = if (s.fader <= 0.5f) C.green else C.sub, fontWeight = FontWeight.Bold, fontSize = 13.sp, modifier = Modifier.width(38.dp))
-                Slider(s.fader, Studio::setFader, Modifier.weight(1f), colors = sliderColors())
-                Text("Mic", color = if (s.fader > 0.5f) C.green else C.sub, fontWeight = FontWeight.Bold, fontSize = 13.sp,
-                    modifier = Modifier.width(38.dp), textAlign = androidx.compose.ui.text.style.TextAlign.End)
-            }
-            Row(Modifier.fillMaxWidth().padding(horizontal = 44.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("MP3 ${((1 - s.fader) * 100).toInt()}%", color = C.sub, fontSize = 12.sp, fontFamily = FontFamily.Monospace)
-                Text("Mic ${(s.fader * 100).toInt()}%", color = C.sub, fontSize = 12.sp, fontFamily = FontFamily.Monospace)
-            }
-        } else {
-            VolRow("Musik", s.musicVol, Studio::setMusicVol)
-            VolRow("Mic", s.micVol, Studio::setMicVol)
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Talkover: musik mengecil saat bicara", color = C.sub, fontSize = 12.sp, modifier = Modifier.weight(1f))
-                Switch(s.talkover, Studio::setTalkover, colors = switchColors())
-            }
-        }
-    }
-}
-
-@Composable
-private fun VolRow(label: String, v: Float, set: (Float) -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(label, color = C.text, fontSize = 13.sp, modifier = Modifier.width(52.dp))
-        Slider(v, set, Modifier.weight(1f).height(36.dp), colors = sliderColors())
-        Text("${(v * 100).toInt()}%", color = C.sub, fontSize = 12.sp, fontFamily = FontFamily.Monospace,
-            modifier = Modifier.width(40.dp), textAlign = androidx.compose.ui.text.style.TextAlign.End)
-    }
-}
-
-@Composable
-private fun SmallToggle(icon: ImageVector, desc: String, on: Boolean, click: () -> Unit) {
-    IconButton(onClick = click) { Icon(icon, desc, tint = if (on) C.green else C.dim) }
-}
-
-@Composable
-private fun PlaylistCard(s: UiState, pick: () -> Unit, modifier: Modifier) {
-    Column(modifier.fillMaxWidth().card(C.card2, C.border2).padding(horizontal = 6.dp, vertical = 4.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(start = 8.dp)) {
-            Text("Daftar Putar (${s.playlist.size})", color = C.text, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, modifier = Modifier.weight(1f))
-            SmallToggle(Icons.Filled.Shuffle, "Acak", s.shuffle) { Studio.setShuffle(!s.shuffle) }
-            SmallToggle(Icons.Filled.Repeat, "Ulang", s.repeat) { Studio.setRepeat(!s.repeat) }
-            SmallToggle(Icons.Filled.Headphones, "Pantau musik di HP", s.monitor) { Studio.setMonitor(!s.monitor) }
-            IconButton(onClick = pick) { Icon(Icons.Filled.Add, "Tambah MP3", tint = C.green) }
-        }
-        if (s.playlist.isEmpty()) {
-            Box(Modifier.weight(1f).fillMaxWidth().clickable(onClick = pick), contentAlignment = Alignment.Center) {
-                Text("Belum ada MP3.\nKetuk di sini atau + untuk menambah dari HP.", color = C.sub, fontSize = 13.sp,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-            }
-        } else {
-            LazyColumn(Modifier.weight(1f)) {
-                itemsIndexed(s.playlist) { i, t ->
-                    val on = i == s.currentIndex
-                    Row(
-                        Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(if (on) C.hl else Color.Transparent)
-                            .clickable { Studio.playIndex(i) }.padding(start = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text("%02d".format(i + 1), color = if (on) C.green else Color(0xFF6F8A7B), fontSize = 12.sp,
-                            fontFamily = FontFamily.Monospace, modifier = Modifier.width(26.dp))
-                        Text(t.name.substringBeforeLast('.'), color = if (on) C.green else Color(0xFFCFE0D6), fontSize = 13.sp,
-                            maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
-                        IconButton(onClick = { Studio.removeTrack(i) }, modifier = Modifier.size(40.dp)) {
-                            Icon(Icons.Filled.Close, "Hapus dari daftar", tint = C.dim, modifier = Modifier.size(18.dp))
-                        }
-                    }
-                }
+            Spacer(Modifier.width(10.dp))
+            Column(Modifier.weight(1f)) {
+                Text(cur?.let { clean(it.name) } ?: if (s.playlist.isEmpty()) "Belum ada MP3" else "Siap diputar",
+                    color = p.text, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(
+                    if (s.playlist.isEmpty()) "Ketuk + untuk menambah dari HP"
+                    else "Lagu ${maxOf(1, s.currentIndex + 1)} dari ${s.playlist.size} · crossfade ${s.config.crossfadeSec} dtk",
+                    color = p.sub, fontSize = 12.sp,
+                )
             }
         }
         val prog = if (s.durMs > 0) (s.posMs.toFloat() / s.durMs).coerceIn(0f, 1f) else 0f
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 8.dp)) {
-            Text(fmt(s.posMs), color = C.sub, fontSize = 11.sp, fontFamily = FontFamily.Monospace)
-            LinearProgressIndicator(progress = { prog }, modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
-                color = C.green, trackColor = Color(0xFF2A4234))
-            Text(fmt(s.durMs), color = C.sub, fontSize = 11.sp, fontFamily = FontFamily.Monospace)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(fmt(s.posMs), color = p.sub, fontSize = 11.sp, fontFamily = FontFamily.Monospace)
+            LinearProgressIndicator(progress = { prog }, modifier = Modifier.weight(1f).padding(horizontal = 8.dp).height(4.dp).clip(CircleShape),
+                color = p.accent, trackColor = p.line)
+            Text(fmt(s.durMs), color = p.sub, fontSize = 11.sp, fontFamily = FontFamily.Monospace)
         }
-        Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = { Studio.prev() }) { Icon(Icons.Filled.SkipPrevious, "Sebelumnya", tint = C.text) }
-            Spacer(Modifier.width(12.dp))
-            Box(Modifier.size(50.dp).clip(CircleShape).background(C.text).clickable { Studio.togglePlay() }, contentAlignment = Alignment.Center) {
-                Icon(if (s.playing) Icons.Filled.Pause else Icons.Filled.PlayArrow, if (s.playing) "Jeda" else "Putar", tint = C.bg)
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = openPlaylist) { Icon(Icons.AutoMirrored.Filled.QueueMusic, "Daftar putar", tint = p.sub) }
+            Spacer(Modifier.weight(1f))
+            IconButton(onClick = { Studio.prev() }) { Icon(Icons.Filled.SkipPrevious, "Sebelumnya", tint = p.text) }
+            Spacer(Modifier.width(10.dp))
+            Box(Modifier.size(46.dp).clip(CircleShape).background(p.text).clickable { Studio.togglePlay() }, contentAlignment = Alignment.Center) {
+                Icon(if (s.playing) Icons.Filled.Pause else Icons.Filled.PlayArrow, if (s.playing) "Jeda" else "Putar", tint = p.bg)
             }
-            Spacer(Modifier.width(12.dp))
-            IconButton(onClick = { Studio.next() }) { Icon(Icons.Filled.SkipNext, "Berikutnya", tint = C.text) }
+            Spacer(Modifier.width(10.dp))
+            IconButton(onClick = { Studio.next() }) { Icon(Icons.Filled.SkipNext, "Berikutnya", tint = p.text) }
+            Spacer(Modifier.weight(1f))
+            IconButton(onClick = pick) { Icon(Icons.AutoMirrored.Filled.PlaylistAdd, "Tambah MP3", tint = p.accent) }
+        }
+        if (!s.shuffle && s.playlist.size > 1) {
+            HorizontalDivider(color = p.line)
+            val n = s.playlist.size
+            val start = if (s.currentIndex < 0) 0 else s.currentIndex + 1
+            val ups = (0 until minOf(2, n - 1)).mapNotNull { k ->
+                val i = start + k
+                if (i < n) s.playlist[i] else if (s.repeat) s.playlist[i % n] else null
+            }
+            ups.forEachIndexed { k, t ->
+                Text((if (k == 0) "Berikutnya · " else "") + clean(t.name), color = p.sub, fontSize = 13.sp, maxLines = 1,
+                    overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(vertical = 2.dp))
+            }
         }
     }
 }
 
 @Composable
-private fun SettingsScreen(cfg: StationConfig, onBack: () -> Unit, onSave: (StationConfig) -> Unit) {
+private fun sliderColors(): SliderColors {
+    val p = LocalPal.current
+    return SliderDefaults.colors(thumbColor = p.accent, activeTrackColor = p.accent, inactiveTrackColor = p.line)
+}
+
+@Composable
+private fun switchColors(): SwitchColors {
+    val p = LocalPal.current
+    return SwitchDefaults.colors(checkedTrackColor = p.accent, checkedThumbColor = Color.White,
+        uncheckedTrackColor = p.line, uncheckedThumbColor = p.sub, uncheckedBorderColor = Color.Transparent)
+}
+
+@Composable
+private fun fieldColors(): TextFieldColors {
+    val p = LocalPal.current
+    return OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = p.accent, unfocusedBorderColor = p.line, cursorColor = p.accent,
+        focusedTextColor = p.text, unfocusedTextColor = p.text,
+        focusedContainerColor = p.surface, unfocusedContainerColor = p.surface,
+        focusedPlaceholderColor = p.faint, unfocusedPlaceholderColor = p.faint,
+        focusedLabelColor = p.accent, unfocusedLabelColor = p.sub,
+    )
+}
+
+@Composable
+private fun Faders(s: UiState) {
+    val p = LocalPal.current
+    Column {
+        if (s.oneFader) {
+            FaderRow("MP3 ${((1 - s.fader) * 100).toInt()}%", "Mic ${(s.fader * 100).toInt()}%", s.fader, Studio::setFader)
+        } else {
+            FaderRow("Musik", "${(s.musicVol * 100).toInt()}%", s.musicVol, Studio::setMusicVol)
+            FaderRow("Mic", "${(s.micVol * 100).toInt()}%", s.micVol, Studio::setMicVol)
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.width(62.dp), verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.AutoMirrored.Filled.VolumeUp, null, tint = p.sub, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(4.dp))
+                Text("HP", color = p.sub, fontSize = 12.sp)
+            }
+            Slider(s.speakerVol, Studio::setSpeakerVol, Modifier.weight(1f).height(32.dp), colors = sliderColors())
+            Text("${(s.speakerVol * 100).toInt()}%", color = p.sub, fontSize = 12.sp, modifier = Modifier.width(62.dp), textAlign = TextAlign.End)
+        }
+        Text("Volume HP hanya untuk speaker HP ini, tidak memengaruhi siaran.", color = p.faint, fontSize = 11.sp,
+            modifier = Modifier.padding(start = 2.dp))
+    }
+}
+
+@Composable
+private fun FaderRow(left: String, right: String, v: Float, set: (Float) -> Unit) {
+    val p = LocalPal.current
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(left, color = p.sub, fontSize = 12.sp, modifier = Modifier.width(62.dp), maxLines = 1)
+        Slider(v, set, Modifier.weight(1f).height(32.dp), colors = sliderColors())
+        Text(right, color = p.sub, fontSize = 12.sp, modifier = Modifier.width(62.dp), textAlign = TextAlign.End, maxLines = 1)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PlaylistSheet(s: UiState, pick: () -> Unit, close: () -> Unit) {
+    val p = LocalPal.current
+    ModalBottomSheet(onDismissRequest = close, containerColor = p.surface) {
+        Row(Modifier.padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text("Daftar Putar (${s.playlist.size})", color = p.text, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, modifier = Modifier.weight(1f))
+            TextButton(onClick = pick) { Text("+ Tambah MP3", color = p.accent) }
+        }
+        if (s.playlist.isEmpty()) {
+            Text("Belum ada MP3.", color = p.sub, fontSize = 14.sp, modifier = Modifier.padding(20.dp))
+        }
+        LazyColumn(Modifier.fillMaxWidth().heightIn(max = 480.dp), contentPadding = PaddingValues(start = 12.dp, end = 12.dp, bottom = 24.dp)) {
+            itemsIndexed(s.playlist) { i, t ->
+                val on = i == s.currentIndex
+                Row(
+                    Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(if (on) p.accentSoft else Color.Transparent)
+                        .clickable { Studio.playIndex(i) }.padding(start = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box(Modifier.size(6.dp).clip(CircleShape).background(if (on) p.accent else p.line))
+                    Spacer(Modifier.width(12.dp))
+                    Text(clean(t.name), color = if (on) p.accent else p.text, fontSize = 14.sp, maxLines = 1,
+                        overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                    IconButton(onClick = { Studio.removeTrack(i) }) { Icon(Icons.Filled.Close, "Hapus dari daftar", tint = p.faint, modifier = Modifier.size(18.dp)) }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun Section(title: String, content: @Composable ColumnScope.() -> Unit) {
+    val p = LocalPal.current
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(title, color = p.accent, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.5.sp)
+        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(p.surface).padding(horizontal = 16.dp, vertical = 6.dp), content = content)
+    }
+}
+
+@Composable
+private fun ToggleRow(title: String, desc: String, v: Boolean, set: (Boolean) -> Unit) {
+    val p = LocalPal.current
+    Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f)) {
+            Text(title, color = p.text, fontSize = 14.sp)
+            Text(desc, color = p.faint, fontSize = 12.sp)
+        }
+        Switch(v, set, colors = switchColors())
+    }
+}
+
+@Composable
+private fun SettingsScreen(s: UiState, onBack: () -> Unit, onSave: (StationConfig) -> Unit) {
+    val p = LocalPal.current
+    val cfg = s.config
     var host by remember { mutableStateOf(cfg.host) }
     var port by remember { mutableStateOf(cfg.port.toString()) }
     var user by remember { mutableStateOf(cfg.user) }
@@ -440,40 +485,62 @@ private fun SettingsScreen(cfg: StationConfig, onBack: () -> Unit, onSave: (Stat
     var xf by remember { mutableFloatStateOf(cfg.crossfadeSec.toFloat()) }
     var boost by remember { mutableFloatStateOf(cfg.micBoost) }
 
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(18.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Kembali", tint = C.text) }
-            Text("Pengaturan Server", color = C.text, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Kembali", tint = p.text) }
+            Text("Pengaturan", color = p.text, fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
         }
-        Field("Address", host) { host = it.trim() }
-        Field("Port", port, KeyboardType.Number) { port = it.filter(Char::isDigit).take(5) }
-        Field("User", user) { user = it.trim() }
-        OutlinedTextField(
-            value = pass, onValueChange = { pass = it }, label = { Text("Pass") }, singleLine = true,
-            visualTransformation = if (showPass) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            trailingIcon = {
-                IconButton(onClick = { showPass = !showPass }) {
-                    Icon(if (showPass) Icons.Filled.VisibilityOff else Icons.Filled.Visibility, "Tampilkan sandi", tint = C.sub)
+
+        Section("SERVER") {
+            Spacer(Modifier.height(6.dp))
+            Field("Address", host) { host = it.trim() }
+            Field("Port", port, KeyboardType.Number) { port = it.filter(Char::isDigit).take(5) }
+            Field("User", user) { user = it.trim() }
+            OutlinedTextField(
+                value = pass, onValueChange = { pass = it }, label = { Text("Pass") }, singleLine = true,
+                visualTransformation = if (showPass) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon = {
+                    IconButton(onClick = { showPass = !showPass }) {
+                        Icon(if (showPass) Icons.Filled.VisibilityOff else Icons.Filled.Visibility, "Tampilkan sandi", tint = p.sub)
+                    }
+                },
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), colors = fieldColors(),
+            )
+            Field("Nama radio", station) { station = it }
+            Text("Bitrate (kbps)", color = p.sub, fontSize = 13.sp, modifier = Modifier.padding(top = 8.dp))
+            Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                listOf(24, 32, 48, 64, 96, 128).forEach { b ->
+                    val on = bitrate == b
+                    Box(Modifier.weight(1f).height(36.dp).clip(RoundedCornerShape(10.dp)).background(if (on) p.accentSoft else p.bg)
+                        .clickable { bitrate = b }, contentAlignment = Alignment.Center) {
+                        Text("$b", color = if (on) p.accent else p.sub, fontSize = 13.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Normal)
+                    }
                 }
-            },
-            modifier = Modifier.fillMaxWidth(), colors = fieldColors(),
-        )
-        Field("Nama radio", station) { station = it }
-
-        Text("Bitrate", color = C.sub, fontSize = 13.sp)
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            listOf(32, 48, 64, 96, 128).forEach { b ->
-                FilterChip(selected = bitrate == b, onClick = { bitrate = b }, label = { Text("$b") },
-                    colors = FilterChipDefaults.filterChipColors(selectedContainerColor = C.hl, selectedLabelColor = C.green, labelColor = C.sub))
             }
+            Text("Di bawah 64 kbps dikirim mono, lebih jernih untuk suara.", color = p.faint, fontSize = 12.sp, modifier = Modifier.padding(bottom = 8.dp))
         }
-        Text("Di bawah 64 kbps dikirim mono (lebih jernih untuk suara).", color = C.dim, fontSize = 12.sp)
 
-        Text("Crossfade antar-lagu: ${xf.toInt()} detik", color = C.sub, fontSize = 13.sp)
-        Slider(xf, { xf = it }, valueRange = 0f..10f, steps = 9, colors = sliderColors())
-        Text("Penguat mic: ${"%.1f".format(boost)}×", color = C.sub, fontSize = 13.sp)
-        Slider(boost, { boost = it }, valueRange = 0.5f..3f, colors = sliderColors())
+        Section("SUARA") {
+            ToggleRow("Mode 1 penggeser", "Kiri MP3, kanan Mic", s.oneFader, Studio::setOneFader)
+            ToggleRow("Talkover", "Musik mengecil saat bicara (mode 2 volume)", s.talkover, Studio::setTalkover)
+            ToggleRow("Pantau musik di HP", "Musik terdengar di speaker/earphone HP", s.monitor, Studio::setMonitor)
+            Text("Penguat mic: ${"%.1f".format(boost)}×", color = p.text, fontSize = 14.sp, modifier = Modifier.padding(top = 8.dp))
+            Slider(boost, { boost = it }, valueRange = 0.5f..3f, colors = sliderColors())
+        }
+
+        Section("DAFTAR PUTAR & JUDUL") {
+            Text("Crossfade antar-lagu: ${xf.toInt()} detik", color = p.text, fontSize = 14.sp, modifier = Modifier.padding(top = 8.dp))
+            Slider(xf, { xf = it }, valueRange = 0f..10f, steps = 9, colors = sliderColors())
+            ToggleRow("Acak", "Putar daftar secara acak", s.shuffle, Studio::setShuffle)
+            ToggleRow("Ulang", "Kembali ke awal setelah lagu terakhir", s.repeat, Studio::setRepeat)
+            ToggleRow("Judul otomatis", "Nama file jadi judul di pendengar", s.autoTitle, Studio::setAutoTitle)
+        }
+
+        Section("TAMPILAN") {
+            ToggleRow("Mode terang", "Tampilan latar terang", !s.dark) { Studio.setDark(!it) }
+        }
 
         Button(
             onClick = {
@@ -481,15 +548,15 @@ private fun SettingsScreen(cfg: StationConfig, onBack: () -> Unit, onSave: (Stat
                     user = user, pass = pass, station = station.ifBlank { cfg.station }, bitrate = bitrate,
                     crossfadeSec = xf.toInt(), micBoost = boost))
             },
-            modifier = Modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(14.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = C.green, contentColor = C.bg),
-        ) { Text("Simpan", fontWeight = FontWeight.Bold) }
-        Text("Data ini hanya tersimpan di HP ini.", color = C.dim, fontSize = 12.sp)
+            modifier = Modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(26.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = p.accent, contentColor = p.onAccent),
+        ) { Text("Simpan", fontWeight = FontWeight.SemiBold) }
+        Text("Data server hanya tersimpan di HP ini.", color = p.faint, fontSize = 12.sp, modifier = Modifier.padding(bottom = 16.dp))
     }
 }
 
 @Composable
 private fun Field(label: String, value: String, type: KeyboardType = KeyboardType.Text, change: (String) -> Unit) {
     OutlinedTextField(value = value, onValueChange = change, label = { Text(label) }, singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = type), modifier = Modifier.fillMaxWidth(), colors = fieldColors())
+        keyboardOptions = KeyboardOptions(keyboardType = type), modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), colors = fieldColors())
 }

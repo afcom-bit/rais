@@ -43,6 +43,8 @@ data class UiState(
     val repeat: Boolean = true,
     val monitor: Boolean = true,
     val autoTitle: Boolean = true,
+    val speakerVol: Float = 0.6f,
+    val dark: Boolean = true,
     val title: String = "",
     val config: StationConfig = StationConfig(),
 )
