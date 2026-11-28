@@ -48,7 +48,7 @@ class Meters {
         ring.fill(0f); peakL = 0f; peakR = 0f; vuL = 0f; vuR = 0f; spec.fill(0f); specPeak.fill(0f)
     }
 
-    fun process(mix: FloatArray, frames: Int) {
+    fun process(mix: FloatArray, frames: Int, spectrum: Boolean = true) {
         var pa = 0f; var pb = 0f
         var pl = 0f; var pr = 0f
         var sl = 0.0; var sr = 0.0
@@ -73,6 +73,7 @@ class Meters {
         vuL += (rl - vuL) * 0.22f
         vuR += (rr - vuR) * 0.22f
 
+        if (!spectrum) return
         fft()
         for (b in 0 until BANDS) {
             var m = 0f
