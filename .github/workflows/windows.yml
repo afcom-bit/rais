@@ -1,0 +1,60 @@
+name: Windows Rais Stream
+
+on:
+  push:
+    branches: [main]
+    paths: ['desktop/**', 'shared/**', '.github/workflows/windows.yml']
+  pull_request:
+    paths: ['desktop/**', 'shared/**', '.github/workflows/windows.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
+      - name: Build installer & versi portable
+        working-directory: desktop
+        env:
+          VERSION_CODE: ${{ github.run_number }}
+        run: gradle packageMsi createDistributable --no-daemon --stacktrace
+
+      - name: Kumpulkan berkas
+        shell: pwsh
+        run: |
+          $msi = Get-ChildItem desktop/build/compose/binaries/main/msi/*.msi | Select-Object -First 1
+          Copy-Item $msi.FullName RaisStream-Setup.msi
+          $app = Get-ChildItem desktop/build/compose/binaries/main/app -Directory | Select-Object -First 1
+          Compress-Archive -Path $app.FullName -DestinationPath RaisStream-Portable.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RaisStream-Windows
+          path: |
+            RaisStream-Setup.msi
+            RaisStream-Portable.zip
+
+      - name: Terbitkan rilis
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete rais-stream-windows -y --cleanup-tag || true
+          gh release create rais-stream-windows RaisStream-Setup.msi RaisStream-Portable.zip \
+            --title "Rais Stream untuk Windows (versi 1.0.${{ github.run_number }})" \
+            --notes "RaisStream-Setup.msi: installer (klik dua kali untuk memasang). RaisStream-Portable.zip: tanpa instal, ekstrak lalu jalankan Rais Stream.exe." \
+            --latest=false
