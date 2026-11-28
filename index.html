@@ -1160,8 +1160,8 @@ html:not(.sematan)[data-tema="gelap"] #play:active {
   html:not(.sematan) .panel { max-width: 560px; max-height: 100%; align-self: center; }
 }
 
-/* ===== Pembaruan: spektrum lebih besar & kurangi ruang kosong di bawah time ===== */
-html:not(.sematan) { --sq: clamp(215px, min(91vw, 46dvh), 460px); }
+/* ===== Pembaruan: spektrum dikecilkan sedikit & timer dibesarkan ===== */
+html:not(.sematan) { --sq: clamp(185px, min(78vw, 38dvh), 380px); }
 html:not(.sematan)[data-tema="terang"] { background: #f4f8fc; }
 html:not(.sematan)[data-tema="gelap"] { background: #000; }
 html:not(.sematan) .app {
@@ -1236,7 +1236,7 @@ html:not(.sematan) .wave.show-logo .wave-logo { opacity: 1; }
 /* Logo mengikuti tema: mode gelap memakai versi dengan tulisan "Rais" dan garis bawah lebih cerah */
 html:not(.sematan)[data-tema="gelap"] .wave-logo.logo-terang,
 html:not(.sematan):not([data-tema="gelap"]) .wave-logo.logo-gelap { display: none; }
-html:not(.sematan) .timer { font-size: clamp(2.45rem, min(11vw, 6.2dvh), 3.9rem); line-height: 1; margin-bottom: auto; }
+html:not(.sematan) .timer { font-size: clamp(3rem, min(13.6vw, 7.6dvh), 4.75rem); line-height: 1; margin-bottom: auto; }
 html:not(.sematan) .song {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
@@ -1278,24 +1278,24 @@ html:not(.sematan)[data-tema="gelap"] .wmp.off #play::after {
 }
 
 @media (orientation: landscape) and (min-width: 640px) {
-  html:not(.sematan) { --sq: clamp(215px, min(48vw, 60dvh), 450px); }
+  html:not(.sematan) { --sq: clamp(175px, min(40vw, 50dvh), 370px); }
   html:not(.sematan) .app { gap: clamp(4px, 1dvh, 10px); }
   html:not(.sematan) .art .screen { gap: clamp(4px, 1dvh, 12px); }
   html:not(.sematan) .marquee { height: clamp(54px, 10.5dvh, 92px); }
   html:not(.sematan) #say { font-size: clamp(1.35rem, min(3.2vw, 4.2dvh), 2.1rem); }
   html:not(.sematan) #say.big { font-size: clamp(2.6rem, min(6.2vw, 8.5dvh), 4.1rem); }
-  html:not(.sematan) .timer { font-size: clamp(1.85rem, min(4.4vw, 8dvh), 2.95rem); }
+  html:not(.sematan) .timer { font-size: clamp(2.25rem, min(5.4vw, 9.8dvh), 3.5rem); }
   html:not(.sematan) .now { font-size: clamp(1.12rem, 2.2vw, 1.5rem); }
 }
 @media (max-height: 480px) {
-  html:not(.sematan) { --sq: clamp(125px, 39dvh, 195px); }
+  html:not(.sematan) { --sq: clamp(105px, 32dvh, 160px); }
   html:not(.sematan) .listeners { font-size: clamp(.88rem, 3.6vh, 1.1rem); }
   html:not(.sematan) .listeners.is-note { font-size: .74rem; }
   html:not(.sematan) .art .screen { gap: 3px; }
   html:not(.sematan) .marquee { height: clamp(38px, 9.5dvh, 54px); }
   html:not(.sematan) #say { font-size: clamp(1.08rem, 3.2vw, 1.38rem); }
   html:not(.sematan) #say.big { font-size: clamp(1.9rem, 6vw, 2.5rem); }
-  html:not(.sematan) .timer { font-size: clamp(1.45rem, 6.2dvh, 1.95rem); }
+  html:not(.sematan) .timer { font-size: clamp(1.7rem, 7.6dvh, 2.3rem); }
   html:not(.sematan) .now { --lh: 1.15; font-size: 1rem; height: calc(4 * var(--lh) * 1em); }
 }
 html:not(.sematan) #play {
@@ -1339,15 +1339,15 @@ html:not(.sematan) #play {
         </div>
       </div>
       <div class="status">
-        <span class="state" id="state" data-s="connecting">MENYAMBUNG</span>
-        <span class="listeners" id="listeners" data-s="connecting" hidden></span>
+        <span class="state" id="state" data-s="idle">OFF AIR</span>
+        <span class="listeners" id="listeners" data-s="idle" hidden></span>
       </div>
     </div>
   </header>
 
   <section class="art inner" aria-label="Layar radio">
     <div class="screen">
-      <div class="marquee" data-s="connecting" aria-hidden="true"><span id="say" data-s="connecting">Radio Islam Sragen</span></div>
+      <div class="marquee" data-s="idle" aria-hidden="true"><span id="say" data-s="idle">Radio Islam Sragen</span></div>
       <div class="wave" id="waveBox" role="button" tabindex="0" aria-label="Tampilan spektrum: Pita gulir. Ketuk untuk ganti."><canvas id="wave" aria-hidden="true"></canvas><img class="wave-logo logo-terang" src="icons/logo-terang.png" alt="Logo Rais Streaming" width="1024" height="1024" draggable="false"><img class="wave-logo logo-gelap" src="icons/logo-gelap.png" alt="" aria-hidden="true" width="1024" height="1024" draggable="false"></div>
       <div class="timer" id="clock" role="timer" aria-label="Lama mendengarkan"><span class="dim">00:00:00</span></div>
     </div>
@@ -1363,7 +1363,7 @@ html:not(.sematan) #play {
   <div class="mini-judul" id="miniJudul" aria-hidden="true"><span>Radio Islam Sragen</span></div>
 
   <footer class="foot" id="foot">
-    <div class="wmp" id="wmp" role="group" aria-label="Kendali pemutar">
+    <div class="wmp off" id="wmp" role="group" aria-label="Kendali pemutar">
       <svg class="frame" id="frame" aria-hidden="true">
         <defs>
           <linearGradient id="silver" x1="0" y1="0" x2="0" y2="1">
@@ -1389,8 +1389,8 @@ html:not(.sematan) #play {
         <button class="cap-btn cap-l needs-vol" id="volDown" type="button" aria-label="Kecilkan suara">
           <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5v5h3.5L11 18V6L6.5 9.5z" fill="currentColor"/><path d="M15 12h6"/></svg>
         </button>
-        <button id="play" type="button" class="busy" aria-label="Hentikan siaran" title="Hentikan siaran">
-          <svg class="glyph" viewBox="0 0 24 24" aria-hidden="true"><path id="glyph" d="M5 5h14v14H5z"/></svg>
+        <button id="play" type="button" aria-label="Putar siaran" title="Putar siaran">
+          <svg class="glyph" viewBox="0 0 24 24" aria-hidden="true"><path id="glyph" d="M7 4.5v15l13-7.5z"/></svg>
           <svg class="spin" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="47" fill="none" stroke="#3fb6ea" stroke-width="5" stroke-dasharray="50 250"/></svg>
         </button>
         <button class="cap-btn cap-r needs-vol" id="volUp" type="button" aria-label="Besarkan suara">
@@ -1452,8 +1452,31 @@ const playBtn = $('play'), noteEl = $('note'), stateEl = $('state'), infoEl = $(
 const PLAY = 'M7 4.5v15l13-7.5z', STOP = 'M5 5h14v14H5z';
 const store = {
   get(k) { try { return localStorage.getItem('rais.' + k); } catch { return null; } },
-  set(k, v) { try { localStorage.setItem('rais.' + k, v); } catch {} }
+  set(k, v) { try { localStorage.setItem('rais.' + k, v); } catch {} },
+  remove(k) { try { localStorage.removeItem('rais.' + k); } catch {} }
 };
+const sessionStore = {
+  get(k) { try { return sessionStorage.getItem('rais.' + k); } catch { return null; } },
+  set(k, v) { try { sessionStorage.setItem('rais.' + k, v); } catch {} },
+  remove(k) { try { sessionStorage.removeItem('rais.' + k); } catch {} }
+};
+
+/* Deteksi refresh: tetap on bila sebelumnya sedang menyala, namun tetap off saat dibuka pertama */
+const shouldResume = (() => {
+  try {
+    if (sessionStore.get('active') === '1') return true;
+  } catch {}
+  try {
+    const nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+    const isReload = nav ? nav.type === 'reload' : false;
+    const reloadingTs = Number(store.get('reloading'));
+    if ((isReload || (reloadingTs && Date.now() - reloadingTs < 15000)) && store.get('active') === '1') {
+      return true;
+    }
+  } catch {}
+  return false;
+})();
+store.remove('reloading');
 
 /* ---------- Daftar alamat ---------- */
 function buildCandidates() {
@@ -1466,7 +1489,7 @@ function buildCandidates() {
 
 /* ---------- Pemutar ---------- */
 const LABEL = { idle: 'OFF AIR', connecting: 'MENYAMBUNG', live: 'ON AIR', buffering: 'MEMUAT', retry: 'MENYAMBUNG', error: 'MENYAMBUNG' };
-let state = 'connecting', wanted = true, everLive = false;
+let state = shouldResume ? 'connecting' : 'idle', wanted = shouldResume, everLive = false;
 let liveSince = 0, introDismissed = false; /* saat siaran mulai berbunyi; logo di kotak spektrum tampil 1 menit pertama */
 const LOGO_MS = 60000;
 let candidates = [], idx = 0, rounds = 0;
@@ -1558,6 +1581,9 @@ function setState(s) {
   if ('mediaSession' in navigator) navigator.mediaSession.playbackState = on ? 'playing' : 'paused';
   lapor(s);
 }
+if (shouldResume) {
+  setState('connecting');
+}
 
 function clearTimers() { clearTimeout(tryTimer); clearTimeout(retryTimer); }
 
@@ -1628,6 +1654,8 @@ function release() {
 
 function start() {
   wanted = true; everLive = false; rounds = 0; autoplayBlocked = false;
+  sessionStore.set('active', '1');
+  store.set('active', '1');
   detachUnlockGesture();
   note('Menyambungkan ke siaran...');
   reconnect();
@@ -1636,6 +1664,9 @@ function start() {
 function stop(message) {
   wanted = false;
   autoplayBlocked = false;
+  sessionStore.remove('active');
+  store.remove('active');
+  store.remove('reloading');
   detachUnlockGesture();
   clearTimers();
   release();
@@ -1645,6 +1676,18 @@ function stop(message) {
   showClock(0);
   note(message || 'Siaran dihentikan.');
 }
+
+window.addEventListener('beforeunload', () => {
+  if (wanted) {
+    sessionStore.set('active', '1');
+    store.set('active', '1');
+    store.set('reloading', Date.now());
+  } else {
+    sessionStore.remove('active');
+    store.remove('active');
+    store.remove('reloading');
+  }
+});
 
 playBtn.addEventListener('click', () => {
   if (autoplayBlocked) {
@@ -2400,7 +2443,9 @@ if (SEMATAN) {
 }
 
 pollNowPlaying();
-start();
+if (shouldResume) {
+  start();
+}
 (async () => { await wait(1200); for (;;) for (const t of CONFIG.texts) await scene(t); })();
 
 </script>
