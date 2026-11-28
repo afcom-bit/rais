@@ -45,7 +45,7 @@ jobs:
           VER: 1.0.${{ github.run_number }}
         run: |
           $lib = "desktop-lite/build/install/RaisStreamRingan/lib"
-          $jar = (Get-ChildItem $lib -Filter "desktop-lite*.jar" | Select-Object -First 1).Name
+          $jar = (Get-ChildItem $lib -Filter "RaisStreamRingan*.jar" | Select-Object -First 1).Name
           $common = @(
             '--input', $lib, '--main-jar', $jar, '--main-class', 'id.my.radioislamsragen.studio.LiteUiKt',
             '--name', 'Rais Stream Ringan', '--app-version', $env:VER, '--vendor', 'Radio Islam Sragen',
