@@ -32,8 +32,8 @@ object Studio {
     private lateinit var app: Context
     private lateinit var prefs: Prefs
     val ui = MutableStateFlow(UiState())
-    const val WAVE = 150
-    val wave = MutableStateFlow(FloatArray(WAVE))
+    val meters = MutableStateFlow(MeterSnap())
+    private val meter = Meters()
 
     private val cmds = ConcurrentLinkedQueue<() -> Unit>()
     private val main = Handler(Looper.getMainLooper())
@@ -45,6 +45,8 @@ object Studio {
     private var monitorTrack: AudioTrack? = null
     @Volatile private var sender: Sender? = null
     @Volatile private var airActive = false
+    @Volatile private var recActive = false
+    private var rec: RecWriter? = null
     private var lastNeed = false
     private var lastAir = false
 
@@ -66,6 +68,7 @@ object Studio {
             autoTitle = prefs.bool("autoTitle", true),
             speakerVol = prefs.float("speakerVol", 0.6f),
             dark = prefs.bool("dark", true),
+            meter = prefs.str("meter", "analog"),
         )
         player = Player()
         thread(name = "rais-engine", isDaemon = true, priority = Thread.MAX_PRIORITY) { engine() }
@@ -88,6 +91,9 @@ object Studio {
     fun setAutoTitle(v: Boolean) { update { it.copy(autoTitle = v) }; prefs.putBool("autoTitle", v) }
     fun setSpeakerVol(v: Float) { update { it.copy(speakerVol = v) }; prefs.putFloat("speakerVol", v) }
     fun setDark(v: Boolean) { update { it.copy(dark = v) }; prefs.putBool("dark", v) }
+    fun setMeter(v: String) { update { it.copy(meter = v) }; prefs.putStr("meter", v) }
+    fun cycleMeter() = setMeter(nextMeter(ui.value.meter))
+    fun toggleRec() = post { if (recActive) stopRec(null) else startRec() }
     fun toggleMic() = update { it.copy(micOn = !it.micOn) }
     fun setListeners(n: Int?) = update { it.copy(listeners = n) }
 
@@ -133,12 +139,11 @@ object Studio {
         if (ContextCompat.checkSelfPermission(app, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             msg("Izin mikrofon belum diberikan.", true); return
         }
-        val rec = openRecorder()
-        if (rec == null) { msg("Mikrofon tidak bisa dibuka. Tutup aplikasi lain yang memakai mic.", true); return }
+        if (!ensureMic(true)) { msg("Mikrofon tidak bisa dibuka. Tutup aplikasi lain yang memakai mic.", true); return }
         val enc = try { AacEncoder(cfg.bitrate, if (cfg.bitrate < 64) 1 else 2) } catch (e: Exception) {
-            rec.release(); msg("Encoder AAC tidak tersedia di HP ini.", true); return
+            ensureMic(recActive); msg("Encoder AAC tidak tersedia di HP ini.", true); return
         }
-        recorder = rec; encoder = enc
+        encoder = enc
         airActive = true
         update { it.copy(status = AirStatus.CONNECTING, serverText = "Menyambung...", sentBytes = 0, message = "Menyambung ke ${cfg.host}...", messageError = false) }
         sender = Sender(cfg, object : Sender.Callbacks {
@@ -160,9 +165,42 @@ object Studio {
         airActive = false
         sender?.shutdown(); sender = null
         encoder?.release(); encoder = null
-        recorder?.let { try { it.stop() } catch (_: Exception) {}; it.release() }
-        recorder = null
+        ensureMic(recActive)
         update { it.copy(status = AirStatus.STANDBY, onAirSince = 0, serverText = "Belum tersambung", message = text, messageError = error) }
+    }
+
+    private fun startRec() {
+        if (recActive) return
+        if (ContextCompat.checkSelfPermission(app, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            msg("Izin mikrofon belum diberikan.", true); return
+        }
+        if (!ensureMic(true)) { msg("Mikrofon tidak bisa dibuka.", true); return }
+        val w = try { RecWriter(app) } catch (e: Exception) {
+            ensureMic(airActive); msg("Rekaman gagal dibuat: ${e.message}", true); return
+        }
+        rec = w; recActive = true
+        update { it.copy(recording = true, recSince = System.currentTimeMillis(), recFile = w.name, message = "Merekam: ${w.name}", messageError = false) }
+    }
+
+    private fun stopRec(error: String?) {
+        if (!recActive) return
+        recActive = false
+        val w = rec; rec = null
+        w?.close()
+        ensureMic(airActive)
+        update {
+            it.copy(recording = false, recSince = 0, message = error ?: "Rekaman disimpan di Musik/RaisStream: ${w?.name ?: ""}", messageError = error != null)
+        }
+    }
+
+    /** Membuka/menutup mikrofon sesuai kebutuhan siaran atau rekam. */
+    private fun ensureMic(need: Boolean): Boolean {
+        if (need && recorder == null) recorder = openRecorder()
+        if (!need && recorder != null) {
+            recorder?.let { try { it.stop() } catch (_: Exception) {}; it.release() }
+            recorder = null
+        }
+        return !need || recorder != null
     }
 
     @SuppressLint("MissingPermission")
@@ -191,11 +229,17 @@ object Studio {
     }
 
     private fun syncService() {
-        val need = airActive || player.isPlaying
-        val air = airActive
+        val need = airActive || recActive || player.isPlaying
+        val air = airActive || recActive
         if (need == lastNeed && air == lastAir) return
         lastNeed = need; lastAir = air
-        main.post { StudioService.sync(app, need, air) }
+        val text = when {
+            airActive && recActive -> "ON AIR + merekam"
+            airActive -> "Siaran langsung sedang berjalan"
+            recActive -> "Sedang merekam"
+            else -> "Memutar daftar putar"
+        }
+        main.post { StudioService.sync(app, need, air, text) }
     }
 
     // ---------- Putaran mesin audio ----------
@@ -209,27 +253,26 @@ object Studio {
         var nextTick = System.nanoTime()
         var lastUi = 0L
         var lastLv = 0L
-        val ring = FloatArray(WAVE)
-        var head = 0
+        val mixF = FloatArray(FRAME * 2)
         while (true) {
             try {
                 while (true) { val c = cmds.poll() ?: break; c() }
                 syncService()
                 val s = ui.value
-                if (!airActive && !player.isPlaying) {
+                if (!airActive && !recActive && !player.isPlaying) {
                     closeTrack()
-                    if (ring.any { it != 0f }) { ring.fill(0f); wave.value = FloatArray(WAVE) }
+                    if (meters.value.peakL != 0f || meters.value.vuL != 0f) { meter.reset(); meters.value = MeterSnap() }
                     Thread.sleep(40)
                     nextTick = System.nanoTime()
                     continue
                 }
 
                 // Mikrofon (sekaligus jam utama saat siaran)
-                val rec = recorder
+                val mic = recorder
                 var micOk = false
-                if (rec != null) {
+                if (mic != null) {
                     var got = 0
-                    while (got < FRAME) { val r = rec.read(micS, got, FRAME - got); if (r <= 0) break; got += r }
+                    while (got < FRAME) { val r = mic.read(micS, got, FRAME - got); if (r <= 0) break; got += r }
                     micOk = got == FRAME
                 }
 
@@ -252,7 +295,6 @@ object Studio {
                 mg *= duck
 
                 // Campur
-                var pa = 0f; var pb = 0f
                 val sv = s.speakerVol
                 for (i in 0 until FRAME) {
                     val m = if (micOk) micS[i] / 32768f * cg else 0f
@@ -260,26 +302,24 @@ object Studio {
                     val mr = music[i * 2 + 1] * mg
                     val l = (ml + m).coerceIn(-1f, 1f)
                     val r = (mr + m).coerceIn(-1f, 1f)
-                    val pk = max(abs(l), abs(r))
-                    if (i < FRAME / 2) pa = max(pa, pk) else pb = max(pb, pk)
+                    mixF[i * 2] = l; mixF[i * 2 + 1] = r
                     encS[i * 2] = (l * 32767).toInt().toShort()
                     encS[i * 2 + 1] = (r * 32767).toInt().toShort()
                     monS[i * 2] = ((ml * sv).coerceIn(-1f, 1f) * 32767).toInt().toShort()
                     monS[i * 2 + 1] = ((mr * sv).coerceIn(-1f, 1f) * 32767).toInt().toShort()
                 }
-                ring[head] = pa; head = (head + 1) % WAVE
-                ring[head] = pb; head = (head + 1) % WAVE
-                if (now - lastLv > 40) {
-                    lastLv = now
-                    val w = FloatArray(WAVE)
-                    for (k in 0 until WAVE) w[k] = ring[(head + k) % WAVE]
-                    wave.value = w
+                meter.process(mixF, FRAME)
+                if (now - lastLv > 40) { lastLv = now; meters.value = meter.snapshot() }
+
+                // Rekam (tidak bergantung pada siaran)
+                rec?.let { w ->
+                    try { w.write(encS, FRAME * 2) } catch (e: Exception) { stopRec("Rekaman berhenti: ${e.message}") }
                 }
 
                 // Pantau musik di HP (tanpa suara mic agar tidak berdengung)
                 if (s.monitor && hasMusic) {
                     val t = monitorTrack ?: openTrack().also { monitorTrack = it }
-                    t.write(monS, 0, FRAME * 2, if (rec != null) AudioTrack.WRITE_NON_BLOCKING else AudioTrack.WRITE_BLOCKING)
+                    t.write(monS, 0, FRAME * 2, if (mic != null) AudioTrack.WRITE_NON_BLOCKING else AudioTrack.WRITE_BLOCKING)
                 } else if (monitorTrack != null && (!s.monitor || !player.isPlaying)) closeTrack()
 
                 // Encode & kirim
@@ -294,7 +334,7 @@ object Studio {
                 }
 
                 // Jam cadangan saat tidak ada mic & tidak memantau
-                if (rec == null && monitorTrack == null) {
+                if (mic == null && monitorTrack == null) {
                     nextTick += FRAME * 1_000_000_000L / RATE
                     val wait = nextTick - System.nanoTime()
                     if (wait > 0) Thread.sleep(wait / 1_000_000, (wait % 1_000_000).toInt())

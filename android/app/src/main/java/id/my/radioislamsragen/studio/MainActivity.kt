@@ -61,27 +61,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlin.math.sqrt
 
-/** Palet warna; gelap dan terang. */
-data class Pal(
-    val dark: Boolean,
-    val bg: Color, val surface: Color, val line: Color, val text: Color, val sub: Color, val faint: Color,
-    val accent: Color, val accentSoft: Color, val onAccent: Color,
-    val lcd: Color, val lcdLine: Color, val inkHi: Color, val inkDim: Color, val onAir: Color, val wave: Color,
-)
-
-private val Gelap = Pal(
-    true, Color(0xFF111416), Color(0xFF191D20), Color(0xFF262B2F), Color(0xFFE6E9EA), Color(0xFF8E979C), Color(0xFF656E73),
-    Color(0xFF2BB3A8), Color(0xFF15292A), Color(0xFF0B1C1B),
-    Color(0xFF0C2422), Color(0xFF1D3D3A), Color(0xFFC6FFF6), Color(0xFF6FD3C5), Color(0xFFFF6B6F), Color(0xFF3CC4B6),
-)
-private val Terang = Pal(
-    false, Color(0xFFF3F5F5), Color(0xFFFFFFFF), Color(0xFFE2E7E8), Color(0xFF1B2326), Color(0xFF5F6B70), Color(0xFF7D888C),
-    Color(0xFF0F8A81), Color(0xFFE1F3F1), Color(0xFFFFFFFF),
-    Color(0xFFDCEBE6), Color(0xFFBCD3CC), Color(0xFF0E3833), Color(0xFF3F6D66), Color(0xFFC62F35), Color(0xFF16968C),
-)
-private val Red = Color(0xFFE5484D)
-private val LocalPal = staticCompositionLocalOf { Gelap }
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -110,10 +89,18 @@ private fun StudioApp(s: UiState) {
     var settings by rememberSaveable { mutableStateOf(false) }
     var playlist by rememberSaveable { mutableStateOf(false) }
 
+    var pendingRec by remember { mutableStateOf(false) }
     val perm = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { res ->
-        if (res[Manifest.permission.RECORD_AUDIO] == true) Studio.goOnAir()
-        else Studio.msg("Izin mikrofon ditolak. Siaran butuh mikrofon.", true)
+        if (res[Manifest.permission.RECORD_AUDIO] == true) { if (pendingRec) Studio.toggleRec() else Studio.goOnAir() }
+        else Studio.msg("Izin mikrofon ditolak. Siaran dan rekam butuh mikrofon.", true)
     }
+    fun askMic(forRec: Boolean) {
+        pendingRec = forRec
+        val l = mutableListOf(Manifest.permission.RECORD_AUDIO)
+        if (Build.VERSION.SDK_INT >= 33) l += Manifest.permission.POST_NOTIFICATIONS
+        perm.launch(l.toTypedArray())
+    }
+    fun micGranted() = ContextCompat.checkSelfPermission(ctx, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
         val tracks = uris.map { u ->
             try { ctx.contentResolver.takePersistableUriPermission(u, Intent.FLAG_GRANT_READ_URI_PERMISSION) } catch (_: Exception) {}
@@ -145,15 +132,10 @@ private fun StudioApp(s: UiState) {
                     if (s.status == AirStatus.STANDBY) {
                         if (s.config.pass.isBlank()) {
                             Studio.msg("Isi kata sandi server dulu.", true); settings = true
-                        } else if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-                            Studio.goOnAir()
-                        } else {
-                            val l = mutableListOf(Manifest.permission.RECORD_AUDIO)
-                            if (Build.VERSION.SDK_INT >= 33) l += Manifest.permission.POST_NOTIFICATIONS
-                            perm.launch(l.toTypedArray())
-                        }
+                        } else if (micGranted()) Studio.goOnAir() else askMic(false)
                     } else Studio.endAir()
                 },
+                recClick = { if (s.recording || micGranted()) Studio.toggleRec() else askMic(true) },
             )
         }
         if (playlist) PlaylistSheet(s, pick) { playlist = false }
@@ -169,11 +151,9 @@ private fun displayName(ctx: android.content.Context, u: Uri): String {
     return u.lastPathSegment ?: "Audio"
 }
 
-private fun fmt(ms: Long): String { val t = ms / 1000; return "%02d:%02d".format(t / 60, t % 60) }
-private fun clean(name: String) = name.substringBeforeLast('.')
 
 @Composable
-private fun StudioScreen(s: UiState, openSettings: () -> Unit, openPlaylist: () -> Unit, pick: () -> Unit, airClick: () -> Unit) {
+private fun StudioScreen(s: UiState, openSettings: () -> Unit, openPlaylist: () -> Unit, pick: () -> Unit, airClick: () -> Unit, recClick: () -> Unit) {
     val p = LocalPal.current
     Column(Modifier.fillMaxSize().padding(horizontal = 18.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
       Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -181,7 +161,7 @@ private fun StudioScreen(s: UiState, openSettings: () -> Unit, openPlaylist: () 
             Image(painterResource(if (p.dark) R.drawable.logo_gelap else R.drawable.logo_terang), "Logo Rais Streaming", Modifier.size(44.dp))
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
-                Text("Studio RAIS", color = p.text, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                Text("Rais Stream", color = p.text, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
                 Text(s.config.station, color = p.sub, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             HeadBtn(if (p.dark) Icons.Filled.LightMode else Icons.Filled.DarkMode, "Ganti tema") { Studio.setDark(!s.dark) }
@@ -189,31 +169,37 @@ private fun StudioScreen(s: UiState, openSettings: () -> Unit, openPlaylist: () 
             HeadBtn(Icons.Filled.Tune, "Pengaturan", openSettings)
         }
 
-        Lcd(s)
+        val snap by Studio.meters.collectAsStateWithLifecycle()
+        Lcd(s, snap, onMeter = { Studio.cycleMeter() })
         TitleRow(s)
         PlayerCard(s, openPlaylist, pick)
         Faders(s)
       }
 
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.Top) {
             val on = s.micOn
-            Box(
-                Modifier.size(58.dp).clip(CircleShape).background(if (on) p.accentSoft else p.surface)
-                    .border(1.5.dp, if (on) p.accent else p.line, CircleShape).clickable { Studio.toggleMic() },
-                contentAlignment = Alignment.Center,
-            ) { Icon(if (on) Icons.Filled.Mic else Icons.Filled.MicOff, if (on) "Matikan mic" else "Nyalakan mic", tint = if (on) p.accent else p.sub) }
+            RoundKey("Mic", on, p.accent, p.accentSoft, { Studio.toggleMic() }) {
+                Icon(if (on) Icons.Filled.Mic else Icons.Filled.MicOff, if (on) "Matikan mic" else "Nyalakan mic", tint = if (on) p.accent else p.sub)
+            }
+            RoundKey("Rekam", s.recording, RedBtn, p.recBg, recClick) {
+                if (s.recording) Box(Modifier.size(16.dp).clip(RoundedCornerShape(4.dp)).background(RedBtn))
+                else Box(Modifier.size(18.dp).clip(CircleShape).background(RedBtn))
+            }
             val (label, bg, fg) = when (s.status) {
                 AirStatus.STANDBY -> Triple("Mulai Siaran", p.accent, p.onAccent)
                 AirStatus.CONNECTING -> Triple("Batal", Color(0xFFE0A93B), Color(0xFF1B1405))
-                else -> Triple("Akhiri Siaran", Red, Color.White)
+                else -> Triple("Akhiri Siaran", RedBtn, Color.White)
             }
-            Button(onClick = airClick, modifier = Modifier.weight(1f).height(58.dp), shape = RoundedCornerShape(29.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = bg, contentColor = fg)) {
-                Text(label, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+            Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                Button(onClick = airClick, modifier = Modifier.fillMaxWidth().height(56.dp), shape = RoundedCornerShape(28.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = bg, contentColor = fg)) {
+                    Text(label, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                }
+                Text("Siaran", color = p.faint, fontSize = 11.sp, modifier = Modifier.padding(top = 3.dp))
             }
         }
         if (s.message.isNotEmpty()) {
-            Text(s.message, color = if (s.messageError) Red else p.sub, fontSize = 12.sp, maxLines = 2,
+            Text(s.message, color = if (s.messageError) RedBtn else p.sub, fontSize = 12.sp, maxLines = 2,
                 overflow = TextOverflow.Ellipsis, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
         }
     }
@@ -224,64 +210,6 @@ private fun HeadBtn(icon: ImageVector, desc: String, click: () -> Unit) {
     val p = LocalPal.current
     Box(Modifier.size(44.dp).clip(RoundedCornerShape(14.dp)).background(p.surface).clickable(onClick = click), contentAlignment = Alignment.Center) {
         Icon(icon, desc, tint = p.sub, modifier = Modifier.size(20.dp))
-    }
-}
-
-@Composable
-private fun Lcd(s: UiState) {
-    val p = LocalPal.current
-    val now by produceState(System.currentTimeMillis(), s.onAirSince) { while (true) { value = System.currentTimeMillis(); delay(500) } }
-    val secs = if (s.onAirSince > 0) (now - s.onAirSince) / 1000 else 0
-    val (state, stateC) = when (s.status) {
-        AirStatus.STANDBY -> "STANDBY" to p.inkDim
-        AirStatus.CONNECTING -> "MENYAMBUNG" to p.inkHi
-        AirStatus.ON_AIR -> "ON AIR" to p.onAir
-        AirStatus.RECONNECTING -> "TERPUTUS" to p.onAir
-    }
-    val server = when (s.status) {
-        AirStatus.STANDBY -> "SIAGA"
-        AirStatus.CONNECTING -> "MENYAMBUNG"
-        AirStatus.ON_AIR -> "SERVER OK"
-        AirStatus.RECONNECTING -> "ULANG..."
-    }
-    val shape = RoundedCornerShape(18.dp)
-    val mono = FontFamily.Monospace
-    Column(Modifier.fillMaxWidth().clip(shape).background(p.lcd).border(1.dp, p.lcdLine, shape).padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(9.dp).clip(CircleShape).background(stateC))
-            Spacer(Modifier.width(8.dp))
-            Text(state, color = stateC, fontFamily = mono, fontSize = 15.sp, letterSpacing = 2.sp, modifier = Modifier.weight(1f))
-            Text("%02d:%02d:%02d".format(secs / 3600, secs / 60 % 60, secs % 60), color = p.inkHi, fontFamily = mono, fontSize = 28.sp)
-        }
-        Text(s.title.ifBlank { "Belum ada judul" }, color = if (s.title.isBlank()) p.inkDim else p.inkHi, fontFamily = mono,
-            fontSize = 19.sp, lineHeight = 24.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
-        Waveform()
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("${s.listeners ?: "–"} PENDENGAR", color = p.inkDim, fontFamily = mono, fontSize = 13.sp)
-            Text("${s.config.bitrate} KBPS", color = p.inkDim, fontFamily = mono, fontSize = 13.sp)
-            Text(server, color = p.inkDim, fontFamily = mono, fontSize = 13.sp)
-        }
-    }
-}
-
-/** Gelombang suara bergulir seperti WavePad (cermin atas-bawah). */
-@Composable
-private fun Waveform() {
-    val p = LocalPal.current
-    val w by Studio.wave.collectAsStateWithLifecycle()
-    Canvas(Modifier.fillMaxWidth().height(62.dp)) {
-        val mid = size.height / 2
-        drawLine(p.lcdLine, Offset(0f, mid), Offset(size.width, mid), 1.dp.toPx())
-        val n = w.size
-        val step = size.width / n
-        val sw = maxOf(1f, step * 0.7f)
-        for (i in 0 until n) {
-            val a = sqrt(w[i].coerceIn(0f, 1f))
-            val h = maxOf(1f, a * (mid - 2))
-            val x = i * step + step / 2
-            drawLine(p.wave, Offset(x, mid - h), Offset(x, mid + h), sw, StrokeCap.Butt)
-        }
     }
 }
 
@@ -315,7 +243,7 @@ private fun PlayerCard(s: UiState, openPlaylist: () -> Unit, pick: () -> Unit) {
             }
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
-                Text(cur?.let { clean(it.name) } ?: if (s.playlist.isEmpty()) "Belum ada MP3" else "Siap diputar",
+                Text(cur?.let { cleanName(it.name) } ?: if (s.playlist.isEmpty()) "Belum ada MP3" else "Siap diputar",
                     color = p.text, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(
                     if (s.playlist.isEmpty()) "Ketuk + untuk menambah dari HP"
@@ -326,10 +254,10 @@ private fun PlayerCard(s: UiState, openPlaylist: () -> Unit, pick: () -> Unit) {
         }
         val prog = if (s.durMs > 0) (s.posMs.toFloat() / s.durMs).coerceIn(0f, 1f) else 0f
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(fmt(s.posMs), color = p.sub, fontSize = 11.sp, fontFamily = FontFamily.Monospace)
+            Text(fmtMs(s.posMs), color = p.sub, fontSize = 11.sp, fontFamily = FontFamily.Monospace)
             LinearProgressIndicator(progress = { prog }, modifier = Modifier.weight(1f).padding(horizontal = 8.dp).height(4.dp).clip(CircleShape),
                 color = p.accent, trackColor = p.line)
-            Text(fmt(s.durMs), color = p.sub, fontSize = 11.sp, fontFamily = FontFamily.Monospace)
+            Text(fmtMs(s.durMs), color = p.sub, fontSize = 11.sp, fontFamily = FontFamily.Monospace)
         }
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = openPlaylist) { Icon(Icons.AutoMirrored.Filled.QueueMusic, "Daftar putar", tint = p.sub) }
@@ -353,36 +281,11 @@ private fun PlayerCard(s: UiState, openPlaylist: () -> Unit, pick: () -> Unit) {
                 if (i < n) s.playlist[i] else if (s.repeat) s.playlist[i % n] else null
             }
             ups.forEachIndexed { k, t ->
-                Text((if (k == 0) "Berikutnya · " else "") + clean(t.name), color = p.sub, fontSize = 13.sp, maxLines = 1,
+                Text((if (k == 0) "Berikutnya · " else "") + cleanName(t.name), color = p.sub, fontSize = 13.sp, maxLines = 1,
                     overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(vertical = 2.dp))
             }
         }
     }
-}
-
-@Composable
-private fun sliderColors(): SliderColors {
-    val p = LocalPal.current
-    return SliderDefaults.colors(thumbColor = p.accent, activeTrackColor = p.accent, inactiveTrackColor = p.line)
-}
-
-@Composable
-private fun switchColors(): SwitchColors {
-    val p = LocalPal.current
-    return SwitchDefaults.colors(checkedTrackColor = p.accent, checkedThumbColor = Color.White,
-        uncheckedTrackColor = p.line, uncheckedThumbColor = p.sub, uncheckedBorderColor = Color.Transparent)
-}
-
-@Composable
-private fun fieldColors(): TextFieldColors {
-    val p = LocalPal.current
-    return OutlinedTextFieldDefaults.colors(
-        focusedBorderColor = p.accent, unfocusedBorderColor = p.line, cursorColor = p.accent,
-        focusedTextColor = p.text, unfocusedTextColor = p.text,
-        focusedContainerColor = p.surface, unfocusedContainerColor = p.surface,
-        focusedPlaceholderColor = p.faint, unfocusedPlaceholderColor = p.faint,
-        focusedLabelColor = p.accent, unfocusedLabelColor = p.sub,
-    )
 }
 
 @Composable
@@ -441,7 +344,7 @@ private fun PlaylistSheet(s: UiState, pick: () -> Unit, close: () -> Unit) {
                 ) {
                     Box(Modifier.size(6.dp).clip(CircleShape).background(if (on) p.accent else p.line))
                     Spacer(Modifier.width(12.dp))
-                    Text(clean(t.name), color = if (on) p.accent else p.text, fontSize = 14.sp, maxLines = 1,
+                    Text(cleanName(t.name), color = if (on) p.accent else p.text, fontSize = 14.sp, maxLines = 1,
                         overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
                     IconButton(onClick = { Studio.removeTrack(i) }) { Icon(Icons.Filled.Close, "Hapus dari daftar", tint = p.faint, modifier = Modifier.size(18.dp)) }
                 }
@@ -540,6 +443,16 @@ private fun SettingsScreen(s: UiState, onBack: () -> Unit, onSave: (StationConfi
 
         Section("TAMPILAN") {
             ToggleRow("Mode terang", "Tampilan latar terang", !s.dark) { Studio.setDark(!it) }
+            Text("Tampilan meter", color = p.text, fontSize = 14.sp, modifier = Modifier.padding(top = 8.dp))
+            Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                METERS.forEach { m ->
+                    val on = s.meter == m
+                    Box(Modifier.weight(1f).height(36.dp).clip(RoundedCornerShape(10.dp)).background(if (on) p.accentSoft else p.bg)
+                        .clickable { Studio.setMeter(m) }, contentAlignment = Alignment.Center) {
+                        Text(mapOf("analog" to "Analog", "led" to "LED", "gelombang" to "Gelombang", "spektrum" to "Spektrum")[m] ?: m, color = if (on) p.accent else p.sub, fontSize = 12.sp)
+                    }
+                }
+            }
         }
 
         Button(
@@ -551,7 +464,7 @@ private fun SettingsScreen(s: UiState, onBack: () -> Unit, onSave: (StationConfi
             modifier = Modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(26.dp),
             colors = ButtonDefaults.buttonColors(containerColor = p.accent, contentColor = p.onAccent),
         ) { Text("Simpan", fontWeight = FontWeight.SemiBold) }
-        Text("Data server hanya tersimpan di HP ini.", color = p.faint, fontSize = 12.sp, modifier = Modifier.padding(bottom = 16.dp))
+        Text("Data server hanya tersimpan di HP ini. Rekaman tersimpan di folder Musik/RaisStream.", color = p.faint, fontSize = 12.sp, modifier = Modifier.padding(bottom = 16.dp))
     }
 }
 

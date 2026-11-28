@@ -25,14 +25,15 @@ class StudioService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val air = intent?.getBooleanExtra("air", false) ?: false
+        val text = intent?.getStringExtra("text") ?: "Rais Stream"
         val nm = getSystemService(NotificationManager::class.java)
         nm.createNotificationChannel(NotificationChannel(CH, "Siaran", NotificationManager.IMPORTANCE_LOW))
         val pi = PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), PendingIntent.FLAG_IMMUTABLE)
         val n = NotificationCompat.Builder(this, CH)
             .setSmallIcon(R.drawable.ic_stat)
-            .setContentTitle(if (air) "ON AIR · Radio Islam Sragen" else "Studio RAIS")
-            .setContentText(if (air) "Siaran langsung sedang berjalan" else "Memutar daftar putar")
+            .setContentTitle("Rais Stream")
+            .setContentText(text)
             .setOngoing(true)
             .setContentIntent(pi)
             .build()
@@ -66,8 +67,8 @@ class StudioService : Service() {
 
     companion object {
         private const val CH = "siaran"
-        fun sync(ctx: Context, need: Boolean, air: Boolean) {
-            val i = Intent(ctx, StudioService::class.java).putExtra("air", air)
+        fun sync(ctx: Context, need: Boolean, air: Boolean, text: String) {
+            val i = Intent(ctx, StudioService::class.java).putExtra("air", air).putExtra("text", text)
             try {
                 if (need) ContextCompat.startForegroundService(ctx, i) else ctx.stopService(i)
             } catch (_: Exception) {}

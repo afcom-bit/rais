@@ -1,7 +1,5 @@
 package id.my.radioislamsragen.studio
 
-import android.util.Base64
-import org.json.JSONObject
 import java.io.BufferedOutputStream
 import java.io.IOException
 import java.net.HttpURLConnection
@@ -20,6 +18,10 @@ class Upstream(val socket: Socket, val mode: String, val port: Int, val mount: S
 /** Sambungan sumber ke Shoutcast/Icecast, urutannya sama seperti plugin DSP Winamp. */
 object Caster {
     private const val TIMEOUT = 6500
+
+    private fun b64(s: String): String = java.util.Base64.getEncoder().encodeToString(s.toByteArray())
+    private fun scType(c: StationConfig) = if (c.codec == "mp3") "audio/mpeg" else "audio/aacp"
+    private fun iceType(c: StationConfig) = if (c.codec == "mp3") "audio/mpeg" else "audio/aac"
 
     private fun open(host: String, port: Int): Socket {
         val s = Socket()
@@ -64,7 +66,7 @@ object Caster {
                 low.contains("already in use") -> throw ConnErr("Slot siaran sedang dipakai.", "busy")
                 line.startsWith("OK") -> {
                     val h = listOf(
-                        "content-type:audio/aacp",
+                        "content-type:${scType(c)}",
                         "icy-name:${c.station}",
                         "icy-genre:${c.genre}",
                         "icy-url:https://www.radioislamsragen.my.id",
@@ -87,13 +89,13 @@ object Caster {
     private fun tryIcecast(c: StationConfig, port: Int, user: String, mount: String): Upstream {
         val s = open(c.host, port)
         try {
-            val auth = Base64.encodeToString("$user:${c.pass}".toByteArray(), Base64.NO_WRAP)
+            val auth = b64("$user:${c.pass}")
             val req = listOf(
                 "SOURCE $mount HTTP/1.0",
                 "Host: ${c.host}:$port",
                 "Authorization: Basic $auth",
-                "User-Agent: StudioRAIS/1.0",
-                "Content-Type: audio/aac",
+                "User-Agent: RaisStream/1.0",
+                "Content-Type: ${iceType(c)}",
                 "ice-name: ${c.station}",
                 "ice-genre: ${c.genre}",
                 "ice-public: 1",
@@ -176,8 +178,8 @@ object Caster {
             try {
                 val con = URL("http://${c.host}:${c.port}$path").openConnection() as HttpURLConnection
                 con.connectTimeout = 5000; con.readTimeout = 5000
-                con.setRequestProperty("User-Agent", "Mozilla/5.0 StudioRAIS/1.0")
-                con.setRequestProperty("Authorization", "Basic " + Base64.encodeToString(auth.toByteArray(), Base64.NO_WRAP))
+                con.setRequestProperty("User-Agent", "Mozilla/5.0 RaisStream/1.0")
+                con.setRequestProperty("Authorization", "Basic " + b64(auth))
                 val code = con.responseCode
                 con.disconnect()
                 if (code in 200..399) return true
@@ -189,14 +191,12 @@ object Caster {
     /** Jumlah pendengar saat ini (null bila tidak terbaca). */
     fun listeners(c: StationConfig): Int? {
         try {
-            val j = JSONObject(httpGet("http://${c.host}:${c.port}/stats?sid=1&json=1"))
-            if (j.has("currentlisteners")) return j.getInt("currentlisteners")
+            val m = Regex("\"currentlisteners\"\\s*:\\s*(\\d+)").find(httpGet("http://${c.host}:${c.port}/stats?sid=1&json=1"))
+            if (m != null) return m.groupValues[1].toInt()
         } catch (_: Exception) {}
         try {
-            val ice = JSONObject(httpGet("http://${c.host}:${c.port}/status-json.xsl")).getJSONObject("icestats")
-            val src = ice.opt("source")
-            if (src is JSONObject) return src.optInt("listeners")
-            if (src is org.json.JSONArray) return (0 until src.length()).sumOf { src.getJSONObject(it).optInt("listeners") }
+            val all = Regex("\"listeners\"\\s*:\\s*(\\d+)").findAll(httpGet("http://${c.host}:${c.port}/status-json.xsl")).toList()
+            if (all.isNotEmpty()) return all.sumOf { it.groupValues[1].toInt() }
         } catch (_: Exception) {}
         return null
     }
@@ -204,7 +204,7 @@ object Caster {
     private fun httpGet(url: String): String {
         val con = URL(url).openConnection() as HttpURLConnection
         con.connectTimeout = 6000; con.readTimeout = 6000
-        con.setRequestProperty("User-Agent", "Mozilla/5.0 StudioRAIS/1.0")
+        con.setRequestProperty("User-Agent", "Mozilla/5.0 RaisStream/1.0")
         return try { con.inputStream.bufferedReader().readText() } finally { con.disconnect() }
     }
 }

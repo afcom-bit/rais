@@ -47,6 +47,9 @@ android {
     }
     kotlinOptions { jvmTarget = "17" }
     buildFeatures { compose = true }
+    sourceSets {
+        getByName("main") { java.srcDirs("src/main/java", "../../shared/src") }
+    }
     lint {
         checkReleaseBuilds = false
         abortOnError = false
