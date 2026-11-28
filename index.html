@@ -2630,6 +2630,8 @@ if (!SEMATAN && 'serviceWorker' in navigator && location.protocol !== 'file:') {
 
 /* ---------- Judul yang sedang diputar ---------- */
 let songTitle = '', npSource = -1, npTimer = 0;
+/* Mode sematan: kirim judul & jumlah pendengar ke halaman induk (kartu radio Sikas) */
+let laporInfo = () => {};
 
 function decodeHtml(t) { const el = document.createElement('textarea'); el.innerHTML = t; return el.value; }
 
@@ -2760,6 +2762,7 @@ function showNowPlaying(np) {
   lastCount = np && np.count !== null ? np.count : null;
   lastKbps = np && np.kbps !== null ? np.kbps : null;
   syncHeaderSlot();
+  laporInfo(title, lastCount);
   $('now').hidden = !title;
   if (title === songTitle) return;
   songTitle = title;
@@ -3128,9 +3131,19 @@ function judulMini() {
 if (SEMATAN) {
   const kirim = data => { try { parent.postMessage(Object.assign({ sumber: 'rais' }, data), '*'); } catch {} };
   lapor = s => kirim({ jenis: 'status', status: s });
+  laporInfo = (judul, pendengar) => kirim({ jenis: 'info', judul: judul || '', pendengar: pendengar ?? null });
   addEventListener('message', e => {
     const d = e.data;
-    if (e.source !== parent || !d || d.sumber !== 'pdq-radio' || d.jenis !== 'atur') return;
+    if (e.source !== parent || !d || d.sumber !== 'pdq-radio') return;
+    /* Kendali dari kartu radio induk: putar / hentikan */
+    if (d.jenis === 'kendali') {
+      if (d.aksi === 'alih') { if (wanted) stop(); else start(); }
+      else if (d.aksi === 'putar' && !wanted) start();
+      else if (d.aksi === 'henti' && wanted) stop();
+      return;
+    }
+    if (d.jenis === 'minta-info') { laporInfo(songTitle, lastCount); return; }
+    if (d.jenis !== 'atur') return;
     const root = document.documentElement;
     if (d.ukuran === 'mini' || d.ukuran === 'besar') root.dataset.ukuran = d.ukuran;
     if (d.tema === 'terang' || d.tema === 'gelap') root.dataset.tema = d.tema;
