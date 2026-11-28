@@ -1,11 +1,11 @@
-name: APK Studio RAIS
+name: APK Rais Stream
 
 on:
   push:
     branches: [main]
-    paths: ['android/**', '.github/workflows/android.yml']
+    paths: ['android/**', 'shared/**', '.github/workflows/android.yml']
   pull_request:
-    paths: ['android/**', '.github/workflows/android.yml']
+    paths: ['android/**', 'shared/**', '.github/workflows/android.yml']
   workflow_dispatch:
 
 permissions:
@@ -47,20 +47,20 @@ jobs:
         run: gradle assembleRelease --no-daemon --stacktrace
 
       - name: Kumpulkan APK
-        run: cp android/app/build/outputs/apk/release/app-release.apk StudioRAIS.apk
+        run: cp android/app/build/outputs/apk/release/app-release.apk RaisStream.apk
 
       - uses: actions/upload-artifact@v4
         with:
-          name: StudioRAIS
-          path: StudioRAIS.apk
+          name: RaisStream-APK
+          path: RaisStream.apk
 
       - name: Terbitkan rilis
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release delete studio-terbaru -y --cleanup-tag || true
-          gh release create studio-terbaru StudioRAIS.apk \
-            --title "Studio RAIS – APK terbaru (versi 1.0.${{ github.run_number }})" \
-            --notes "Unduh StudioRAIS.apk lalu pasang di HP Android (izinkan pemasangan dari sumber ini bila diminta)." \
+          gh release delete rais-stream-android -y --cleanup-tag || true
+          gh release create rais-stream-android RaisStream.apk \
+            --title "Rais Stream untuk Android (versi 1.0.${{ github.run_number }})" \
+            --notes "Unduh RaisStream.apk lalu pasang di HP Android (izinkan pemasangan dari sumber ini bila diminta)." \
             --latest=false

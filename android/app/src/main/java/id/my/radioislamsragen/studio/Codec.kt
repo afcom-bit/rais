@@ -225,3 +225,42 @@ class AacEncoder(bitrateK: Int, val channels: Int) {
         try { codec.release() } catch (_: Exception) {}
     }
 }
+
+/** Menyimpan rekaman (AAC/ADTS 128 kbps stereo) ke folder Musik/RaisStream. */
+class RecWriter(ctx: android.content.Context) {
+    val name: String = "RaisStream_" + java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", java.util.Locale.US).format(java.util.Date()) + ".aac"
+    private val resolver = ctx.contentResolver
+    private var uri: Uri? = null
+    private val out: java.io.OutputStream
+    private val enc = AacEncoder(128, 2)
+
+    init {
+        if (Build.VERSION.SDK_INT >= 29) {
+            val v = android.content.ContentValues().apply {
+                put(android.provider.MediaStore.Audio.Media.DISPLAY_NAME, name)
+                put(android.provider.MediaStore.Audio.Media.MIME_TYPE, "audio/aac")
+                put(android.provider.MediaStore.Audio.Media.RELATIVE_PATH, android.os.Environment.DIRECTORY_MUSIC + "/RaisStream")
+                put(android.provider.MediaStore.Audio.Media.IS_PENDING, 1)
+            }
+            val u = resolver.insert(android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, v)
+                ?: throw IOException("Tidak bisa membuat file rekaman")
+            uri = u
+            out = java.io.BufferedOutputStream(resolver.openOutputStream(u) ?: throw IOException("Tidak bisa menulis rekaman"), 65536)
+        } else {
+            val dir = java.io.File(ctx.getExternalFilesDir(android.os.Environment.DIRECTORY_MUSIC), "RaisStream").apply { mkdirs() }
+            out = java.io.BufferedOutputStream(java.io.FileOutputStream(java.io.File(dir, name)), 65536)
+        }
+    }
+
+    fun write(pcmStereo: ShortArray, count: Int) = enc.encode(pcmStereo, count) { out.write(it) }
+
+    fun close() {
+        try { out.flush(); out.close() } catch (_: Exception) {}
+        enc.release()
+        uri?.let {
+            try {
+                resolver.update(it, android.content.ContentValues().apply { put(android.provider.MediaStore.Audio.Media.IS_PENDING, 0) }, null, null)
+            } catch (_: Exception) {}
+        }
+    }
+}
