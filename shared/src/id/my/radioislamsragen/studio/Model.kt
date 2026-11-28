@@ -46,7 +46,13 @@ data class UiState(
     val recording: Boolean = false,
     val recSince: Long = 0L,
     val recFile: String = "",
+    val lastRecPath: String = "",
+    val askRecName: Boolean = false,
     val title: String = "",
     val config: StationConfig = StationConfig(),
 )
 
+
+/** Nama rekaman otomatis, mis. RAIS-261128-06.03PM (tahun, bulan, tanggal, jam 12). */
+fun recBaseName(d: java.util.Date = java.util.Date()): String =
+    "RAIS-" + java.text.SimpleDateFormat("yyMMdd-hh.mma", java.util.Locale.US).format(d)

@@ -88,6 +88,7 @@ private fun App(s: UiState, owner: Frame?) {
     }
 
     Box(Modifier.fillMaxSize().background(p.bg)) {
+        if (s.askRecName) RenameDialog(s)
         if (settings) SettingsScreen(s, onBack = { settings = false }, onSave = { Studio.saveConfig(it); settings = false })
         else Row(Modifier.fillMaxSize().padding(20.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
             // Kolom kiri: LCD dan kendali siaran
@@ -134,8 +135,13 @@ private fun App(s: UiState, owner: Frame?) {
                         Text("Siaran", color = p.faint, fontSize = 11.sp, modifier = Modifier.padding(top = 3.dp))
                     }
                 }
-                Text(s.message, color = if (s.messageError) RedBtn else p.sub, fontSize = 12.sp, maxLines = 1,
-                    overflow = TextOverflow.Ellipsis, modifier = Modifier.fillMaxWidth().height(16.dp))
+                Row(Modifier.fillMaxWidth().height(32.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text(s.message, color = if (s.messageError) RedBtn else p.sub, fontSize = 12.sp, maxLines = 1,
+                        overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                    if (!s.recording && s.lastRecPath.isNotEmpty()) {
+                        TextButton(onClick = { Studio.openRecFolder() }) { Text("Buka folder", color = p.accent, fontSize = 12.sp) }
+                    }
+                }
             }
             // Kolom kanan: pemutar dan daftar putar
             Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -401,9 +407,16 @@ private fun SettingsScreen(s: UiState, onBack: () -> Unit, onSave: (StationConfi
                     Slider(xf, { xf = it }, valueRange = 0f..10f, steps = 9, colors = sliderColors())
                     ToggleRow("Judul otomatis", "Nama file jadi judul di pendengar", s.autoTitle, Studio::setAutoTitle)
                 }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Rekaman tersimpan di folder Musik\\RaisStream (MP3).", color = p.faint, fontSize = 12.sp, modifier = Modifier.weight(1f))
-                    TextButton(onClick = { Studio.openRecFolder() }) { Text("Buka folder rekaman", color = p.accent) }
+                Section("REKAMAN") {
+                    val dir by Studio.recDir.collectAsState()
+                    val auto by Studio.autoRecName.collectAsState()
+                    Text("Folder simpan", color = p.text, fontSize = 14.sp, modifier = Modifier.padding(top = 6.dp))
+                    Text(dir, color = p.sub, fontSize = 12.sp)
+                    Row {
+                        TextButton(onClick = { Studio.chooseRecDir() }) { Text("Pilih folder…", color = p.accent) }
+                        TextButton(onClick = { Studio.openRecFolder() }) { Text("Buka folder", color = p.accent) }
+                    }
+                    ToggleRow("Nama otomatis", "Contoh: ${recBaseName()}.mp3 · bila mati, nama diketik setelah rekam selesai", auto, Studio::setAutoRecName)
                 }
             }
         }
@@ -414,4 +427,25 @@ private fun SettingsScreen(s: UiState, onBack: () -> Unit, onSave: (StationConfi
 private fun Field(label: String, value: String, type: KeyboardType = KeyboardType.Text, change: (String) -> Unit) {
     OutlinedTextField(value = value, onValueChange = change, label = { Text(label) }, singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = type), modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), colors = fieldColors())
+}
+
+@Composable
+private fun RenameDialog(s: UiState) {
+    val p = LocalPal.current
+    var name by remember(s.lastRecPath) { mutableStateOf(java.io.File(s.lastRecPath).nameWithoutExtension) }
+    AlertDialog(
+        onDismissRequest = { Studio.keepRecName() },
+        containerColor = p.surface,
+        title = { Text("Simpan rekaman", color = p.text) },
+        text = {
+            Column {
+                Text("Ketik nama file rekaman:", color = p.sub, fontSize = 13.sp)
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(value = name, onValueChange = { name = it }, singleLine = true, colors = fieldColors(),
+                    suffix = { Text(".mp3", color = p.faint) })
+            }
+        },
+        confirmButton = { TextButton(onClick = { Studio.renameLastRec(name) }) { Text("Simpan", color = p.accent) } },
+        dismissButton = { TextButton(onClick = { Studio.keepRecName() }) { Text("Pakai nama otomatis", color = p.sub) } },
+    )
 }
