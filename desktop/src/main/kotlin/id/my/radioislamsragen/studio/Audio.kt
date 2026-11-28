@@ -117,7 +117,7 @@ class MpDeck(path: String) {
 /** Encoder MP3 (LAME versi Java). */
 class Mp3Encoder(bitrate: Int, val channels: Int) {
     private val enc = LameEncoder(AudioFormat(RATE.toFloat(), 16, channels, true, false), bitrate,
-        if (channels == 1) MPEGMode.MONO else MPEGMode.STEREO, 5, false)
+        (if (channels == 1) MPEGMode.MONO else MPEGMode.STEREO).ordinal, 5, false)
     private val chunk = enc.getPCMBufferSize()
     private val outBuf = ByteArray(chunk * 2 + 8192)
     private var bytes = ByteArray(0)
