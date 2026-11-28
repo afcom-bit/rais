@@ -1,0 +1,81 @@
+name: Windows Rais Stream Ringan (32-bit)
+
+on:
+  push:
+    branches: [main]
+    paths: ['desktop-lite/**', 'shared/**', '.github/workflows/windows-ringan.yml']
+  pull_request:
+    paths: ['desktop-lite/**', 'shared/**', '.github/workflows/windows-ringan.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Java 17 (32-bit)
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: '17'
+          architecture: x86
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
+      - name: Build aplikasi
+        working-directory: desktop-lite
+        run: gradle installDist --no-daemon --stacktrace
+
+      - name: Siapkan WiX
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri https://github.com/wixtoolset/wix3/releases/download/wix3141rtm/wix314-binaries.zip -OutFile wix.zip
+          Expand-Archive wix.zip -DestinationPath "$env:RUNNER_TEMP\wix"
+          "$env:RUNNER_TEMP\wix" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Paket installer & portable
+        shell: pwsh
+        env:
+          VER: 1.0.${{ github.run_number }}
+        run: |
+          $lib = "desktop-lite/build/install/RaisStreamRingan/lib"
+          $jar = (Get-ChildItem $lib -Filter "desktop-lite*.jar" | Select-Object -First 1).Name
+          $common = @(
+            '--input', $lib, '--main-jar', $jar, '--main-class', 'id.my.radioislamsragen.studio.LiteUiKt',
+            '--name', 'Rais Stream Ringan', '--app-version', $env:VER, '--vendor', 'Radio Islam Sragen',
+            '--description', 'Studio siaran Radio Islam Sragen (versi ringan)',
+            '--icon', 'desktop-lite/icon.ico',
+            '--add-modules', 'java.base,java.desktop,java.prefs,java.logging',
+            '--java-options', '-Xmx256m', '--java-options', '-XX:+UseSerialGC', '--java-options', '-Dsun.java2d.d3d=false'
+          )
+          jpackage @common --type app-image --dest out-img
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          Compress-Archive -Path "out-img/Rais Stream Ringan" -DestinationPath RaisStreamRingan-Portable.zip
+          jpackage @common --type msi --dest out-msi --win-menu --win-menu-group 'Rais Stream' --win-shortcut --win-per-user-install --win-dir-chooser --win-upgrade-uuid 'd3a9b7c1-6e42-4f8a-9b25-7c1e0f4a8d61'
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          Copy-Item (Get-ChildItem out-msi/*.msi | Select-Object -First 1).FullName RaisStreamRingan-Setup.msi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RaisStreamRingan
+          path: |
+            RaisStreamRingan-Setup.msi
+            RaisStreamRingan-Portable.zip
+
+      - name: Terbitkan rilis
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete rais-stream-windows-ringan -y --cleanup-tag || true
+          gh release create rais-stream-windows-ringan RaisStreamRingan-Setup.msi RaisStreamRingan-Portable.zip \
+            --title "Rais Stream Ringan untuk Windows 32/64-bit (versi 1.0.${{ github.run_number }})" \
+            --notes "Untuk PC lama / RAM 2 GB / Windows 7, 32-bit maupun 64-bit. RaisStreamRingan-Setup.msi: installer. RaisStreamRingan-Portable.zip: tanpa instal, ekstrak lalu jalankan Rais Stream Ringan.exe." \
+            --latest=false
