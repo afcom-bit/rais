@@ -162,7 +162,6 @@ private fun StudioScreen(s: UiState, openSettings: () -> Unit, openPlaylist: () 
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
                 Text("Rais Stream", color = p.text, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-                Text(s.config.station, color = p.sub, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             HeadBtn(if (p.dark) Icons.Filled.LightMode else Icons.Filled.DarkMode, "Ganti tema") { Studio.setDark(!s.dark) }
             Spacer(Modifier.width(8.dp))
@@ -378,9 +377,6 @@ private fun ToggleRow(title: String, desc: String, v: Boolean, set: (Boolean) ->
 private fun SettingsScreen(s: UiState, onBack: () -> Unit, onSave: (StationConfig) -> Unit) {
     val p = LocalPal.current
     val cfg = s.config
-    var host by remember { mutableStateOf(cfg.host) }
-    var port by remember { mutableStateOf(cfg.port.toString()) }
-    var user by remember { mutableStateOf(cfg.user) }
     var pass by remember { mutableStateOf(cfg.pass) }
     var showPass by remember { mutableStateOf(false) }
     var station by remember { mutableStateOf(cfg.station) }
@@ -397,9 +393,6 @@ private fun SettingsScreen(s: UiState, onBack: () -> Unit, onSave: (StationConfi
 
         Section("SERVER") {
             Spacer(Modifier.height(6.dp))
-            Field("Address", host) { host = it.trim() }
-            Field("Port", port, KeyboardType.Number) { port = it.filter(Char::isDigit).take(5) }
-            Field("User", user) { user = it.trim() }
             OutlinedTextField(
                 value = pass, onValueChange = { pass = it }, label = { Text("Pass") }, singleLine = true,
                 visualTransformation = if (showPass) VisualTransformation.None else PasswordVisualTransformation(),
@@ -457,8 +450,7 @@ private fun SettingsScreen(s: UiState, onBack: () -> Unit, onSave: (StationConfi
 
         Button(
             onClick = {
-                onSave(cfg.copy(host = host.ifBlank { cfg.host }, port = port.toIntOrNull()?.coerceIn(1, 65534) ?: cfg.port,
-                    user = user, pass = pass, station = station.ifBlank { cfg.station }, bitrate = bitrate,
+                onSave(cfg.copy(pass = pass, station = station.ifBlank { cfg.station }, bitrate = bitrate,
                     crossfadeSec = xf.toInt(), micBoost = boost))
             },
             modifier = Modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(26.dp),

@@ -31,6 +31,8 @@ object Studio {
     val outputs = MutableStateFlow<List<String>>(emptyList())
     val micDevice = MutableStateFlow("")
     val outDevice = MutableStateFlow("")
+    val recDir = MutableStateFlow("")
+    val autoRecName = MutableStateFlow(true)
 
     private val cmds = ConcurrentLinkedQueue<() -> Unit>()
     private lateinit var player: Player
@@ -42,6 +44,7 @@ object Studio {
     @Volatile private var recActive = false
     private var recEnc: Mp3Encoder? = null
     private var recOut: OutputStream? = null
+    private var recPath = ""
     @Volatile private var running = true
 
     private fun pb(k: String, d: Boolean) = prefs.getBoolean(k, d)
@@ -51,7 +54,7 @@ object Studio {
     fun init() {
         val d = StationConfig()
         val cfg = StationConfig(
-            host = ps("host", d.host), port = prefs.getInt("port", d.port), user = ps("user", d.user), pass = ps("pass", ""),
+            host = d.host, port = d.port, user = d.user, pass = ps("pass", ""),
             station = ps("station", d.station), genre = d.genre, bitrate = prefs.getInt("bitrate", 64),
             crossfadeSec = prefs.getInt("crossfade", d.crossfadeSec), micBoost = pf("micBoost", 1.0f), codec = "mp3",
         )
@@ -64,6 +67,8 @@ object Studio {
         )
         micDevice.value = ps("micDevice", "")
         outDevice.value = ps("outDevice", "")
+        recDir.value = ps("recDir", defaultRecDir().absolutePath)
+        autoRecName.value = pb("autoRecName", true)
         refreshDevices()
         player = Player()
         thread(name = "rais-engine", isDaemon = true, priority = Thread.MAX_PRIORITY) { engine() }
@@ -73,6 +78,49 @@ object Studio {
         inputs.value = try { Devices.inputs() } catch (_: Exception) { emptyList() }
         outputs.value = try { Devices.outputs() } catch (_: Exception) { emptyList() }
     }
+
+    /** Folder Dokumen asli Windows (ikut OneDrive bila dialihkan) + RaisStream. */
+    private fun defaultRecDir(): File {
+        val docs = try { javax.swing.filechooser.FileSystemView.getFileSystemView().defaultDirectory } catch (_: Exception) { null }
+            ?: File(System.getProperty("user.home"), "Documents")
+        return File(docs, "RaisStream")
+    }
+
+    fun setAutoRecName(v: Boolean) { autoRecName.value = v; prefs.putBoolean("autoRecName", v) }
+
+    fun chooseRecDir() {
+        val fc = javax.swing.JFileChooser(File(recDir.value).let { if (it.exists()) it else it.parentFile })
+        fc.fileSelectionMode = javax.swing.JFileChooser.DIRECTORIES_ONLY
+        fc.dialogTitle = "Pilih folder simpan rekaman"
+        if (fc.showOpenDialog(null) == javax.swing.JFileChooser.APPROVE_OPTION) {
+            val d = fc.selectedFile.absolutePath
+            recDir.value = d; prefs.put("recDir", d)
+            msg("Folder rekaman: $d")
+        }
+    }
+
+    fun openRecFolder() {
+        val dir = File(recDir.value).apply { mkdirs() }
+        try { java.awt.Desktop.getDesktop().open(dir) } catch (e: Exception) { msg("Folder rekaman: ${dir.absolutePath}") }
+    }
+
+    private fun uniqueFile(dir: File, base: String): File {
+        var f = File(dir, "$base.mp3"); var n = 2
+        while (f.exists()) { f = File(dir, "$base-$n.mp3"); n++ }
+        return f
+    }
+
+    /** Mengganti nama rekaman terakhir (bila nama otomatis dimatikan). */
+    fun renameLastRec(name: String) {
+        val old = File(ui.value.lastRecPath)
+        val clean = name.trim().removeSuffix(".mp3").replace(Regex("[\\\\/:*?\"<>|]"), "-")
+        if (clean.isEmpty() || !old.exists()) { update { it.copy(askRecName = false) }; return }
+        val target = uniqueFile(old.parentFile, clean)
+        if (old.renameTo(target)) update { it.copy(askRecName = false, lastRecPath = target.absolutePath, message = "Tersimpan: ${target.name}", messageError = false) }
+        else update { it.copy(askRecName = false, message = "Nama gagal diganti, tetap: ${old.name}", messageError = true) }
+    }
+
+    fun keepRecName() = update { it.copy(askRecName = false) }
 
     fun shutdown() {
         post { stopRec(null); stopAir("Siaran diakhiri.", false) }
@@ -103,7 +151,7 @@ object Studio {
     fun setOutDevice(n: String) { outDevice.value = n; prefs.put("outDevice", n); post { closeSpeaker() } }
 
     fun saveConfig(c: StationConfig) {
-        prefs.put("host", c.host); prefs.putInt("port", c.port); prefs.put("user", c.user); prefs.put("pass", c.pass)
+        prefs.put("pass", c.pass)
         prefs.put("station", c.station); prefs.putInt("bitrate", c.bitrate); prefs.putInt("crossfade", c.crossfadeSec); prefs.putFloat("micBoost", c.micBoost)
         update { it.copy(config = c) }
         msg(if (airActive) "Pengaturan disimpan. Berlaku saat siaran berikutnya." else "Pengaturan disimpan.")
@@ -181,10 +229,12 @@ object Studio {
     private fun startRec() {
         if (recActive) return
         if (!ensureMic(true)) { msg("Mikrofon / line-in tidak bisa dibuka.", true); return }
-        val dir = File(System.getProperty("user.home"), "Music" + File.separator + "RaisStream").apply { mkdirs() }
-        val name = "RaisStream_" + SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US).format(Date()) + ".mp3"
+        val dir = File(recDir.value).apply { mkdirs() }
+        val file = uniqueFile(dir, recBaseName())
+        val name = file.name
+        recPath = file.absolutePath
         try {
-            recOut = BufferedOutputStream(FileOutputStream(File(dir, name)), 65536)
+            recOut = BufferedOutputStream(FileOutputStream(file), 65536)
             recEnc = Mp3Encoder(128, 2)
         } catch (e: Exception) {
             ensureMic(airActive); msg("Rekaman gagal dibuat: ${e.message}", true); return
@@ -202,7 +252,9 @@ object Studio {
         recEnc = null; recOut = null
         ensureMic(airActive)
         val name = ui.value.recFile
-        update { it.copy(recording = false, recSince = 0, message = error ?: "Rekaman disimpan di Musik\\RaisStream: $name", messageError = error != null) }
+        val ask = error == null && !autoRecName.value
+        update { it.copy(recording = false, recSince = 0, lastRecPath = recPath, askRecName = ask,
+            message = error ?: "Tersimpan: $name", messageError = error != null) }
     }
 
     private fun engine() {

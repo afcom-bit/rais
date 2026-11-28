@@ -228,7 +228,7 @@ class AacEncoder(bitrateK: Int, val channels: Int) {
 
 /** Menyimpan rekaman (AAC/ADTS 128 kbps stereo) ke folder Musik/RaisStream. */
 class RecWriter(ctx: android.content.Context) {
-    val name: String = "RaisStream_" + java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", java.util.Locale.US).format(java.util.Date()) + ".aac"
+    val name: String = recBaseName() + ".aac"
     private val resolver = ctx.contentResolver
     private var uri: Uri? = null
     private val out: java.io.OutputStream

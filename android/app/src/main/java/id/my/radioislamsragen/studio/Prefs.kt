@@ -10,9 +10,6 @@ class Prefs(ctx: Context) {
     fun loadConfig(): StationConfig {
         val d = StationConfig()
         return StationConfig(
-            host = sp.getString("host", d.host) ?: d.host,
-            port = sp.getInt("port", d.port),
-            user = sp.getString("user", d.user) ?: d.user,
             pass = sp.getString("pass", d.pass) ?: "",
             station = sp.getString("station", d.station) ?: d.station,
             genre = sp.getString("genre", d.genre) ?: d.genre,
@@ -24,7 +21,6 @@ class Prefs(ctx: Context) {
 
     fun saveConfig(c: StationConfig) {
         sp.edit()
-            .putString("host", c.host).putInt("port", c.port).putString("user", c.user)
             .putString("pass", c.pass).putString("station", c.station).putString("genre", c.genre)
             .putInt("bitrate", c.bitrate).putInt("crossfade", c.crossfadeSec).putFloat("micBoost", c.micBoost)
             .apply()
