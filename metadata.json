@@ -1,5 +1,5 @@
 {
   "name": "Radio Islam Sragen",
   "description": "Lantunan murattal dan kajian Islam ilmiah 24 jam nonstop.",
-  "requestFramePermissions": ["microphone"]
+  "requestFramePermissions": []
 }

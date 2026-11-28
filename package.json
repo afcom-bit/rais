@@ -10,8 +10,6 @@
     "lint": "node --check server.js"
   },
   "dependencies": {
-    "express": "^4.21.2",
-    "qrcode": "^1.5.4",
-    "ws": "^8.23.0"
+    "express": "^4.21.2"
   }
 }
